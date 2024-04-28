@@ -4,8 +4,9 @@ import BgColorAnimation from '../../animation/BgColorAnimation';
 import StudentModal from './modal/StudentModal';
 import TeacherModal from './modal/TeacherModal';
 import AdminModal from './modal/AdminModal';
-import { FaGoogle, FaMicrosoft } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { FiGithub } from "react-icons/fi";
+import { CgLogIn } from "react-icons/cg";
 
 const LandingPage = () => {
     return (
@@ -39,16 +40,16 @@ const LandingPage = () => {
                                 </div>
                                 
                                 <div className=' flex flex-wrap items-center gap-x-3 text-slate-200 bg-slate-800 rounded-md py-2 pl-3 text-lg font-onest '>
-                                    <FaMicrosoft/>
-                                    <span>
-                                        Sign up with Microsoft
-                                    </span>
-                                </div>
-                                
-                                <div className=' flex flex-wrap items-center gap-x-3 text-slate-200 bg-slate-800 rounded-md py-2 pl-3 text-lg font-onest '>
                                     <FiGithub className=' text-xl'/>
                                     <span>
                                         Sign up with Github
+                                    </span>
+                                </div>
+
+                                <div className=' flex flex-wrap items-center gap-x-3 text-slate-200 bg-slate-800 rounded-md py-2 pl-2 text-lg font-onest '>
+                                    <CgLogIn className=' text-2xl'/>
+                                    <span>
+                                        Sign up Manually
                                     </span>
                                 </div>
                             </div>
