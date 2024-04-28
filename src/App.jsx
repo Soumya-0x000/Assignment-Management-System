@@ -1,12 +1,12 @@
 import React from 'react'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import HomePage from './components/home/HomePage'
+import LandingPage from './components/landingPage/LandingPage';
 
 const App = () => {
     const router = createBrowserRouter([
         {
           path: "/",
-          element: <HomePage/>,
+          element: <LandingPage/>,
         },
     ]);
     return (
@@ -16,4 +16,4 @@ const App = () => {
     )
 }
 
-export default App
+export default App;
