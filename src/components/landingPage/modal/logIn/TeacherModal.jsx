@@ -11,16 +11,17 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import { LockIcon } from "../icons/LockIcon";
+import { MailIcon } from "../../icons/MailIcon";
+import { LockIcon } from "../../icons/LockIcon";
 
 
-export default function StudentModal({ name }) {
+export default function TeacherModal({ name }) {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     return (
         <>
-            <Button onPress={onOpen} className=" bg-gray-900 font-bold font-robotoMono text-green-300 text-[17px] text-left rounded-md">
-                Student
+            <Button onPress={onOpen} className="bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md">
+                Teacher
             </Button>
 
             <Modal 
@@ -32,19 +33,28 @@ export default function StudentModal({ name }) {
                 <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 text-xl mb-2">
-                            Log in as Student
+                        <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
+                            Log in as Teacher
                         </ModalHeader>
 
                         <ModalBody>
                             <Input
                                 autoFocus
                                 endContent={
+                                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                                }
+                                label="Email"
+                                variant="bordered"
+                                required
+                            />
+                            <Input
+                                endContent={
                                     <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                 }
-                                className=""
-                                label="USN id"
+                                label="Password"
+                                type="password"
                                 variant="bordered"
+                                required
                             />
 
                             <div className="flex py-2 px-1 justify-between">
@@ -58,7 +68,7 @@ export default function StudentModal({ name }) {
                             </div>
                         </ModalBody>
 
-                        <ModalFooter className=" mt-5">
+                        <ModalFooter className=" mt-10">
                             <Button color="danger" variant="flat" onPress={onClose}>
                                 Close
                             </Button>

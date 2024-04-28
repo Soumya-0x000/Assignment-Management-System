@@ -11,8 +11,8 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import { MailIcon } from "../icons/MailIcon";
-import { LockIcon } from "../icons/LockIcon";
+import { MailIcon } from "../../icons/MailIcon";
+import { LockIcon } from "../../icons/LockIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
 
 export default function AdminModal({ name }) {
@@ -20,7 +20,7 @@ export default function AdminModal({ name }) {
 
     return (
         <>
-            <Button onPress={onOpen} className="bg-gray-900 font-bold font-robotoMono text-green-300 text-[17px] text-left rounded-md">
+            <Button onPress={onOpen} className="bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md w-full mx-[1rem]">
                 Admin
             </Button>
 
@@ -45,21 +45,16 @@ export default function AdminModal({ name }) {
                                 }
                                 label="Email"
                                 variant="bordered"
+                                required
                             />
-                            <Input
-                                endContent={
-                                    <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                                }
-                                label="Password"
-                                type="password"
-                                variant="bordered"
-                            />
+                            
                             <Input
                                 endContent={
                                     <MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                 }
                                 label="Authentication code"
                                 variant="bordered"
+                                required
                             />
 
                             <div className="flex py-2 px-1 justify-between">
