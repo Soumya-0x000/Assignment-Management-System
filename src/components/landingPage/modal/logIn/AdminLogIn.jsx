@@ -13,15 +13,15 @@ import {
 } from "@nextui-org/react";
 import { MailIcon } from "../../icons/MailIcon";
 import { LockIcon } from "../../icons/LockIcon";
+import { MdAdminPanelSettings } from "react-icons/md";
 
-
-export default function TeacherModal({ name }) {
+export default function AdminLogIn() {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     return (
         <>
-            <Button onPress={onOpen} className="bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md">
-                Teacher
+            <Button onPress={onOpen} className=" bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md">
+                Admin
             </Button>
 
             <Modal 
@@ -34,7 +34,7 @@ export default function TeacherModal({ name }) {
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
-                            Log in as Teacher
+                            Log in as Admin
                         </ModalHeader>
 
                         <ModalBody>
@@ -47,12 +47,12 @@ export default function TeacherModal({ name }) {
                                 variant="bordered"
                                 required
                             />
+                            
                             <Input
                                 endContent={
-                                    <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                                    <MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                 }
-                                label="Password"
-                                type="password"
+                                label="Authentication code"
                                 variant="bordered"
                                 required
                             />

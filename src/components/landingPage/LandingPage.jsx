@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import BgColorAnimation from '../../animation/BgColorAnimation';
-import StudentModal from './modal/logIn/StudentModal';
-import TeacherModal from './modal/logIn/TeacherModal';
-import AdminModal from './modal/logIn/AdminModal';
+import StudentLogIn from './modal/logIn/StudentLogIn.jsx';
+import TeacherLogIn from './modal/logIn/TeacherLogIn.jsx';
+import AdminLogIn from './modal/logIn/AdminLogIn.jsx';
 import ChipTabs from '../../animation/Tabs';
 import MainRegisterPage from './modal/register/MainRegisterPage.jsx';
 
@@ -36,24 +36,26 @@ const LandingPage = () => {
 
                         <div className='mt-4 flex justify-between w-full '>
                             {/* login */}
-                            <div className=' flex flex-col justify- max-w-[9rem] bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md w-[32%]'>
+                            <div className={` flex flex-col ${selected === 'Student' ? 'max-w-[9rem]' : ''} bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md w-full h-[10.5rem]`}>
                                 <div className=' bg-slate-900 h-16 text-slate-200 font-robotoMono font-bold flex items-center justify-center'>
                                     Sign In
                                 </div>
 
                                 <div className=' h-full w-full flex items-center justify-center'>
                                     {selected === 'Student' ? (
-                                        <StudentModal/>
+                                        <StudentLogIn/>
                                     ) : selected === 'Teacher' ? (
-                                        <TeacherModal/>
+                                        <TeacherLogIn/>
                                     ) : (
-                                        <AdminModal/>
+                                        <AdminLogIn/>
                                     )}
                                 </div>
                             </div>
 
                             {/* register */}
-                            <MainRegisterPage userType={selected}/>
+                            {selected === 'Student' && ( 
+                                <MainRegisterPage userType={selected}/>
+                            )}
                         </div>
                     </div>
                 </div>

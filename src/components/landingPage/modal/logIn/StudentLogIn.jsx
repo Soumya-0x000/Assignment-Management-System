@@ -11,17 +11,16 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import { MailIcon } from "../../icons/MailIcon";
 import { LockIcon } from "../../icons/LockIcon";
-import { MdAdminPanelSettings } from "react-icons/md";
 
-export default function AdminModal({ name }) {
+
+export default function StudentLogIn({ name }) {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     return (
         <>
-            <Button onPress={onOpen} className="bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md w-full mx-[1rem]">
-                Admin
+            <Button onPress={onOpen} className=" bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md">
+                Student
             </Button>
 
             <Modal 
@@ -33,26 +32,17 @@ export default function AdminModal({ name }) {
                 <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
-                            Log in as Admin
+                        <ModalHeader className="flex flex-col gap-1 text-xl mb-2">
+                            Log in as Student
                         </ModalHeader>
 
                         <ModalBody>
                             <Input
                                 autoFocus
                                 endContent={
-                                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                                    <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                 }
-                                label="Email"
-                                variant="bordered"
-                                required
-                            />
-                            
-                            <Input
-                                endContent={
-                                    <MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                                }
-                                label="Authentication code"
+                                label="USN ID"
                                 variant="bordered"
                                 required
                             />
@@ -68,7 +58,7 @@ export default function AdminModal({ name }) {
                             </div>
                         </ModalBody>
 
-                        <ModalFooter className=" mt-10">
+                        <ModalFooter className=" mt-5">
                             <Button color="danger" variant="flat" onPress={onClose}>
                                 Close
                             </Button>

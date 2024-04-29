@@ -52,6 +52,12 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
     
         try {            
             if (userType === 'Student') {
+                const existingUser = users.find(user => user.usnId === studentRegisterData.usnId || user.emailId === commonAttributes.email);
+                if (existingUser) {
+                    window.alert('USN ID already exists in the database');
+                    return;
+                }
+
                 const { data, error } = await supabase.from('student').insert([
                     {
                         name: commonAttributes.name,
@@ -66,10 +72,15 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                 if (error) {
                     console.error('Error inserting data into student table:', error.message);
                 } else {
-                    console.log('Data inserted into student table:', data);
                     onClose();
                 }
             } else if (userType === 'Teacher') {
+                const existingTeacher = users.find(user => user.emailId === commonAttributes.email || user.name === commonAttributes.name);
+                if (existingTeacher) {
+                    console.error('Email already exists in the database');
+                    return;
+                }
+
                 const { data, error } = await supabase.from('teacher').insert([
                     {
                         name: commonAttributes.name,
@@ -81,7 +92,6 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                 if (error) {
                     console.error('Error inserting data into teacher table:', error.message);
                 } else {
-                    console.log('Data inserted into teacher table:', data);
                     onClose();
                 }
             }
@@ -89,6 +99,10 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
         } catch (error) {
             console.error('An unexpected error occurred:', error);
         }
+
+        setCommonAttributes({ name: '', email: '', password: '' });
+        setStudentRegisterData({ usnId: "", dateOfBirth: "", semester: "" });
+        onClose();
     };
 
     const trySupabase = async () => {
@@ -96,13 +110,16 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
             .from(userType.toLowerCase())
             .select('*')
         setUsers(data)
-        console.log(data)
         setIsRegistered(false)
     }
     
     useEffect(() => {
         isRegistered && trySupabase();
     }, [isRegistered]);
+    
+    useEffect(() => {
+        trySupabase();
+    }, [userType]);
     
     return (
         <Modal 
@@ -159,7 +176,7 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                         type={isVisible ? "text" : "password"}
                     />
 
-                    {userType === 'Student' && ( <>
+                    {/* {userType === 'Student' && ( <> */}
                         <Input
                             endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
                             label="USN ID"
@@ -193,7 +210,7 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                             required
                             variant="bordered"
                         />
-                    </>)}
+                    {/* </>)} */}
                 </ModalBody>
 
                 <ModalFooter className="mt-10">
