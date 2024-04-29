@@ -14,9 +14,18 @@ import {
     Link
 } from "@nextui-org/react";
 import Registration from './Registration';
+import { supabase } from '../../../../CreateClient';
 
 const MainRegisterPage = ({userType}) => {
     const {isOpen, onOpen, onClose} = useDisclosure();
+
+    const handleOauthSignIn = async () => {
+        const { user, session, error } = await supabase.auth.signInWithOAuth({
+            provider: 'github'
+        })
+
+        console.log(user, session, error)
+    };
 
     return (
         <div className='flex flex-col gap-y-3 bg-[#b2b2b24b] p-2 rounded-md shadow-black shadow-md w-[66%]'>
@@ -25,7 +34,8 @@ const MainRegisterPage = ({userType}) => {
                 <span className='text-[14px] sm:text-[16px]'>Sign up with Google</span>
             </button>
             
-            <button className='flex flex-wrap items-center gap-x-3 text-slate-200 bg-slate-800 rounded-md py-1.5 sm:py-2 pl-3 text-lg font-onest active:scale-110 transition-all'>
+            <button className='flex flex-wrap items-center gap-x-3 text-slate-200 bg-slate-800 rounded-md py-1.5 sm:py-2 pl-3 text-lg font-onest active:scale-110 transition-all'
+            onClick={handleOauthSignIn}>
                 <FiGithub className='text-[16px] sm:text-xl'/>
                 <span className='text-[14px] sm:text-[16px]'>Sign up with Github</span>
             </button>
