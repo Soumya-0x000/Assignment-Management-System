@@ -35,12 +35,14 @@ const MainRegisterPage = ({userType}) => {
                 <span className='text-[14px] sm:text-[16px]'>Sign up Manually</span>
             </Button>
 
-            <Registration
-                userType={userType}
-                isOpen={isOpen}
-                onOpen={onOpen}
-                onClose={onClose}
-            />
+            {userType !== 'Admin' && (  
+                <Registration
+                    userType={userType}
+                    isOpen={isOpen}
+                    onOpen={onOpen}
+                    onClose={onClose}
+                />
+            )}
         </div>
     );
 }

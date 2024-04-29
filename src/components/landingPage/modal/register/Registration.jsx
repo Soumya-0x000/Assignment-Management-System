@@ -50,9 +50,7 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
     const handleRegister = async (e) => {
         e.preventDefault();
     
-        try {
-            console.log('Registration data:', { ...commonAttributes, ...studentRegisterData });
-            
+        try {            
             if (userType === 'Student') {
                 const { data, error } = await supabase.from('student').insert([
                     {
@@ -84,21 +82,6 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                     console.error('Error inserting data into teacher table:', error.message);
                 } else {
                     console.log('Data inserted into teacher table:', data);
-                    onClose();
-                }
-            } else if (userType === 'Admin') {
-                const { data, error } = await supabase.from('admin').insert([
-                    {
-                        name: commonAttributes.name,
-                        emailId: commonAttributes.email,
-                        password: commonAttributes.password,
-                    }
-                ]);
-    
-                if (error) {
-                    console.error('Error inserting data into admin table:', error.message);
-                } else {
-                    console.log('Data inserted into admin table:', data);
                     onClose();
                 }
             }
