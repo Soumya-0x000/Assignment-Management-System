@@ -32,7 +32,7 @@ const Chip = ({
             selected
             ? "text-white"
             : "text-slate-300 hover:text-slate-200 hover:bg-slate-700"
-        } text-sm transition-colors px-5 py-1.5 rounded-md relative`}>
+        } text-sm transition-colors px-3 sm:px-5 py-1.5 rounded-md relative`}>
             <span className="relative z-10 text-[15px] sm:text-[18px] font-robotoMono">{text}</span>
             {selected && (
                 <motion.span

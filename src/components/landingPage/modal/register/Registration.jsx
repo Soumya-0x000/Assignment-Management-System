@@ -15,7 +15,7 @@ import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
 import { supabase } from '../../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
 
-const Registtration = ({userType, isOpen, onOpen, onClose}) => {
+const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
         name: "", 
         email:"", 
@@ -26,6 +26,8 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
         dateOfBirth: "",
         semester: "",
     });
+    const [tableName, setTableName] = useState('studentsSem');
+
     const [isVisible, setIsVisible] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [users, setUsers] = useState([]);
@@ -34,6 +36,7 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
     
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         if (name === 'name' || name === 'email' || name === 'password') {
             setCommonAttributes({
                 ...commonAttributes,
@@ -58,7 +61,7 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
                     return;
                 }
 
-                const { data, error } = await supabase.from('student').insert([
+                const { data, error } = await supabase.from(tableName).insert([
                     {
                         name: commonAttributes.name,
                         emailId: commonAttributes.email,
@@ -120,6 +123,10 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
     useEffect(() => {
         trySupabase();
     }, [userType]);
+
+    useEffect(() => {
+        setTableName(prevTableName => 'studentsSem' + studentRegisterData.semester);
+    }, [studentRegisterData.semester]);
     
     return (
         <Modal 
@@ -227,4 +234,4 @@ const Registtration = ({userType, isOpen, onOpen, onClose}) => {
     );
 }
 
-export default Registtration;
+export default Registration;

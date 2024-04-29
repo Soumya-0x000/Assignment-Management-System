@@ -47,6 +47,7 @@ export default function TeacherLogIn({ name }) {
                                 variant="bordered"
                                 required
                             />
+
                             <Input
                                 endContent={
                                     <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
@@ -83,4 +84,4 @@ export default function TeacherLogIn({ name }) {
             </Modal>
         </>
     );
-}
+};
