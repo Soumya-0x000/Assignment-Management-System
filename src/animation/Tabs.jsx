@@ -7,7 +7,7 @@ const ChipTabs = ({
     setSelected
 }) => {
     return (
-        <div className=" py-2 sm:py-3 bg-slate-900 rounded-md flex items-center justify-evenly flex-wrap gap-2">
+        <div className=" py-2 sm:py-3 bg-slate-900 rounded-md flex items-center justify-between px-2 sm:justify-evenly flex-wrap gap-2">
             {tabsArr.map((tab, indx) => (
                 <Chip
                     text={tab.name}

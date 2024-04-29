@@ -3,12 +3,8 @@ import BgColorAnimation from '../../animation/BgColorAnimation';
 import StudentModal from './modal/logIn/StudentModal';
 import TeacherModal from './modal/logIn/TeacherModal';
 import AdminModal from './modal/logIn/AdminModal';
-import { FaGoogle } from "react-icons/fa";
-import { FiGithub } from "react-icons/fi";
-import { CgLogIn } from "react-icons/cg";
 import ChipTabs from '../../animation/Tabs';
-import {supabase} from '../../CreateClient.js'
-import MainRegister from './modal/register/MainRegister.jsx';
+import MainRegisterPage from './modal/register/MainRegisterPage.jsx';
 
 const userArr = [
     {name: 'Student'},
@@ -18,24 +14,11 @@ const userArr = [
 
 const LandingPage = () => {
     const [selected, setSelected] = useState(userArr[0].name);
-    const [users, setUsers] = useState([]);
-
-    const trySupabase = async () => {
-        const {data} = await supabase
-            .from('teacher')
-            .select('*')
-        console.log(data)
-        setUsers(data)
-    }
-    
-    useEffect(() => {
-        trySupabase();
-    }, []);
 
     return (
         <BgColorAnimation
             child={
-                <div className=" h-screen flex justify-center items-center px-5">
+                <div className=" h-screen flex justify-center items-center px-5 ">
                     <div className="bg-[#ffffff2b] shadow-md rounded px-4 md:px-8 py-5 xsm:w-[25rem] sm:w-[35rem] md:max-w-[50rem] md:min-w-[40rem]">
                         {/* heading */}
                         <div className=' space-y-4  mb-8'>
@@ -70,7 +53,7 @@ const LandingPage = () => {
                             </div>
 
                             {/* register */}
-                            <MainRegister userType={selected}/>
+                            <MainRegisterPage userType={selected}/>
                         </div>
                     </div>
                 </div>
