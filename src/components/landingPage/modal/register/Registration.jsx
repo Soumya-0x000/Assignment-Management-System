@@ -14,6 +14,7 @@ import { BsPersonLinesFill } from "react-icons/bs";
 import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
 import { supabase } from '../../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
+import { SiGoogleclassroom } from "react-icons/si";
 
 const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -25,11 +26,11 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
         usnId: "",
         dateOfBirth: "",
         semester: "",
+        dept: "",
     });
     const [tableName, setTableName] = useState('studentsSem');
-
     const [isVisible, setIsVisible] = useState(false);
-    const [isRegistered, setIsRegistered] = useState(false);
+    const [isExist, setIsExist] = useState(false);
     const [users, setUsers] = useState([]);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
@@ -42,7 +43,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                 ...commonAttributes,
                 [name]: value
             });
-        } else if (name === 'usnId' || name === 'dateOfBirth' || name === 'semester') {
+        } else {
             setStudentRegisterData({
                 ...studentRegisterData,
                 [name]: value
@@ -53,14 +54,24 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const handleRegister = async (e) => {
         e.preventDefault();
     
-        try {            
+        try {
+            const { data, error } = await supabase
+                .from(tableName)
+                .select('*')
+                .eq('emailId', commonAttributes.email)
+                .eq('usnId', studentRegisterData.usnId);
+    
+            if (error) {
+                console.error('Error fetching data:', error.message);
+                return;
+            }
+    
+            if (data.length > 0) {
+                window.alert('USN ID with provided email already exists');
+                return;
+            }
+    
             if (userType === 'Student') {
-                const existingUser = users.find(user => user.usnId === studentRegisterData.usnId || user.emailId === commonAttributes.email);
-                if (existingUser) {
-                    window.alert('USN ID already exists in the database');
-                    return;
-                }
-
                 const { data, error } = await supabase.from(tableName).insert([
                     {
                         name: commonAttributes.name,
@@ -69,12 +80,24 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                         birthDate: studentRegisterData.dateOfBirth,
                         semester: studentRegisterData.semester,
                         usnId: studentRegisterData.usnId,
+                        department: studentRegisterData.dept.toLowerCase()
                     }
                 ]);
     
                 if (error) {
                     console.error('Error inserting data into student table:', error.message);
                 } else {
+                    setCommonAttributes({
+                        name: "", 
+                        email:"", 
+                        password: "",
+                    })
+                    setStudentRegisterData({
+                        usnId: "",
+                        dateOfBirth: "",
+                        semester: "",
+                        dept: "",
+                    })
                     onClose();
                 }
             } else if (userType === 'Teacher') {
@@ -83,7 +106,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                     console.error('Email already exists in the database');
                     return;
                 }
-
+    
                 const { data, error } = await supabase.from('teacher').insert([
                     {
                         name: commonAttributes.name,
@@ -98,32 +121,13 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                     onClose();
                 }
             }
-            setIsRegistered(true)
         } catch (error) {
             console.error('An unexpected error occurred:', error);
         }
-
-        setCommonAttributes({ name: '', email: '', password: '' });
-        setStudentRegisterData({ usnId: "", dateOfBirth: "", semester: "" });
+    
         onClose();
     };
-
-    const trySupabase = async () => {
-        const {data} = await supabase
-            .from(userType.toLowerCase())
-            .select('*')
-        setUsers(data)
-        setIsRegistered(false)
-    }
     
-    useEffect(() => {
-        isRegistered && trySupabase();
-    }, [isRegistered]);
-    
-    useEffect(() => {
-        trySupabase();
-    }, [userType]);
-
     useEffect(() => {
         setTableName(prevTableName => 'studentsSem' + studentRegisterData.semester);
     }, [studentRegisterData.semester]);
@@ -203,6 +207,17 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                             onChange={handleChange}
                             required
                             variant="bordered"
+                        />
+
+                        <Input
+                            endContent={<SiGoogleclassroom className="text-xl text-default-400 pointer-events-none flex-shrink-0" />}
+                            label="Department"
+                            type='text'
+                            name="dept"
+                            value={studentRegisterData.dept}
+                            onChange={handleChange}
+                            variant="bordered"
+                            required
                         />
                         
                         <Input 

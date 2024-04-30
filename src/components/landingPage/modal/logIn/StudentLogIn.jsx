@@ -15,13 +15,14 @@ import { LockIcon } from "../../icons/LockIcon";
 import { supabase } from "../../../../CreateClient";
 import { useNavigate } from "react-router-dom";
 import { TbListNumbers } from "react-icons/tb";
-
+import { SiGoogleclassroom } from "react-icons/si";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
     const [studentLoginData, setStudentLoginData] = useState({
         usnId: '',
-        semester: ''
+        semester: '',
+        dept: '',
     });
     const [tableName, setTableName] = useState('studentsSem');
     const navigate = useNavigate();
@@ -35,37 +36,46 @@ export default function StudentLogIn({ userType }) {
 
     };
 
-    const handleLogin = async () => {        
+    const handleLogin = async () => {
         try {
-            const { data, error } = await supabase
+            const { data: tableData, error: tableError } = await supabase
                 .from('studentsTableName')
                 .select('*')
                 .eq('tableName', tableName)
                 .single();
-        } catch (error) {
-            console.error(error.message);
-            return;    
-        }
-        
-        try {
-            const { data, error } = await supabase
+    
+            if (tableError) {
+                console.error('Error querying studentsTableName:', tableError.message);
+                return;
+            }
+    
+            if (!tableData) {
+                console.error('No table data found for:', tableName);
+                return;
+            }
+    
+            const { data: studentData, error: studentError } = await supabase
                 .from(tableName)
                 .select('*')
-                .eq('usnId', studentLoginData.usnId)
                 .eq('semester', studentLoginData.semester)
+                .eq('department', studentLoginData.dept.toLowerCase())
+                .eq('usnId', studentLoginData.usnId)
                 .single();
-            
-            if(error) {
-                alert(`No ${userType} found with USN ID ${studentLoginData.usnId} in semester ${studentLoginData.semester}`);
-            } else if (data) {
-                console.log(data);
-                setStudentLoginData({ usnId: '', semester: '' });
+    
+            if (!studentData) {
+                alert(`No ${userType} found with USN ID ${studentLoginData.usnId} in semester ${studentLoginData.semester} in ${studentLoginData.dept} department`);
+                return;
+            } else {   
+                console.log(studentData);
+                setStudentLoginData({ usnId: '', semester: '', dept: '' });
             }
         } catch (error) {
-            
+            console.error('An unexpected error occurred:', error);
         }
+    
         onClose();
     };
+    
 
     useEffect(() => {
         setTableName(prevTableName => 'studentsSem' + studentLoginData.semester);
@@ -112,6 +122,17 @@ export default function StudentLogIn({ userType }) {
                                 type='number'
                                 name="semester"
                                 value={studentLoginData.semester}
+                                onChange={handleChange}
+                                required
+                                variant="bordered"
+                            />
+                            
+                            <Input 
+                                endContent={<SiGoogleclassroom className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                                label="Department"
+                                type='text'
+                                name="dept"
+                                value={studentLoginData.dept}
                                 onChange={handleChange}
                                 required
                                 variant="bordered"
