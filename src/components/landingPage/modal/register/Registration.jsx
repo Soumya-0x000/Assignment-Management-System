@@ -6,7 +6,11 @@ import {
     ModalBody, 
     ModalFooter, 
     Button, 
-    Input, 
+    Input,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem, 
 } from "@nextui-org/react";
 import { MailIcon } from "../../icons/MailIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -15,6 +19,7 @@ import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
 import { supabase } from '../../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
+import { formatSemester } from '../../../../common/customHooks';
 
 const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -49,7 +54,14 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                 [name]: value
             });
         } 
-    }
+    };
+
+    const handleDropDown = (name, val) => {
+        setStudentRegisterData({
+            ...studentRegisterData,
+            [name]: val
+        })
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -98,26 +110,6 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                         semester: "",
                         dept: "",
                     })
-                    onClose();
-                }
-            } else if (userType === 'Teacher') {
-                const existingTeacher = users.find(user => user.emailId === commonAttributes.email || user.name === commonAttributes.name);
-                if (existingTeacher) {
-                    console.error('Email already exists in the database');
-                    return;
-                }
-    
-                const { data, error } = await supabase.from('teacher').insert([
-                    {
-                        name: commonAttributes.name,
-                        emailId: commonAttributes.email,
-                        password: commonAttributes.password,
-                    }
-                ]);
-    
-                if (error) {
-                    console.error('Error inserting data into teacher table:', error.message);
-                } else {
                     onClose();
                 }
             }
@@ -187,52 +179,62 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                         type={isVisible ? "text" : "password"}
                     />
 
-                    {/* {userType === 'Student' && ( <> */}
-                        <Input
-                            endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                            label="USN ID"
-                            type='text'
-                            name="usnId"
-                            value={studentRegisterData.usnId}
-                            onChange={handleChange}
-                            variant="bordered"
-                            required
-                        />
+                    <Input
+                        endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                        label="USN ID"
+                        type='text'
+                        name="usnId"
+                        value={studentRegisterData.usnId}
+                        onChange={handleChange}
+                        variant="bordered"
+                        required
+                    />
 
-                        <Input
-                            label="Date of Birth"
-                            type='date'
-                            name="dateOfBirth"
-                            value={studentRegisterData.dateOfBirth}
-                            onChange={handleChange}
-                            required
-                            variant="bordered"
-                        />
+                    <Input
+                        label="Date of Birth"
+                        type='date'
+                        name="dateOfBirth"
+                        value={studentRegisterData.dateOfBirth}
+                        onChange={handleChange}
+                        required
+                        variant="bordered"
+                    />
+                    
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button 
+                            endContent={<SiGoogleclassroom className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />}
+                            className={`h-14 border-gray-200 rounded-xl py-3 pl-2.5 pr-3 ${studentRegisterData.dept ? 'text-black' : 'text-gray-500'} text-[14px] active:border-gray-200 outline-none active:outline-none hover:border-gray-400 flex items-end justify-between`}
+                            variant="bordered">
+                                {studentRegisterData.dept ? studentRegisterData.dept : 'Select Department'}
+                            </Button>
+                        </DropdownTrigger>
 
-                        <Input
-                            endContent={<SiGoogleclassroom className="text-xl text-default-400 pointer-events-none flex-shrink-0" />}
-                            label="Department"
-                            type='text'
-                            name="dept"
-                            value={studentRegisterData.dept}
-                            onChange={handleChange}
-                            variant="bordered"
-                            required
-                        />
-                        
-                        <Input 
+                        <DropdownMenu aria-label="Static Actions"
+                        onAction={(key) => handleDropDown('dept', key)}>
+                            <DropdownItem key={'MCA'}>MCA</DropdownItem>
+                            <DropdownItem key={'MSc'}>MSc</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button 
                             endContent={<TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                            label="Semester"
-                            min={1}
-                            max={4}
-                            type='number'
-                            name="semester"
-                            value={studentRegisterData.semester}
-                            onChange={handleChange}
-                            required
-                            variant="bordered"
-                        />
-                    {/* </>)} */}
+                            className={`h-14 border-gray-200 rounded-xl py-3 pl-2.5 pr-3 ${studentRegisterData.semester ? 'text-black' : 'text-gray-500'} text-[14px] active:border-gray-200 outline-none active:outline-none hover:border-gray-400 flex items-end justify-between`}
+                            variant="bordered">
+                                {studentRegisterData.semester ? formatSemester(studentRegisterData.semester) : 'Select semester'}
+                            </Button>
+                        </DropdownTrigger>
+
+                        <DropdownMenu aria-label="Static Actions"
+                        onAction={(key) => handleDropDown('semester', key)}>
+                            <DropdownItem key={'1'}>1st semester</DropdownItem>
+                            <DropdownItem key={'2'}>2nd semester</DropdownItem>
+                            <DropdownItem key={'3'}>3rd semester</DropdownItem>
+                            <DropdownItem key={'4'}>4th semester</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                 </ModalBody>
 
                 <ModalFooter className="mt-10">
@@ -250,3 +252,4 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
 }
 
 export default Registration;
+

@@ -9,13 +9,18 @@ import {
     useDisclosure, 
     Checkbox, 
     Input, 
-    Link
+    Link, 
+    Dropdown, 
+    DropdownTrigger, 
+    DropdownMenu, 
+    DropdownItem
 } from "@nextui-org/react";
 import { LockIcon } from "../../icons/LockIcon";
 import { supabase } from "../../../../CreateClient";
 import { useNavigate } from "react-router-dom";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
+import { formatSemester } from "../../../../common/customHooks";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
@@ -34,6 +39,13 @@ export default function StudentLogIn({ userType }) {
             [name]: value
         })
 
+    };
+
+    const handleDropDown = (name, val) => {
+        setStudentLoginData({
+            ...studentLoginData,
+            [name]: val
+        })
     };
 
     const handleLogin = async () => {
@@ -76,7 +88,6 @@ export default function StudentLogIn({ userType }) {
         onClose();
     };
     
-
     useEffect(() => {
         setTableName(prevTableName => 'studentsSem' + studentLoginData.semester);
     }, [studentLoginData.semester]);
@@ -114,29 +125,41 @@ export default function StudentLogIn({ userType }) {
                                 required
                             />
 
-                            <Input 
-                                endContent={<TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                                label="Semester"
-                                min={1}
-                                max={4}
-                                type='number'
-                                name="semester"
-                                value={studentLoginData.semester}
-                                onChange={handleChange}
-                                required
-                                variant="bordered"
-                            />
-                            
-                            <Input 
-                                endContent={<SiGoogleclassroom className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                                label="Department"
-                                type='text'
-                                name="dept"
-                                value={studentLoginData.dept}
-                                onChange={handleChange}
-                                required
-                                variant="bordered"
-                            />
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Button 
+                                    endContent={<TbListNumbers className="text-xl text-default-400 pointer-events-none flex-shrink-0" />}
+                                    className={`h-14 border-gray-200 rounded-xl py-3 pl-2.5 pr-3 ${studentLoginData.semester ? 'text-black' : 'text-gray-500'} text-[14px] active:border-gray-200 outline-none active:outline-none hover:border-gray-400 flex items-end justify-between`}
+                                    variant="bordered">
+                                        {studentLoginData.semester ? formatSemester(studentLoginData.semester) : 'Select semester'}
+                                    </Button>
+                                </DropdownTrigger>
+
+                                <DropdownMenu aria-label="Static Actions"
+                                onAction={(key) => handleDropDown('semester', key)}>
+                                    <DropdownItem key={'1'}>1st semester</DropdownItem>
+                                    <DropdownItem key={'2'}>2nd semester</DropdownItem>
+                                    <DropdownItem key={'3'}>3rd semester</DropdownItem>
+                                    <DropdownItem key={'4'}>4th semester</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Button 
+                                    endContent={<SiGoogleclassroom className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                                    className="h-14 border-gray-200 rounded-xl py-3 px-2.5 text-gray-500 text-[14px] active:border-gray-200 outline-none active:outline-none hover:border-gray-400 flex items-end justify-between"
+                                    variant="bordered">
+                                        {studentLoginData.dept ? studentLoginData.dept : 'Select Department'}
+                                    </Button>
+                                </DropdownTrigger>
+
+                                <DropdownMenu aria-label="Static Actions"
+                                onAction={(key) => handleDropDown('dept', key)}>
+                                    <DropdownItem key={'MCA'}>MCA</DropdownItem>
+                                    <DropdownItem key={'MSc'}>MSc</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
 
                             <div className="flex py-2 px-1 justify-between">
                                 <Checkbox classNames={{ label: "text-small" }}>

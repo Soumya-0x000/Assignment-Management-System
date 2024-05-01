@@ -73,8 +73,7 @@ export default function TeacherLogIn() {
             onOpenChange={onClose}
             className="border-[1px] border-slate-300 absolute top-1/2 -translate-y-1/2"
             placement="top-center"
-            onClose={onClose}
-            >
+            onClose={onClose}>
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
                         Log in as Teacher

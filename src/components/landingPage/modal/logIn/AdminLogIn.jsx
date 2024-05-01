@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { 
     Modal, 
     ModalContent, 
@@ -22,44 +22,63 @@ export default function AdminLogIn() {
     const navigate = useNavigate();
     const [adminLoginData, setAdminLoginData] = useState({
         email: '',
-        authCode: ''
+        otp: ''
     });
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setAdminLoginData({
-            ...adminLoginData,
+        setAdminLoginData((prevData) => ({
+            ...prevData,
             [name]: value
-        });
+        }));
     };
+    
 
-    const handleLogin = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('admin')
-                .select('*')
-                .eq('emailId', adminLoginData.email)
-                .eq('authCode', adminLoginData.authCode)
-                .single();
+    // const handleLogin = async () => {
+    //     try {
+    //         const { data, error } = await supabase
+    //             .from('admin')
+    //             .select('*')
+    //             .eq('emailId', adminLoginData.email)
+    //             .eq('otp', adminLoginData.otp)
+    //             .single();
 
-            if (error) {
-                console.error('Error querying database:', error.message);
-                alert(`No admin found with the provided credentials.`);
-                return;
-            } else {
-                setAdminLoginData({
-                    email: '',
-                    authCode: ''
-                });
-            }
-        } catch (error) {
-            console.error('An unexpected error occurred:', error.message);
-            alert('An unexpected error occurred. Please try again.');
-        }
-        onClose();
+    //         if (error) {
+    //             console.error('Error querying database:', error.message);
+    //             alert(`No admin found with the provided credentials.`);
+    //             return;
+    //         } else {
+    //             setAdminLoginData({
+    //                 email: '',
+    //                 otp: ''
+    //             });
+    //             console.log(data)
+    //         }
+    //     } catch (error) {
+    //         console.error('An unexpected error occurred:', error.message);
+    //         alert('An unexpected error occurred. Please try again.');
+    //     }
+    //     onClose();
+    // };
+
+    const handleOtpSend = async (e) => {
+        // e.preventDefault();
+        
+        const { data, error } = await supabase.auth.signInWithOtp({
+            email: adminLoginData.email,
+        })
+          
+    
+        console.log(data);
     };
+    
+    const handleVerifyOtp = async (e) => {}
+
+    useEffect(() => {
+        setAdminLoginData(adminLoginData)
+    }, [adminLoginData]);
 
     return (
         <>
@@ -80,36 +99,49 @@ export default function AdminLogIn() {
                     </ModalHeader>
 
                     <ModalBody>
-                        <Input
-                            autoFocus
-                            value={adminLoginData.email}
-                            type="email"
-                            onChange={handleChange}
-                            endContent={<MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                            label="Email"
-                            variant="bordered"
-                            name='email'
-                            required
-                        />
-                        
-                        <Input
-                            value={adminLoginData.authCode}
-                            onChange={handleChange}
-                            endContent={
-                                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-                                {isVisible ? (
-                                    <BiSolidLockOpen className="text-2xl text-default-400 pointer-events-none" />
-                                ) : (
-                                    <BiSolidLock className="text-2xl text-default-400 pointer-events-none" />
-                                )}
-                                </button>
-                            }
-                            type={isVisible ? "text" : "password"}
-                            label="Authentication code"
-                            variant="bordered"
-                            name='authCode'
-                            required
-                        />
+                        <div className=" flex items-center justify-between gap-x-3">
+                            <Input
+                                autoFocus
+                                value={adminLoginData.email}
+                                type="email"
+                                onChange={handleChange}
+                                endContent={<MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                                label="Email"
+                                variant="bordered"
+                                name='email'
+                                required
+                            />
+
+                            <Button  className="bg-[#c2f0ff] text-cyan-800" variant="flat"
+                            onClick={(e) => handleOtpSend(e)}>
+                                Send OTP
+                            </Button>
+                        </div>
+
+                        <div className=" flex items-center justify-between gap-x-3">
+                            <Input
+                                value={adminLoginData.otp}
+                                onChange={handleChange}
+                                endContent={
+                                    <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                    {isVisible ? (
+                                        <BiSolidLockOpen className="text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <BiSolidLock className="text-2xl text-default-400 pointer-events-none" />
+                                    )}
+                                    </button>
+                                }
+                                type={isVisible ? "text" : "password"}
+                                label="OTP"
+                                variant="bordered"
+                                name='otp'
+                                required
+                            />
+
+                            <Button variant="flat" className=" bg-green-200 text-green-700" onClick={(e) => handleVerifyOtp(e)} >
+                                Verify
+                            </Button>
+                        </div>
 
                         <div className="flex py-2 px-1 justify-between">
                             <Checkbox classNames={{ label: "text-small" }}>
@@ -122,17 +154,13 @@ export default function AdminLogIn() {
                         </div>
                     </ModalBody>
 
-                    <ModalFooter className=" mt-10">
+                    <ModalFooter className=" mt-10 flex items-center justify-between">
                         <Button color="danger" variant="flat" onPress={onClose}>
                             Close
-                        </Button>
-
-                        <Button className="bg-cyan-200 text-cyan-800" onPress={handleLogin}>
-                            Sign in
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
         </>
     );
-}
+};
