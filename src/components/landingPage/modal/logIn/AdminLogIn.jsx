@@ -16,16 +16,16 @@ import { useNavigate } from "react-router-dom";
 import { MailIcon } from "../../icons/MailIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { login, register } = useKindeAuth();
     const navigate = useNavigate();
     const [adminLoginData, setAdminLoginData] = useState({
         email: '',
         otp: ''
     });
-    const [isVisible, setIsVisible] = useState(false);
-    const toggleVisibility = () => setIsVisible(!isVisible);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,13 +68,13 @@ export default function AdminLogIn() {
         
         const { data, error } = await supabase.auth.signInWithOtp({
             email: adminLoginData.email,
+            options: {
+                shouldCreateUser: false,
+            }
         })
           
-    
         console.log(data);
     };
-    
-    const handleVerifyOtp = async (e) => {}
 
     useEffect(() => {
         setAdminLoginData(adminLoginData)
@@ -118,31 +118,6 @@ export default function AdminLogIn() {
                             </Button>
                         </div>
 
-                        <div className=" flex items-center justify-between gap-x-3">
-                            <Input
-                                value={adminLoginData.otp}
-                                onChange={handleChange}
-                                endContent={
-                                    <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-                                    {isVisible ? (
-                                        <BiSolidLockOpen className="text-2xl text-default-400 pointer-events-none" />
-                                    ) : (
-                                        <BiSolidLock className="text-2xl text-default-400 pointer-events-none" />
-                                    )}
-                                    </button>
-                                }
-                                type={isVisible ? "text" : "password"}
-                                label="OTP"
-                                variant="bordered"
-                                name='otp'
-                                required
-                            />
-
-                            <Button variant="flat" className=" bg-green-200 text-green-700" onClick={(e) => handleVerifyOtp(e)} >
-                                Verify
-                            </Button>
-                        </div>
-
                         <div className="flex py-2 px-1 justify-between">
                             <Checkbox classNames={{ label: "text-small" }}>
                                 Remember me
@@ -152,6 +127,9 @@ export default function AdminLogIn() {
                                 Forgot password?
                             </Link>
                         </div>
+
+                        {/* <button onClick={register} type="button">Register</button>
+                        <button onClick={login} type="button">Log In</button> */}
                     </ModalBody>
 
                     <ModalFooter className=" mt-10 flex items-center justify-between">
