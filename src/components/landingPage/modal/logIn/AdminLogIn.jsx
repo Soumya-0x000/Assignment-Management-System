@@ -12,16 +12,10 @@ import {
     Link
 } from "@nextui-org/react";
 import { supabase } from "../../../../CreateClient";
-import { useNavigate } from "react-router-dom";
 import { MailIcon } from "../../icons/MailIcon";
-import { MdAdminPanelSettings } from "react-icons/md";
-import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { login, register } = useKindeAuth();
-    const navigate = useNavigate();
     const [adminLoginData, setAdminLoginData] = useState({
         email: '',
         otp: ''
@@ -34,47 +28,29 @@ export default function AdminLogIn() {
             [name]: value
         }));
     };
-    
 
-    // const handleLogin = async () => {
-    //     try {
-    //         const { data, error } = await supabase
-    //             .from('admin')
-    //             .select('*')
-    //             .eq('emailId', adminLoginData.email)
-    //             .eq('otp', adminLoginData.otp)
-    //             .single();
-
-    //         if (error) {
-    //             console.error('Error querying database:', error.message);
-    //             alert(`No admin found with the provided credentials.`);
-    //             return;
-    //         } else {
-    //             setAdminLoginData({
-    //                 email: '',
-    //                 otp: ''
-    //             });
-    //             console.log(data)
-    //         }
-    //     } catch (error) {
-    //         console.error('An unexpected error occurred:', error.message);
-    //         alert('An unexpected error occurred. Please try again.');
-    //     }
-    //     onClose();
-    // };
-
-    const handleOtpSend = async (e) => {
-        // e.preventDefault();
-        
-        const { data, error } = await supabase.auth.signInWithOtp({
-            email: adminLoginData.email,
-            options: {
-                shouldCreateUser: false,
+    const handleMagicLink = async (e) => {        
+        try {
+            const { data, error } = await supabase.auth.signInWithOtp({
+                email: adminLoginData.email,
+                options: {
+                    shouldCreateUser: false,
+                    emailRedirectTo: `${window.location.origin}/admindashboard`,
+                }
+            });
+            
+            if (error) {
+                throw new Error(error.message);
             }
-        })
-          
-        console.log(data);
+            
+            if (data.user === null && data.session === null) {
+                alert(`Check your ${adminLoginData.email} mailbox`);
+            }
+        } catch (error) {
+            console.error('Error occurred in signing in');
+        }
     };
+    
 
     useEffect(() => {
         setAdminLoginData(adminLoginData)
@@ -113,26 +89,13 @@ export default function AdminLogIn() {
                             />
 
                             <Button  className="bg-[#c2f0ff] text-cyan-800" variant="flat"
-                            onClick={(e) => handleOtpSend(e)}>
-                                Send OTP
+                            onClick={handleMagicLink}>
+                                Send Link
                             </Button>
                         </div>
-
-                        <div className="flex py-2 px-1 justify-between">
-                            <Checkbox classNames={{ label: "text-small" }}>
-                                Remember me
-                            </Checkbox>
-
-                            <Link color="primary" href="#" size="sm">
-                                Forgot password?
-                            </Link>
-                        </div>
-
-                        {/* <button onClick={register} type="button">Register</button>
-                        <button onClick={login} type="button">Log In</button> */}
                     </ModalBody>
 
-                    <ModalFooter className=" mt-10 flex items-center justify-between">
+                    <ModalFooter className=" mt-6 flex items-center justify-between">
                         <Button color="danger" variant="flat" onPress={onClose}>
                             Close
                         </Button>
