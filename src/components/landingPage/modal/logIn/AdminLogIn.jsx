@@ -13,13 +13,24 @@ import {
 } from "@nextui-org/react";
 import { supabase } from "../../../../CreateClient";
 import { MailIcon } from "../../icons/MailIcon";
+import { useDispatch, useSelector } from "react-redux";
+import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [adminLoginData, setAdminLoginData] = useState({
         email: '',
-        otp: ''
+        password: ''
     });
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
+    const [detailsMatched, setDetailsMatched] = useState(false)
+    const [sessionVal, setSessionVal] = useState({})
+
+    const {
+        adminIsAuthenticated
+    } = useSelector(state => state.adminAuth)
+    const dispatch = useDispatch();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,29 +40,55 @@ export default function AdminLogIn() {
         }));
     };
 
-    const handleMagicLink = async (e) => {        
+    const handleCheckStatus = async () => {
         try {
-            const { data, error } = await supabase.auth.signInWithOtp({
-                email: adminLoginData.email,
-                options: {
-                    shouldCreateUser: false,
-                    emailRedirectTo: `${window.location.origin}/admindashboard`,
-                }
-            });
+            const {data: adminStatusData, error: adminStatusError} = await supabase
+                .from('admin')
+                .select("*")
+                .eq('emailId', adminLoginData.email)
+                .eq('password', adminLoginData.password)
             
-            if (error) {
-                throw new Error(error.message);
-            }
-            
-            if (data.user === null && data.session === null) {
-                alert(`Check your ${adminLoginData.email} mailbox`);
+            if (!adminStatusError && adminStatusData?.length > 0){
+                setDetailsMatched(true)
+            } else {
+                console.error(adminStatusError?.message)
+                alert('No account found with this email address!');
+                setDetailsMatched(false)
             }
         } catch (error) {
-            console.error('Error occurred in signing in');
+            console.error(error.message)
         }
     };
-    
 
+    const handleMagicLink = async (e) => {
+        if (detailsMatched) {      
+            try {
+                const { data, error } = await supabase.auth.signInWithOtp({
+                    email: adminLoginData.email,
+                    options: {
+                        shouldCreateUser: false,
+                        emailRedirectTo: `${window.location.origin} ${adminIsAuthenticated ? '/admindashboard' : '/'}`,
+                    }
+                });
+                
+                if (error) throw new Error(error.message);
+                
+                if (data.user === null && data.session === null) alert(`Check your ${adminLoginData.email} mailbox`);
+
+                supabase.auth.onAuthStateChange((_, session) => (
+                    console.log(session),
+                    setSessionVal(session)
+                ))
+            } catch (error) {
+                console.error('Error occurred in signing in');
+            }
+        } else {
+            alert("The provided details do not match our records.")
+        }
+    };
+
+    console.log(sessionVal);
+    
     useEffect(() => {
         setAdminLoginData(adminLoginData)
     }, [adminLoginData]);
@@ -75,7 +112,7 @@ export default function AdminLogIn() {
                     </ModalHeader>
 
                     <ModalBody>
-                        <div className=" flex items-center justify-between gap-x-3">
+                        <div className=" flex flex-col gap-y-3">
                             <Input
                                 autoFocus
                                 value={adminLoginData.email}
@@ -88,16 +125,42 @@ export default function AdminLogIn() {
                                 required
                             />
 
-                            <Button  className="bg-[#c2f0ff] text-cyan-800" variant="flat"
-                            onClick={handleMagicLink}>
-                                Send Link
+                            <Input
+                                label="Password"
+                                name="password"
+                                variant="bordered"
+                                min={8}
+                                value={adminLoginData.password}
+                                onChange={handleChange}
+                                required
+                                endContent={
+                                    <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                    {isVisible ? (
+                                        <BiSolidLockOpen className="text-2xl text-default-400 pointer-events-none" />
+                                    ) : (
+                                        <BiSolidLock className="text-2xl text-default-400 pointer-events-none" />
+                                    )}
+                                    </button>
+                                }
+                                type={isVisible ? "text" : "password"}
+                            />
+                            
+                            <Button className="bg-[#dbffba] text-[#568927] border-[1px] border-[#81ffa3]" 
+                            variant="flat"
+                            onClick={handleCheckStatus}>
+                                Check Status
                             </Button>
                         </div>
                     </ModalBody>
-
+                            
                     <ModalFooter className=" mt-6 flex items-center justify-between">
                         <Button color="danger" variant="flat" onPress={onClose}>
                             Close
+                        </Button>
+
+                        <Button className="bg-[#c2f0ff] text-cyan-800" variant="flat"
+                        onClick={handleMagicLink}>
+                            Send Link
                         </Button>
                     </ModalFooter>
                 </ModalContent>

@@ -15,5 +15,5 @@ export const AdminAuthSlice = createSlice({
 });
 
 export const {
-    setAdminDetails,
+    setAdminAuthentication,
 } = AdminAuthSlice.actions;
