@@ -1,13 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    adminIsAuthenticated: false
+    session: {},
+    adminIsAuthenticated: true
 };
 
 export const AdminAuthSlice = createSlice({
     name: "adminAuth",
     initialState,
     reducers: {
+        setSession: function(state, action) {
+            state.session = action.payload;
+        },
         setAdminAuthentication: function(state, action) {
             state.adminIsAuthenticated = action.payload;
         }
@@ -16,4 +20,5 @@ export const AdminAuthSlice = createSlice({
 
 export const {
     setAdminAuthentication,
+    setSession
 } = AdminAuthSlice.actions;
