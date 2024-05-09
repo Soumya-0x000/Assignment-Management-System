@@ -1,11 +1,13 @@
 import React from 'react'
 import Sidebar from './Sidebar'
+import Canvas from './Canvas'
 
 const AdminDashboard = () => {
     return (
-        <div>
+        <>
             <Sidebar/>
-        </div>
+            <Canvas/>
+        </>
     )
 }
 

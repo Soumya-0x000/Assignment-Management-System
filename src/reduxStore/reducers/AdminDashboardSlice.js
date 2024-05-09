@@ -7,7 +7,7 @@ const initialState = {
 
 export const AdminDashboardSlice = createSlice({
     initialState,
-    name: "admin_dashboard",
+    name: "adminDashboard",
     reducers: {
         setTeachers: function(state, action) {
             state.teachers = action.payload

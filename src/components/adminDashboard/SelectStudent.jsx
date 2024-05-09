@@ -4,29 +4,32 @@ import { PiStudentBold } from 'react-icons/pi'
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 import { supabase } from '../../CreateClient';
 import toast, { Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { setStudents } from '../../reduxStore/reducers/AdminDashboardSlice';
+import { TbFilterCog } from "react-icons/tb";
+import { motion } from 'framer-motion';
 
-const semArr = ['all', '1st', '2nd', '3rd', '4th'];
-const tableData = [
+const semArr = [
+    { name: 'All', value: 0 },
+    { name: '1st', value: 1 },
+    { name: '2nd', value: 2 },
+    { name: '3rd', value: 3 },
+    { name: '4th', value: 4 }
+];
 
-  { id: 1, tableName: 'studentsSem1' },
-
-  { id: 2, tableName: 'studentsSem2' },
-
-  { id: 3, tableName: 'studentsSem3' },
-
-  { id: 4, tableName: 'studentsSem4' }
-
-]
 const SelectStudent = ({sidebarHold}) => {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [studentData, setStudentData]= useState({
         dept: 'mca',
-        sem: 'all'
+        sem: '0'
     });
+    console.log(studentData)
     const [studentDetails, setStudentDetails] = useState({
         all: [],
         each: []
-    })
+    });
+    const [showFilter, setShowFilter] = useState(false);
+    const dispatch = useDispatch();
 
     const handleDropDown = (name, val) => {
         setStudentData({
@@ -35,19 +38,37 @@ const SelectStudent = ({sidebarHold}) => {
         })
     };
 
+    const filteredValueFetch = async() => {
+        const { data, error } = await supabase
+            .from(name.tableName)
+            .select('*')
+            .eq('department', studentData.dept.toLowerCase())
+            .eq('semester', studentData.sem)
+    };
+
     const StudentArr = async () => {
-        Promise.all(tableData.map(async(name, i) => {
-            const{ data, error } = await supabase
-                .from(name.tableName)
+        let studentArr = [];
+        try {
+            const { data: tableData, error: tableError } = await supabase
+                .from('studentsTableName')
                 .select('*')
-            studentDetails.all.push(...data)
-            
-            return { data, error }
-        }))
-    }
-    console.log(studentDetails.all)
+
+            await Promise.all(tableData.map(async (name) => {
+                const { data, error } = await supabase
+                    .from(name.tableName)
+                    .select('*')
+                    .eq('department', studentData.dept.toLowerCase())
+                studentArr.push(...data);
+                return { data, error };
+            }));
+            setStudentDetails({ ...studentDetails, all: studentArr });
+            dispatch(setStudents({ mode: 'all', all: studentArr }))
+        } catch (error) {
+            console.error('An unexpected error occurred:', error);
+        }
+    };
+    
     const handleMainBtnClick = () => {
-        onOpen();
         toast.promise(StudentArr(), {
             loading: "Loading all students...",
             success: "Successfully loaded student data!",
@@ -55,39 +76,36 @@ const SelectStudent = ({sidebarHold}) => {
         })
     };
 
-//     useEffect(() => {
-//         (async() => {
-//             try {
-// //                 const { data: tableData, error: tableError } = await supabase
-// //                     .from('studentsTableName')
-// //                     .select('*')
-// // console.log(tableData)
-// //                 if (tableError) {
-// //                     console.error('Error querying studentsTableName:', tableError.message);
-// //                     return;
-// //                 }
-        
-// //                 if (!tableData) {
-// //                     console.error('No table data found for:', tableName);
-// //                     return;
-// //                 }
-               
-                
-//                 console.log(studentDetails)
-                
-//             } catch (error) {
-//                 toast.error('Error occurred in fetching data')
-//                 console.error('An unexpected error occurred:', error);
-//             }
-//         })()
-//     }, []);
+    useEffect(() => {
+        setShowFilter(true)
+
+        return () => setShowFilter(false)
+    }, []);
+
+    useEffect(() => {
+
+    }, [studentData.dept, studentData.sem]);
 
     return <>
-        <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
-        onClick={handleMainBtnClick}>
-            <PiStudentBold className=' text-2xl'/>
-            <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Students</span>
-        </button>
+        <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1.5'}`}>
+            <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
+            onClick={handleMainBtnClick}>
+                <PiStudentBold className=' text-2xl'/>
+                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Students</span>
+            </button>
+            
+            {showFilter && (
+                <motion.button 
+                initial={{y: -50}}
+                animate={{y: 0}}
+                transition={{ type: "spring", stiffness: 120, damping: 18 }}
+                className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
+                onClick={onOpen}>
+                    <TbFilterCog className=' text-2xl'/>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Filter</span>
+                </motion.button>
+            )}
+        </div>
 
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='auto' className=' w-[15rem ]'>
             <ModalContent>
@@ -96,12 +114,12 @@ const SelectStudent = ({sidebarHold}) => {
                     <ModalHeader className="flex flex-col gap-1">Student Selection</ModalHeader>
 
                     <ModalBody>
-                        {semArr.map((semester, index) => (
+                        {semArr.map((sem, index) => (
                             <button
                             key={index}
-                            className={`w-full bg-slate-200 rounded-lg py-2 text-left px-4 ${studentData.sem === semester && ' ring-[2px] ring-blue-400'}`}
-                            onClick={() => handleDropDown('sem', semester)}>
-                                {semester} semester
+                            className={`w-full bg-slate-200 rounded-lg py-2 text-left px-4 ${studentData.sem === sem.value && ' ring-[2px] ring-blue-400'}`}
+                            onClick={() => handleDropDown('sem', sem.value)}>
+                                {sem.name} semester
                             </button>
                         ))}
                         
