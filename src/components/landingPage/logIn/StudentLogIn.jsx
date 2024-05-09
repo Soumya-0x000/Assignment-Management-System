@@ -70,7 +70,7 @@ export default function StudentLogIn({ userType }) {
                 .from(tableName)
                 .select('*')
                 .eq('semester', studentLoginData.semester)
-                .eq('department', studentLoginData.dept.toLowerCase())
+                .eq('department', studentLoginData.dept)
                 .eq('usnId', studentLoginData.usnId)
                 .single();
     

@@ -2,12 +2,13 @@ import { Radio, RadioGroup } from '@nextui-org/react'
 import React, { useEffect, useState } from 'react'
 import { PiStudentBold } from 'react-icons/pi'
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
-import { supabase } from '../../CreateClient';
-import toast, { Toaster } from 'react-hot-toast';
+import { supabase } from '../../../CreateClient';
+import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { setStudents } from '../../reduxStore/reducers/AdminDashboardSlice';
+import { setStudents } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import { TbFilterCog } from "react-icons/tb";
 import { motion } from 'framer-motion';
+import { formatSemester } from '../../../common/customHooks';
 
 const semArr = [
     { name: 'All', value: 0 },
@@ -20,15 +21,16 @@ const semArr = [
 const SelectStudent = ({sidebarHold}) => {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [studentData, setStudentData]= useState({
-        dept: 'mca',
+        dept: 'MCA',
         sem: '0'
     });
-    console.log(studentData)
     const [studentDetails, setStudentDetails] = useState({
         all: [],
         each: []
     });
+    const [tableName, setTableName] = useState('studentsSem');
     const [showFilter, setShowFilter] = useState(false);
+    const [isSearchInitiated, setIsSearchInitiated] = useState(false);
     const dispatch = useDispatch();
 
     const handleDropDown = (name, val) => {
@@ -38,15 +40,7 @@ const SelectStudent = ({sidebarHold}) => {
         })
     };
 
-    const filteredValueFetch = async() => {
-        const { data, error } = await supabase
-            .from(name.tableName)
-            .select('*')
-            .eq('department', studentData.dept.toLowerCase())
-            .eq('semester', studentData.sem)
-    };
-
-    const StudentArr = async () => {
+    const AllStudentFetch = async () => {
         let studentArr = [];
         try {
             const { data: tableData, error: tableError } = await supabase
@@ -57,34 +51,63 @@ const SelectStudent = ({sidebarHold}) => {
                 const { data, error } = await supabase
                     .from(name.tableName)
                     .select('*')
-                    .eq('department', studentData.dept.toLowerCase())
+                    .eq('department', studentData.dept)
+
                 studentArr.push(...data);
                 return { data, error };
             }));
             setStudentDetails({ ...studentDetails, all: studentArr });
-            dispatch(setStudents({ mode: 'all', all: studentArr }))
+            dispatch(setStudents({ mode: 'all', students: studentArr }))
         } catch (error) {
             console.error('An unexpected error occurred:', error);
         }
     };
     
     const handleMainBtnClick = () => {
-        toast.promise(StudentArr(), {
-            loading: "Loading all students...",
+        setShowFilter(true)
+        
+        toast.promise(AllStudentFetch(), {
+            loading: `Loading all ${studentData.dept} students...`,
             success: "Successfully loaded student data!",
             error: "Failed to load student data."
         })
     };
 
     useEffect(() => {
-        setShowFilter(true)
-
         return () => setShowFilter(false)
     }, []);
 
     useEffect(() => {
+        setTableName(prevTableName => 'studentsSem' + studentData.sem);
+    }, [studentData.sem]);
 
-    }, [studentData.dept, studentData.sem]);
+    const handleInitiateFetching = async() => {
+        if (studentData.sem !== 0) {
+            try {
+                const { data: filteredData, error: filteredError } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .eq('department', studentData.dept)
+                    
+                console.log(filteredData)
+                setStudentDetails({ ...studentDetails, each: filteredData });
+                dispatch(setStudents({ mode: 'selected', students: filteredData }))
+            } catch (error) {
+                toast.error('Error in fetching data....💔')
+                console.error('An unexpected error occurred:', error);
+            }
+        } else {
+            handleMainBtnClick()
+        }
+    };
+
+    const handleInitiateFetchToast = () => {
+        toast.promise(handleInitiateFetching(), {
+            loading: `Loading ${studentData.dept} ${formatSemester(studentData.sem)} students...`,
+            success: `Successfully loaded ${studentData.dept} ${formatSemester(studentData.sem)} student data!`,
+            error: "Failed to load student data."
+        })
+    };
 
     return <>
         <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1.5'}`}>
@@ -117,7 +140,7 @@ const SelectStudent = ({sidebarHold}) => {
                         {semArr.map((sem, index) => (
                             <button
                             key={index}
-                            className={`w-full bg-slate-200 rounded-lg py-2 text-left px-4 ${studentData.sem === sem.value && ' ring-[2px] ring-blue-400'}`}
+                            className={`w-full bg-slate-200 rounded-lg py-2 text-left px-4 ${studentData.sem == sem.value && ' ring-[2px] ring-blue-400'}`}
                             onClick={() => handleDropDown('sem', sem.value)}>
                                 {sem.name} semester
                             </button>
@@ -128,9 +151,10 @@ const SelectStudent = ({sidebarHold}) => {
                         color="secondary"
                         className=' mt-5 ml-2'
                         value={studentData.dept}
-                        orientation="horizontal">
-                            <Radio className='mr-7 bg-slate-200 rounded-lg px-4' value="mca">MCA</Radio>
-                            <Radio className=' bg-slate-200 rounded-lg px-4' value="msc">MSc</Radio>
+                        orientation="horizontal"
+                        isRequired={true}>
+                            <Radio className='mr-7 bg-slate-200 rounded-lg px-4' value="MCA">MCA</Radio>
+                            <Radio className=' bg-slate-200 rounded-lg px-4' value="MSc">MSc</Radio>
                         </RadioGroup>
                     </ModalBody>
 
@@ -139,7 +163,7 @@ const SelectStudent = ({sidebarHold}) => {
                             Close
                         </Button>
 
-                        <Button color="primary" onPress={onClose}>
+                        <Button color="primary" onPress={onClose} onClick={handleInitiateFetchToast}>
                             Execute
                         </Button>
                     </ModalFooter>

@@ -2,6 +2,9 @@ export const formatSemester = (sem) => {
     let semester = '';
 
     switch (sem) {
+        case '0':
+            semester = 'All semesters';
+            break;
         case '1':
             semester = '1st semester';
             break;

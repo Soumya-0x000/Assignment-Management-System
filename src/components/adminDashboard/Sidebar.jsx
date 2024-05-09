@@ -8,7 +8,9 @@ import { GiTeacher } from "react-icons/gi";
 import { CgUserAdd } from "react-icons/cg";
 import { TbUserSearch } from "react-icons/tb";
 import { TbHandStop } from "react-icons/tb";
-import SelectStudent from './SelectStudent';
+import SelectStudent from './pages/SelectStudent';
+import SelectTeachers from './pages/SelectTeachers';
+import InsertMembers from './pages/InsertMembers';
 
 const Sidebar = () => {
     const name = 'Soumya Sankar Das';
@@ -55,17 +57,12 @@ const Sidebar = () => {
 
             {/* operational buttons */}
             <div className=' w-full px-3 space-y-4'>
-                <button className=' rounded-lg text-xl bg-[#337fbde8] w-full h-10 text-white flex items-center justify-center gap-x-3'>
-                    <GiTeacher className=' text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Teachers</span>
-                </button>
+                <SelectTeachers sidebarHold={sidebarHold}/>
                 
                 <SelectStudent sidebarHold={sidebarHold}/>
                 
-                <button className=' rounded-lg text-xl bg-[#299b7ae8] w-full h-10 text-white flex items-center justify-center gap-x-3'>
-                    <CgUserAdd className=' text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Insert</span>
-                </button>
+                <InsertMembers sidebarHold={sidebarHold}/>
+                
                 
                 <button className=' rounded-lg text-xl bg-[#4646ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3'>
                     <TbUserSearch className=' text-2xl'/>
