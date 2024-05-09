@@ -30,7 +30,6 @@ const SelectStudent = ({sidebarHold}) => {
     });
     const [tableName, setTableName] = useState('studentsSem');
     const [showFilter, setShowFilter] = useState(false);
-    const [isSearchInitiated, setIsSearchInitiated] = useState(false);
     const dispatch = useDispatch();
 
     const handleDropDown = (name, val) => {

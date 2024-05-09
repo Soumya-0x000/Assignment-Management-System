@@ -1,14 +1,8 @@
-import { Radio, RadioGroup } from '@nextui-org/react'
-import React, { useEffect, useState } from 'react'
-import { PiStudentBold } from 'react-icons/pi'
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
+import React, { useEffect } from 'react'
 import { supabase } from '../../../CreateClient';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { setStudents, setTeachers } from '../../../reduxStore/reducers/AdminDashboardSlice';
-import { TbFilterCog } from "react-icons/tb";
-import { motion } from 'framer-motion';
-import { formatSemester } from '../../../common/customHooks';
+import { setTeachers } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import { GiTeacher } from 'react-icons/gi';
 
 const SelectTeachers = ({sidebarHold}) => {

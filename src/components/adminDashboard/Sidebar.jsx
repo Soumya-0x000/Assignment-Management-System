@@ -4,13 +4,11 @@ import { GrPowerShutdown } from "react-icons/gr";
 import { supabase } from '../../CreateClient';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { GiTeacher } from "react-icons/gi";
-import { CgUserAdd } from "react-icons/cg";
-import { TbUserSearch } from "react-icons/tb";
 import { TbHandStop } from "react-icons/tb";
 import SelectStudent from './pages/SelectStudent';
 import SelectTeachers from './pages/SelectTeachers';
 import InsertMembers from './pages/InsertMembers';
+import SearchMembers from './pages/SearchMembers';
 
 const Sidebar = () => {
     const name = 'Soumya Sankar Das';
@@ -63,11 +61,7 @@ const Sidebar = () => {
                 
                 <InsertMembers sidebarHold={sidebarHold}/>
                 
-                
-                <button className=' rounded-lg text-xl bg-[#4646ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3'>
-                    <TbUserSearch className=' text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Search</span>
-                </button>
+                <SearchMembers sidebarHold={sidebarHold}/>  
             </div>
 
             {/* logout */}
