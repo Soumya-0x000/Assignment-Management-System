@@ -15,12 +15,12 @@ import {
     DropdownMenu, 
     DropdownItem
 } from "@nextui-org/react";
-import { LockIcon } from "../../icons/LockIcon";
-import { supabase } from "../../../../CreateClient";
+import { LockIcon } from "../icons/LockIcon";
+import { supabase } from "../../../CreateClient";
 import { useNavigate } from "react-router-dom";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
-import { formatSemester } from "../../../../common/customHooks";
+import { formatSemester } from "../../../common/customHooks";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();

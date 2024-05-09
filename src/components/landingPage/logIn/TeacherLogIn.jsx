@@ -11,8 +11,8 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import { MailIcon } from "../../icons/MailIcon";
-import { supabase } from "../../../../CreateClient";
+import { MailIcon } from "../icons/MailIcon";
+import { supabase } from "../../../CreateClient";
 import { useNavigate } from "react-router-dom";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 

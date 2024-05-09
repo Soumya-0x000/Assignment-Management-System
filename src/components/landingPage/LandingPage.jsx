@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import BgColorAnimation from '../../animation/BgColorAnimation';
-import StudentLogIn from './modal/logIn/StudentLogIn.jsx';
-import TeacherLogIn from './modal/logIn/TeacherLogIn.jsx';
-import AdminLogIn from './modal/logIn/AdminLogIn.jsx';
+import StudentLogIn from './logIn/StudentLogIn.jsx';
+import TeacherLogIn from './logIn/TeacherLogIn.jsx';
+import AdminLogIn from './logIn/AdminLogIn.jsx';
+import MainRegisterPage from './register/MainRegisterPage.jsx';
 import ChipTabs from '../../animation/Tabs';
-import MainRegisterPage from './modal/register/MainRegisterPage.jsx';
 
 const userArr = [
     {name: 'Student'},

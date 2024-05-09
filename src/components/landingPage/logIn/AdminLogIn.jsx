@@ -11,13 +11,13 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import { supabase } from "../../../../CreateClient";
-import { MailIcon } from "../../icons/MailIcon";
+import { supabase } from "../../../CreateClient";
+import { MailIcon } from "../icons/MailIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import toast, { Toaster } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setAdminAuthentication, setSession } from "../../../../reduxStore/reducers/AdminAuthSlice";
+import { setAdminAuthentication, setSession } from "../../../reduxStore/reducers/AdminAuthSlice";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();

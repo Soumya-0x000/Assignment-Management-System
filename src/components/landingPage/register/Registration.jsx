@@ -12,14 +12,14 @@ import {
     DropdownMenu,
     DropdownItem, 
 } from "@nextui-org/react";
-import { MailIcon } from "../../icons/MailIcon";
+import { MailIcon } from "../icons/MailIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
-import { supabase } from '../../../../CreateClient';
+import { supabase } from '../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
-import { formatSemester } from '../../../../common/customHooks';
+import { formatSemester } from '../../../common/customHooks';
 
 const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({

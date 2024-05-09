@@ -14,7 +14,7 @@ import {
     Link
 } from "@nextui-org/react";
 import Registration from './Registration';
-import { supabase } from '../../../../CreateClient';
+import { supabase } from '../../../CreateClient';
 
 const MainRegisterPage = ({userType}) => {
     const {isOpen, onOpen, onClose} = useDisclosure();

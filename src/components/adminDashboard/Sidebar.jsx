@@ -13,7 +13,6 @@ import SelectStudent from './SelectStudent';
 const Sidebar = () => {
     const name = 'Soumya Sankar Das';
     const [sidebarHold, setSidebarHold] = useState(false);
-    const [showFname, setShowFname] = useState(false)
     const navigate = useNavigate();
 
     const handleAdminSignOut = async() => {
@@ -32,7 +31,7 @@ const Sidebar = () => {
     return <>
         <Toaster/>
         
-        <div className={`${sidebarHold ? 'min-w-[13rem] max-w-[13rem]' : 'min-w-[5rem] hover:min-w-[13rem] max-w-[5rem] hover:max-w-[13rem]'} transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 `}>
+        <div className={`${sidebarHold ? 'min-w-[13rem] max-w-[13rem]' : 'min-w-[5rem] hover:min-w-[13rem] max-w-[5rem] hover:max-w-[13rem]'} transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-auto gap-y-8`}>
             {/* upper part, name and image */}
             <div className=' w-full flex flex-col gap-y-2 items-center justify-center'>
                 {/* img */}
