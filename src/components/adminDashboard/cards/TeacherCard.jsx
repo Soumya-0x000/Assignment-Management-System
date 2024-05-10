@@ -3,8 +3,12 @@ import { useSelector } from 'react-redux';
 import { MdOutlineMailOutline } from "react-icons/md";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { supabase } from '../../../CreateClient';
+import toast from 'react-hot-toast';
 
 const TeacherCard = () => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const { dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
     const [showPswd, setShowPswd] = useState(new Array(dataForCanvas.length).fill(false));
 
@@ -14,8 +18,32 @@ const TeacherCard = () => {
         setShowPswd(tempArr);
     };
 
-    const handleDeleteTeacher = (id) => {
-        console.log(id)
+    const handleDeleteTeacher = async(id, name) => {
+        try {
+            const { data, error } = await supabase
+                .from('teachers')
+                .delete()
+                .eq('uniqId', id);
+    
+            if (error) {
+                console.error('Error deleting row:', error.message);
+                return;
+            } else {
+                toast.success(`${name} deleted successfully...`)
+                console.log('Row deleted successfully:', data);
+            }
+        } catch (error) {
+            toast.error('Error occurred during deletion...')
+            console.error('An unexpected error occurred:', error);
+        }
+    };
+
+    const handleDeleteTeacherToast = (id, name) => {
+        toast.promise(handleDeleteTeacher(id, name), {
+            loading: 'Deleting teacher...',
+            success: 'Deletion initiated...!',
+            error: 'Failed to initiate deletion...'
+        })
     };
 
     return (
@@ -60,10 +88,35 @@ const TeacherCard = () => {
                                     {...data.name.split(' ').map(a => ([...a][0]))}
                                 </div>
 
+                                {/* delete btn */}
                                 <button className=' absolute right-0 text-red-500 text-xl -bottom-6 hidden group-hover:block'
-                                onClick={() => handleDeleteTeacher(data?.uniqId)}>
+                                onClick={onOpen}>
                                     <FiTrash2/>
                                 </button>
+
+                                {/* delete confirmation modal */}
+                                <Modal 
+                                backdrop="blur"
+                                isOpen={isOpen} 
+                                onOpenChange={onClose}
+                                onClose={onClose}>
+                                    <ModalContent>
+                                        <ModalHeader className="flex flex-col gap-1 text-xl">
+                                            Deletion confirmation
+                                        </ModalHeader>
+
+                                        <ModalFooter className=" mt-5 flex justify-between">
+                                            <Button color="danger" variant="flat" onPress={onClose}>
+                                                Close
+                                            </Button>
+
+                                            <Button className="bg-cyan-200 text-cyan-800" onClick={() => handleDeleteTeacherToast(data?.uniqId, data?.name)}
+                                            onPress={onClose}>
+                                                Delete
+                                            </Button>
+                                        </ModalFooter>
+                                    </ModalContent>
+                                </Modal>
                             </div>
 
                             {/* MCA */}
