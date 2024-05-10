@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast'
 const AdminDashboard = () => {
     return <>
         <Toaster/>
-        <div className='flex gap-x-3 bg-slate-700 h-screen'>
+        <div className='flex bg-slate-700 h-screen overflow-y-auto'>
             <Sidebar/>
             <Canvas/>
         </div>

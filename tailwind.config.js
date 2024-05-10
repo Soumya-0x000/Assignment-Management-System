@@ -12,6 +12,7 @@ export default {
     extend: {
       screens: {
         'xsm': '420px',
+        'preLg': '950px',
       },
       fontFamily: {
         montserrat: ['Montserrat', 'sans-serif'],

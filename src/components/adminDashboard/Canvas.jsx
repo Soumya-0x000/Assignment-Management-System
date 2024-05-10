@@ -4,21 +4,23 @@ import TeacherCard from './cards/TeacherCard';
 import StudentCard from './cards/StudentCard';
 
 const Canvas = () => {
-    const { mode } = useSelector(state => state.adminDashboard);
-
+    const { mode, dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
+    
     const dataToRender = () => {
+        if (!mode) return [];
+
         switch (mode) {
             case 'teacher':
-                return <TeacherCard/>
+                return dataForCanvas && dataForCanvas.length > 0 ? <TeacherCard/> : [];
             case 'student':
-                return <StudentCard/>
+                return dataForCanvas && dataForCanvas.length > 0 ? <StudentCard/> : [];
             default:
                 return [];
         }
     };
 
     return (
-        <div className='w-full'>
+        <div className='w-full h-full overflow-y-auto p-3'>
             {dataToRender()}
         </div>
     )

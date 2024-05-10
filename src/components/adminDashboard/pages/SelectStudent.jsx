@@ -114,7 +114,7 @@ const SelectStudent = ({sidebarHold}) => {
             <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
             onClick={handleMainBtnClick}>
                 <PiStudentBold className=' md:text-2xl'/>
-                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
+                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
             </button>
             
             {showFilter && (
@@ -125,7 +125,7 @@ const SelectStudent = ({sidebarHold}) => {
                 className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
                 onClick={onOpen}>
                     <TbFilterCog className=' text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'} text-[1.2rem] md:text-[1.3rem]`}>Filter</span>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1.2rem] md:text-[1.3rem]`}>Filter</span>
                 </motion.button>
             )}
         </div>
