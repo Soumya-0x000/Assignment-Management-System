@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { setMode, setTeachers } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import { GiTeacher } from 'react-icons/gi';
+import { Tooltip } from '@nextui-org/react';
 
 const SelectTeachers = ({sidebarHold}) => {
     const dispatch = useDispatch();
@@ -38,11 +39,17 @@ const SelectTeachers = ({sidebarHold}) => {
     }, []);
 
     return (
-        <button className=' rounded-lg text-xl bg-[#3a9dd2e8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
-        onClick={handleMainBtnClick}>
-            <GiTeacher className=' md:text-2xl'/>
-            <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Teachers</span>
-        </button>
+        <Tooltip 
+        placement={'top-start'}
+        content={'Teachers'}
+        color='primary'
+        closeDelay={0}>
+            <button className=' rounded-lg text-xl bg-[#3a9dd2e8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
+            onClick={handleMainBtnClick}>
+                <GiTeacher className=' md:text-2xl'/>
+                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Teachers</span>
+            </button>
+        </Tooltip>
     )
     
 }

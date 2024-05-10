@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import { GrUserAdmin } from "react-icons/gr";
 import { GrPowerShutdown } from "react-icons/gr";
 import { supabase } from '../../CreateClient';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { TbHandStop } from "react-icons/tb";
 import SelectStudent from './pages/SelectStudent';
 import SelectTeachers from './pages/SelectTeachers';
 import InsertMembers from './pages/InsertMembers';
 import SearchMembers from './pages/SearchMembers';
+import { Tooltip } from '@nextui-org/react';
+import { FaRegHandPaper } from "react-icons/fa";
+import { FaRegHandRock } from "react-icons/fa";
 
 const Sidebar = () => {
     const name = 'Soumya Sankar Das';
@@ -57,7 +59,7 @@ const Sidebar = () => {
 
                 <button className={` absolute left-1/2 -bottom-12 -translate-x-1/2 text-[1.5rem] w-fit text-green-300 active:text-red-400 bg-slate-700 rounded-lg mt-3 p-2 transition-all ${sidebarHold ? 'block' : ' hidden group-hover:preLg:block'}`}
                 onClick={() => setSidebarHold(!sidebarHold)}>
-                    <TbHandStop/>
+                    {sidebarHold ? <FaRegHandRock/> : <FaRegHandPaper/>}
                 </button>
             </div>
 
@@ -70,15 +72,21 @@ const Sidebar = () => {
             </div>
 
             {/* logout */}
-            <div className=' w-full px-3'>
-                <button className={` h-10 w-full text-white rounded-lg transition-all flex items-center justify-center gap-x-2 bg-[#fc5050] text-lg`}
-                onClick={handleSignOutToaster}>
-                    <GrPowerShutdown/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'}  text-[1.1rem] md:text-[1.2rem]`}>
-                        LogOut
-                    </span>
-                </button>
-            </div> 
+            <Tooltip 
+            placement={'top-start'}
+            content={'LogOut'}
+            color='danger'
+            closeDelay={0}>
+                <div className=' w-full px-3'>
+                    <button className={` h-10 w-full text-white rounded-lg transition-all flex items-center justify-center gap-x-2 bg-[#fc5050] text-lg`}
+                    onClick={handleSignOutToaster}>
+                        <GrPowerShutdown/>
+                        <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'}  text-[1.1rem] md:text-[1.2rem]`}>
+                            LogOut
+                        </span>
+                    </button>
+                </div> 
+            </Tooltip>
         </div>
     )
 }

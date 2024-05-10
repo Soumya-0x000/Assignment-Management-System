@@ -1,4 +1,4 @@
-import { Radio, RadioGroup } from '@nextui-org/react'
+import { Radio, RadioGroup, Tooltip } from '@nextui-org/react'
 import React, { useEffect, useState } from 'react'
 import { PiStudentBold } from 'react-icons/pi'
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
@@ -111,11 +111,17 @@ const SelectStudent = ({sidebarHold}) => {
 
     return <>
         <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1.5'}`}>
-            <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
-            onClick={handleMainBtnClick}>
-                <PiStudentBold className=' md:text-2xl'/>
-                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
-            </button>
+            <Tooltip 
+            placement={'right'}
+            content={'Students'}
+            color='secondary'
+            closeDelay={0}>
+                <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
+                onClick={handleMainBtnClick}>
+                    <PiStudentBold className=' md:text-2xl'/>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
+                </button>
+            </Tooltip>
             
             {showFilter && (
                 <motion.button 
