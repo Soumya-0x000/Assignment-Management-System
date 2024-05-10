@@ -1,12 +1,26 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
+import TeacherCard from './cards/TeacherCard';
+import StudentCard from './cards/StudentCard';
 
 const Canvas = () => {
-    const {students} = useSelector(state => state.adminDashboard);
-    console.log(students)
+    const { mode } = useSelector(state => state.adminDashboard);
+
+    const dataToRender = () => {
+        switch (mode) {
+            case 'teacher':
+                return <TeacherCard/>
+            case 'student':
+                return <StudentCard/>
+            default:
+                return [];
+        }
+    };
 
     return (
-        <div>Canvas</div>
+        <div className='w-full'>
+            {dataToRender()}
+        </div>
     )
 }
 

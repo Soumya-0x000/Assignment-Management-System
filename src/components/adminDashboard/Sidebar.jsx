@@ -28,15 +28,19 @@ const Sidebar = () => {
         })
     };
 
-    return <>
-        <Toaster/>
-        
-        <div className={`${sidebarHold ? 'min-w-[13rem] max-w-[13rem]' : 'min-w-[5rem] hover:min-w-[13rem] max-w-[5rem] hover:max-w-[13rem]'} transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-auto gap-y-8`}>
+    return (
+        <div className={`${sidebarHold 
+                ? `min-w-[8rem] max-w-[8rem] md:min-w-[13rem] md:max-w-[13rem]` 
+                : `min-w-[4rem] max-w-[4rem] 
+                md:min-w-[5rem] md:max-w-[5rem] 
+                hover:min-w-[8rem] hover:max-w-[8rem]
+                hover:md:min-w-[13rem] hover:md:max-w-[13rem]`
+            } transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-aut gap-y-8`}>
             {/* upper part, name and image */}
-            <div className=' w-full flex flex-col gap-y-2 items-center justify-center'>
+            <div className=' w-full flex flex-col md:gap-y-2 items-center justify-center'>
                 {/* img */}
-                <div className={`${!sidebarHold ? 'w-10 group-hover:w-[7rem] h-10 group-hover:h-12' : 'w-[7rem] h-12'}  transition-all rounded-full bg-green-300 flex items-center justify-center`}>
-                    <GrUserAdmin className={`${!sidebarHold ? ' group-hover:scale-[2] delay-50' : 'scale-[2]'} transition-all`}/>
+                <div className={`${!sidebarHold ? 'w-10 h-10 group-hover:w-[5rem] group-hover:md:w-[7rem] group-hover:h-12' : 'w-[5rem] md:w-[7rem] h-12'}  transition-all rounded-full bg-green-300 flex items-center justify-center`}>
+                    <GrUserAdmin className={`${!sidebarHold ? ' scale-[1.3] group-hover:scale-[1.5] group-hover:md:scale-[2] delay-50' : ' scale-[1.5] md:scale-[2]'} transition-all`}/>
                 </div>
 
                 {/* name part */}
@@ -45,7 +49,7 @@ const Sidebar = () => {
                         {name.split(' ').map(a => [...a][0])}
                     </p>
                     
-                    <p className={`${!sidebarHold ? 'hidden group-hover:block group-hover:mt-2 group-hover:' : 'block mt-2'} transition-all delay-1000`}>
+                    <p className={`${!sidebarHold ? 'hidden group-hover:block group-hover:mt-2 group-hover:' : 'block mt-2'} text-sm md:text-lg transition-all delay-1000 text-center`}>
                         <span className=' line-clamp-1'>
                             Soumya Sankar Das
                         </span>
@@ -66,10 +70,10 @@ const Sidebar = () => {
 
             {/* logout */}
             <div className=' w-full px-3'>
-                <button className={`${sidebarHold ? 'h-10' : 'h-8 group-hover:h-10'} w-full text-white rounded-lg transition-all flex items-center justify-center gap-x-2 bg-[#fc5050] text-lg`}
+                <button className={` h-10 w-full text-white rounded-lg transition-all flex items-center justify-center gap-x-2 bg-[#fc5050] text-lg`}
                 onClick={handleSignOutToaster}>
                     <GrPowerShutdown/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}  text-[1.1rem] md:text-[1.2rem]`}>
                         LogOut
                     </span>
                 </button>
@@ -80,7 +84,7 @@ const Sidebar = () => {
                 <TbHandStop/>
             </button> 
         </div>
-    </>;
+    )
 }
 
 export default Sidebar;

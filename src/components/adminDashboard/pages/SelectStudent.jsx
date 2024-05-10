@@ -5,7 +5,7 @@ import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDis
 import { supabase } from '../../../CreateClient';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { setStudents } from '../../../reduxStore/reducers/AdminDashboardSlice';
+import { setMode, setStudents } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import { TbFilterCog } from "react-icons/tb";
 import { motion } from 'framer-motion';
 import { formatSemester } from '../../../common/customHooks';
@@ -41,6 +41,7 @@ const SelectStudent = ({sidebarHold}) => {
 
     const AllStudentFetch = async () => {
         let studentArr = [];
+        
         try {
             const { data: tableData, error: tableError } = await supabase
                 .from('studentsTableName')
@@ -55,8 +56,9 @@ const SelectStudent = ({sidebarHold}) => {
                 studentArr.push(...data);
                 return { data, error };
             }));
+            dispatch(setMode('student'))
             setStudentDetails({ ...studentDetails, all: studentArr });
-            dispatch(setStudents({ mode: 'all', students: studentArr }))
+            dispatch(setStudents(studentArr))
         } catch (error) {
             console.error('An unexpected error occurred:', error);
         }
@@ -67,7 +69,7 @@ const SelectStudent = ({sidebarHold}) => {
         
         toast.promise(AllStudentFetch(), {
             loading: `Loading all ${studentData.dept} students...`,
-            success: "Successfully loaded student data!",
+            success: `Successfully loaded ${studentData.dept} students!`,
             error: "Failed to load student data."
         })
     };
@@ -80,7 +82,7 @@ const SelectStudent = ({sidebarHold}) => {
         setTableName(prevTableName => 'studentsSem' + studentData.sem);
     }, [studentData.sem]);
 
-    const handleInitiateFetching = async() => {
+    const handleFilteredFetching = async() => {
         if (studentData.sem !== 0) {
             try {
                 const { data: filteredData, error: filteredError } = await supabase
@@ -88,20 +90,19 @@ const SelectStudent = ({sidebarHold}) => {
                     .select('*')
                     .eq('department', studentData.dept)
                     
-                console.log(filteredData)
                 setStudentDetails({ ...studentDetails, each: filteredData });
-                dispatch(setStudents({ mode: 'selected', students: filteredData }))
+                dispatch(setStudents(filteredData))
             } catch (error) {
                 toast.error('Error in fetching data....💔')
                 console.error('An unexpected error occurred:', error);
             }
         } else {
-            handleMainBtnClick()
+            AllStudentFetch()
         }
     };
 
     const handleInitiateFetchToast = () => {
-        toast.promise(handleInitiateFetching(), {
+        toast.promise(handleFilteredFetching(), {
             loading: `Loading ${studentData.dept} ${formatSemester(studentData.sem)} students...`,
             success: `Successfully loaded ${studentData.dept} ${formatSemester(studentData.sem)} student data!`,
             error: "Failed to load student data."
@@ -110,10 +111,10 @@ const SelectStudent = ({sidebarHold}) => {
 
     return <>
         <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1.5'}`}>
-            <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
+            <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
             onClick={handleMainBtnClick}>
-                <PiStudentBold className=' text-2xl'/>
-                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Students</span>
+                <PiStudentBold className=' md:text-2xl'/>
+                <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
             </button>
             
             {showFilter && (
@@ -124,7 +125,7 @@ const SelectStudent = ({sidebarHold}) => {
                 className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-3 border-none outline-none'
                 onClick={onOpen}>
                     <TbFilterCog className=' text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'}`}>Filter</span>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:block'} text-[1.2rem] md:text-[1.3rem]`}>Filter</span>
                 </motion.button>
             )}
         </div>
