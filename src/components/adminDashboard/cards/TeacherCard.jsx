@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { MdOutlineMailOutline } from "react-icons/md";
 import { MdOutlineLock, MdOutlineLockOpen } from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import { supabase } from '../../../CreateClient';
 import toast from 'react-hot-toast';
+import { setMode, setTeachers } from '../../../reduxStore/reducers/AdminDashboardSlice';
 
 const TeacherCard = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
     const { dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
     const [showPswd, setShowPswd] = useState(new Array(dataForCanvas.length).fill(false));
+    const [deleteModalOpen, setDeleteModalOpen] = useState(new Array(dataForCanvas.length).fill(false));
+    const dispatch = useDispatch();
 
     const handlePswdVisibility = (index) => {
         const tempArr = [...showPswd];
@@ -24,13 +26,17 @@ const TeacherCard = () => {
                 .from('teachers')
                 .delete()
                 .eq('uniqId', id);
-    
+
             if (error) {
                 console.error('Error deleting row:', error.message);
+                toast.error(`${name} is not removed...`)
                 return;
             } else {
-                toast.success(`${name} deleted successfully...`)
-                console.log('Row deleted successfully:', data);
+                toast.success(`${name} deleted successfully...`);
+                const tempArr = [...dataForCanvas];
+                const newTeachers = tempArr.filter(mentor => mentor.uniqId !== id);
+                dispatch(setMode('teacher'))
+                dispatch(setTeachers(newTeachers))
             }
         } catch (error) {
             toast.error('Error occurred during deletion...')
@@ -43,6 +49,14 @@ const TeacherCard = () => {
             loading: 'Deleting teacher...',
             success: 'Deletion initiated...!',
             error: 'Failed to initiate deletion...'
+        })
+    };
+
+    const handleDeleteMiddleware = (index) => {
+        setDeleteModalOpen(prevState => {
+            const tempArr = [...deleteModalOpen]
+            tempArr[index] = !prevState[index]
+            return tempArr
         })
     };
 
@@ -89,29 +103,32 @@ const TeacherCard = () => {
                                 </div>
 
                                 {/* delete btn */}
-                                <button className=' absolute right-0 text-red-500 text-xl -bottom-6 hidden group-hover:block'
-                                onClick={onOpen}>
-                                    <FiTrash2/>
+                                <button className=' absolute p-2 right-0 text-red-500 text-xl -bottom-7 hidden group-hover:block'
+                                onClick={() => handleDeleteMiddleware(indx, data?.uniqId)}>
+                                    <FiTrash2 className=' rounded-full hover:bg-[#8b2a2a8f]'/>
                                 </button>
 
                                 {/* delete confirmation modal */}
                                 <Modal 
-                                backdrop="blur"
-                                isOpen={isOpen} 
-                                onOpenChange={onClose}
-                                onClose={onClose}>
+                                backdrop="transparent"
+                                isOpen={deleteModalOpen[indx]} 
+                                onClose={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                     <ModalContent>
-                                        <ModalHeader className="flex flex-col gap-1 text-xl">
+                                        <ModalHeader className="flex flex-col gap-1 text-lg">
                                             Deletion confirmation
                                         </ModalHeader>
 
-                                        <ModalFooter className=" mt-5 flex justify-between">
-                                            <Button color="danger" variant="flat" onPress={onClose}>
+                                        <ModalBody className=' text-xl'>
+                                            You want to remove {data?.name} ?
+                                        </ModalBody>
+
+                                        <ModalFooter className=" mt-3 flex justify-between">
+                                            <Button color="danger" variant="flat" onPress={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                                 Close
                                             </Button>
 
                                             <Button className="bg-cyan-200 text-cyan-800" onClick={() => handleDeleteTeacherToast(data?.uniqId, data?.name)}
-                                            onPress={onClose}>
+                                            onPress={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                                 Delete
                                             </Button>
                                         </ModalFooter>

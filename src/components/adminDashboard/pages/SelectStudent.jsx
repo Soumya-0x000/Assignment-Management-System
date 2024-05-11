@@ -110,7 +110,7 @@ const SelectStudent = ({sidebarHold}) => {
     };
 
     return <>
-        <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1.5'}`}>
+        <div className={`${showFilter && 'space-y-4 rounded-lg bg-slate-950 p-1 md:p-1.5'}`}>
             <Tooltip 
             placement={'right'}
             content={'Students'}

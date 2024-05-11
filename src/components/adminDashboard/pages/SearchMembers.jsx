@@ -5,7 +5,7 @@ import { TbUserSearch } from 'react-icons/tb'
 const SearchMembers = ({sidebarHold}) => {
     return <>
         <Tooltip 
-        placement={'bottom-start'}
+        placement={'right'}
         content={'Search member'}
         color='primary'
         closeDelay={0}>

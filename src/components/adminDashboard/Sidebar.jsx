@@ -73,7 +73,7 @@ const Sidebar = () => {
 
             {/* logout */}
             <Tooltip 
-            placement={'top-start'}
+            placement={'right'}
             content={'LogOut'}
             color='danger'
             closeDelay={0}>

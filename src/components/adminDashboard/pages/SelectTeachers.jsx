@@ -40,7 +40,7 @@ const SelectTeachers = ({sidebarHold}) => {
 
     return (
         <Tooltip 
-        placement={'top-start'}
+        placement={'right'}
         content={'Teachers'}
         color='primary'
         closeDelay={0}>
