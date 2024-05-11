@@ -41,7 +41,7 @@ const SelectStudent = ({sidebarHold}) => {
 
     const AllStudentFetch = async () => {
         let studentArr = [];
-        
+
         try {
             const { data: tableData, error: tableError } = await supabase
                 .from('studentsTableName')
@@ -59,6 +59,7 @@ const SelectStudent = ({sidebarHold}) => {
             dispatch(setMode('student'))
             setStudentDetails({ ...studentDetails, all: studentArr });
             dispatch(setStudents(studentArr))
+            
         } catch (error) {
             console.error('An unexpected error occurred:', error);
         }
@@ -83,7 +84,7 @@ const SelectStudent = ({sidebarHold}) => {
     }, [studentData.sem]);
 
     const handleFilteredFetching = async() => {
-        if (studentData.sem !== 0) {
+        if (+studentData.sem !== 0) {
             try {
                 const { data: filteredData, error: filteredError } = await supabase
                     .from(tableName)

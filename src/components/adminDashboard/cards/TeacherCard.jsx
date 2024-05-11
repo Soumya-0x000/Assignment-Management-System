@@ -7,6 +7,7 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from
 import { supabase } from '../../../CreateClient';
 import toast from 'react-hot-toast';
 import { setMode, setTeachers } from '../../../reduxStore/reducers/AdminDashboardSlice';
+import { nameLogo } from '../../../common/customHooks';
 
 const TeacherCard = () => {
     const { dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
@@ -72,7 +73,7 @@ const TeacherCard = () => {
                                 {/* name email */}
                                 <div className=' space-y-2 w-full'>
                                     {/* name */}
-                                    <p className='text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide'>
+                                    <p className='text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1'>
                                         {data.title} {data.name}
                                     </p>
 
@@ -99,7 +100,7 @@ const TeacherCard = () => {
 
                                 {/* logo */}
                                 <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1'>
-                                    {...data.name.split(' ').map(a => ([...a][0]))}
+                                    {nameLogo(data.name)}
                                 </div>
 
                                 {/* delete btn */}

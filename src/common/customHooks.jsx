@@ -22,3 +22,7 @@ export const formatSemester = (sem) => {
     }
     return semester;
 };
+
+export const nameLogo = (name) => {
+    return name.split(' ').map(a => ([...a][0]))
+}
