@@ -35,8 +35,6 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
     });
     const [tableName, setTableName] = useState('studentsSem');
     const [isVisible, setIsVisible] = useState(false);
-    const [isExist, setIsExist] = useState(false);
-    const [users, setUsers] = useState([]);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
     

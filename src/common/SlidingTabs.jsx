@@ -7,7 +7,7 @@ const SlidingTabs = ({
     setSelected,
 }) => {
     return (
-        <div className=" w-fit flex items-center flex-wrap gap-x-2 lg:gap-x-5">
+        <div className=" w-fit flex items-center justify-between flex-wrap gap-x-10 sm:gap-x-2 md:gap-x-4 lg:gap-x-5">
             {tabs.map((tab) => (
                 <Chip
                     text={tab}
