@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import toast from 'react-hot-toast';
 import { supabase } from '../../../CreateClient';
+import { motion } from 'framer-motion';
+import { childVariants, staggerVariants } from '../../../common/Animation';
 
 const StudentCard = () => {
     const { dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
@@ -65,11 +67,15 @@ const StudentCard = () => {
 
     return (
         <div className=' w-full h-full overflow-y-auto flex justify-center flex-wrap'>
-            <div className='flex items-center justify-center flex-wrap overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'>
+            <motion.div className='flex items-center justify-center flex-wrap overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
+            variants={staggerVariants}
+            initial='initial'
+            animate='animate'>
                 {dataForCanvas?.map((data, indx) => (
                     data && (
-                        <div className='flex flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group max-w-[28rem]'
-                        key={data.emailId + indx}>
+                        <motion.div className='flex flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group max-w-[28rem]'
+                        key={data.emailId + indx}
+                        variants={childVariants}>
                             {/* private details */}
                             <div className='w-full flex justify-between gap-x-4 md:gap-x-10 relative'>
                                 {/* name email */}
@@ -179,10 +185,10 @@ const StudentCard = () => {
                                     <span>Date of birth: {dayjs(data.birthDate).locale('en').format('DD MMMM, YYYY')}</span>
                                 </div>
                             </div>                            
-                        </div>
+                        </motion.div>
                     )
                 ))}
-            </div>
+            </motion.div>
         </div>
     )
 }

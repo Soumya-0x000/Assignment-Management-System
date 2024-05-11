@@ -2,6 +2,8 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import TeacherCard from './cards/TeacherCard';
 import StudentCard from './cards/StudentCard';
+import InsertCard from './cards/InsertCard';
+import SearchCard from './cards/SearchCard';
 
 const Canvas = () => {
     const { mode, dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
@@ -14,6 +16,10 @@ const Canvas = () => {
                 return dataForCanvas && dataForCanvas.length > 0 ? <TeacherCard/> : [];
             case 'student':
                 return dataForCanvas && dataForCanvas.length > 0 ? <StudentCard/> : [];
+            case 'insert':
+                return <InsertCard/>;
+            case 'search':
+                return <SearchCard/>;
             default:
                 return [];
         }

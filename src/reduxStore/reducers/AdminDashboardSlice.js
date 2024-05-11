@@ -37,8 +37,6 @@ const setDataForCanvas = (state) => {
             return state.teachers;
         case 'student':
             return state.students;
-        case 'insert':
-            return [];
         default:
             return [];
     }
