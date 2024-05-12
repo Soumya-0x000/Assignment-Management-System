@@ -95,7 +95,7 @@ export const InsertAdmin = () => {
     };
 
     return (
-        <form className=' max-w- [70%] w-full space-y-8'>
+        <form className=' w-full space-y-8'>
             <div className=' w-full flex flex-col items-center gap-y-8'>
                 {inputFields.map((field, index) => (
                     <div key={index} className='relative w-full transition-all'>

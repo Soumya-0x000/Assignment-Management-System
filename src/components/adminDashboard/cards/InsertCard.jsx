@@ -31,7 +31,7 @@ const InsertCard = () => {
             initial={{y: -100}}
             animate={{y: 0}}>
                 <div className=' text-white font-mavenPro md:text-[1.1rem] lg:text-[1.2rem] xl:text-[1.4rem] hidden sm:block'>
-                    Whom you want to insert?
+                    Whom do you want to insert?
                 </div>
 
                 <SlidingTabs

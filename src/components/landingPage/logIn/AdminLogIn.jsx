@@ -145,21 +145,23 @@ export default function AdminLogIn() {
                     });
                 }
 
-                // const setSessionVal = async () => {
-                //     const {data: {session}, error} = await supabase.auth.getSession();
-                //     if (error) throw error;
-                //     if(session?.user?.role === 'authenticated') { 
-                //         dispatch(setAdminAuthentication(true));
-                //         navigate(`/admindashboard`)
-                //     }
-                // };
+                const setSessionVal = async () => {
+                    const {data: {session}, error} = await supabase.auth.getSession();
+                    if (error) throw error;
+                    if(session?.user?.role === 'authenticated') { 
+                        dispatch(setAdminAuthentication(true));
+                        // navigate(`/admindashboard`)
+                    }
+                };
 
                 supabase.auth.onAuthStateChange((_, session) => {
                     console.log(session),
                     console.log(session?.user?.role),
-                    setSessionVal(session),
-                    session?.user?.role === 'authenticated' && dispatch(setAdminAuthentication(true))
-                    navigate('/admindashboard')
+                    setSessionVal(session)
+                    if (session?.user?.role === 'authenticated') {
+                        dispatch(setAdminAuthentication(true))
+                        navigate('/admindashboard')
+                    }
                 })
                 // setSessionVal();
                 

@@ -20,6 +20,8 @@ import { supabase } from '../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { formatSemester } from '../../../common/customHooks';
+import toast from 'react-hot-toast';
+import { FaCalendarAlt } from "react-icons/fa";
 
 const Registration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -77,7 +79,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
             }
     
             if (data.length > 0) {
-                window.alert('USN ID with provided email already exists');
+                toast.error('User already exists...');
                 return;
             }
     
@@ -122,6 +124,14 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
         setTableName(prevTableName => 'studentsSem' + studentRegisterData.semester);
     }, [studentRegisterData.semester]);
     
+    const handleRegisterToast = (e) => {
+        toast.promise(handleRegister(e), {
+            loading: 'Registering...',
+            success: 'Successfully Registered',
+            error: 'Failed to Register',
+        })
+    };
+
     return (
         <Modal 
         backdrop="blur"
@@ -190,6 +200,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
 
                     <Input
                         label="Date of Birth"
+                        endContent={<FaCalendarAlt className="text-xl text-default-400 pointer-events-none flex-shrink-0" />}
                         type='date'
                         name="dateOfBirth"
                         value={studentRegisterData.dateOfBirth}
@@ -240,7 +251,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                         Close
                     </Button>
 
-                    <Button className="bg-green-200 text-green-800" onClick={(e) => handleRegister(e)}>
+                    <Button className="bg-green-200 text-green-800" onClick={(e) => handleRegisterToast(e)}>
                         Register
                     </Button>
                 </ModalFooter>

@@ -18,12 +18,12 @@
 input[type="date"]::-webkit-calendar-picker-indicator{
     color: transparent;
     background-color: transparent;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     border-radius: 100%;
     cursor: pointer;
     z-index: 34;
     position: absolute; 
-    right:  12px;
-
+    right:  11px;
+    opacity: 0;
 }
