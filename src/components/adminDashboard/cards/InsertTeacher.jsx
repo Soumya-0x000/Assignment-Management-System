@@ -5,6 +5,9 @@ import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { supabase } from "../../../CreateClient";
 import toast from "react-hot-toast";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { TbListNumbers } from "react-icons/tb";
+import { SiGoogleclassroom } from "react-icons/si";
+import { MdOutlinePortrait } from "react-icons/md";
 
 export const InsertTeacher = () => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -12,6 +15,9 @@ export const InsertTeacher = () => {
         name: "", 
         email:"", 
         password: "",
+        dept: "",
+        sem: "",
+        subject: ""
     });
     const [isVisible, setIsVisible] = useState(false);
     const inputFields = [
@@ -38,9 +44,13 @@ export const InsertTeacher = () => {
 
     const handleReset = () => {
         setCommonAttributes({
-            name: "",
-            email: "",
-            password: ""
+            title: "",
+            name: "", 
+            email:"", 
+            password: "",
+            dept: "",
+            sem: "",
+            subject: ""
         });
     };
 
@@ -106,6 +116,26 @@ export const InsertTeacher = () => {
             },
         })
     };
+    const dropdowns = [
+        {
+          label: 'Department',
+          stateKey: 'dept',
+          icon: <SiGoogleclassroom className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
+          items: ['MCA', 'MSc']
+        },
+        {
+          label: 'Semester',
+          stateKey: 'sem',
+          icon: <TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />,
+          items: ['1st semester', '2nd semester', '3rd semester', '4th semester']
+        },
+        {
+          label: 'Subject',
+          stateKey: 'subject',
+          icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
+          items: ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Subject 5', 'Subject 6', 'Subject 7', 'Subject 8', 'Subject 9', 'Subject 10', 'Subject 11']
+        }
+      ];
 
     return (
         <form className=' w-full space-y-8'>
@@ -152,7 +182,7 @@ export const InsertTeacher = () => {
 
                             <label
                             htmlFor={field.name}
-                            className={`text-md text-green-400 pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${commonAttributes[field.name] ? '-translate-y-[3.1rem] translate-x-[.5rem] text-sm' : ''} peer-focus:-translate-y-[3.1rem] peer-focus:translate-x-[.5rem] peer-focus:text-sm transition-all`}>
+                            className={`text-md text-green-500 pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${commonAttributes[field.name] ? '-translate-y-[3.1rem] translate-x-[.5rem] text-sm' : ''} peer-focus:-translate-y-[3.1rem] peer-focus:translate-x-[.5rem] peer-focus:text-sm transition-all`}>
                                 {field.label}
                             </label>
 
@@ -163,6 +193,28 @@ export const InsertTeacher = () => {
                         </div>
                     </div>
                 ))}
+
+                <div className="w-full flex flex-col md:flex-row gap-x-4 gap-y-8">
+                    {dropdowns.map((dropdown, index) => (
+                        <Dropdown key={index} className="w-full">
+
+                        <DropdownTrigger className="w-full">
+                            <Button 
+                            endContent={dropdown.icon}
+                            className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
+                            variant="bordered">
+                                {commonAttributes[dropdown.stateKey] ? commonAttributes[dropdown.stateKey] : `Select ${dropdown.label.toLowerCase()}`}
+                            </Button>
+                        </DropdownTrigger>
+
+                        <DropdownMenu aria-label="Static Actions" className="w-full bg-slate-900 text-green-500 rounded-xl" onAction={(key) => handleDropDown(dropdown.stateKey, key)}>
+                            {dropdown.items.map((item, itemIndex) => (
+                                <DropdownItem key={itemIndex}>{item}</DropdownItem>
+                            ))}
+                        </DropdownMenu>
+                        </Dropdown>
+                    ))}
+                </div>
             </div>
 
             {/* buttons */}
