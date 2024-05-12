@@ -104,7 +104,7 @@ export const InsertAdmin = () => {
                             type={field.name === 'password' ? isVisible ? 'text' : 'password' : field.type}
                             name={field.name}
                             id={field.name}
-                            className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-300 ${commonAttributes[field.name] ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer`}
+                            className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[field.name] ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer`}
                             value={commonAttributes[field.name]}
                             onChange={handleChange}
                             min={field.name === 'password' ? 6 : 3}
@@ -126,6 +126,7 @@ export const InsertAdmin = () => {
                 ))}
             </div>
 
+            {/* buttons */}
             <div className=' w-full flex justify-between'>
                 <Button className=" font-onest text-md tracking-wide"
                 color='danger'
