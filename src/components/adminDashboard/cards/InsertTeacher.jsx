@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { MailIcon } from "../../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
@@ -8,6 +8,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { MdOutlinePortrait } from "react-icons/md";
+import { useSelector } from "react-redux";
 
 export const InsertTeacher = () => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -25,6 +26,7 @@ export const InsertTeacher = () => {
         { label: 'Email', name: 'email', type: 'email', icon: <MailIcon /> },
         { label: 'Password', name: 'password', type: 'password', icon: isVisible ? <BiSolidLockOpen /> : <BiSolidLock /> }
     ];
+    const [isResetting, setIsResetting] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,6 +45,7 @@ export const InsertTeacher = () => {
     };
 
     const handleReset = () => {
+        setIsResetting(true);
         setCommonAttributes({
             title: "",
             name: "", 
@@ -56,15 +59,16 @@ export const InsertTeacher = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        console.log(commonAttributes)
         try {
             const { data, error } = await supabase
                 .from('teachers')
-                .insert({
-                    title: commonAttributes.title, 
-                    name: commonAttributes.name, 
-                    emailId: commonAttributes.email, 
-                    password: commonAttributes.password 
-                })
+                // .insert({
+                //     title: commonAttributes.title, 
+                //     name: commonAttributes.name, 
+                //     emailId: commonAttributes.email, 
+                //     password: commonAttributes.password 
+                // })
 
             if (error) {
                 toast.error(`Can't insert`, {
@@ -116,26 +120,6 @@ export const InsertTeacher = () => {
             },
         })
     };
-    const dropdowns = [
-        {
-          label: 'Department',
-          stateKey: 'dept',
-          icon: <SiGoogleclassroom className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-          items: ['MCA', 'MSc']
-        },
-        {
-          label: 'Semester',
-          stateKey: 'sem',
-          icon: <TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />,
-          items: ['1st semester', '2nd semester', '3rd semester', '4th semester']
-        },
-        {
-          label: 'Subject',
-          stateKey: 'subject',
-          icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-          items: ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Subject 5', 'Subject 6', 'Subject 7', 'Subject 8', 'Subject 9', 'Subject 10', 'Subject 11']
-        }
-      ];
 
     return (
         <form className=' w-full space-y-8'>
@@ -194,27 +178,12 @@ export const InsertTeacher = () => {
                     </div>
                 ))}
 
-                <div className="w-full flex flex-col md:flex-row gap-x-4 gap-y-8">
-                    {dropdowns.map((dropdown, index) => (
-                        <Dropdown key={index} className="w-full">
-
-                        <DropdownTrigger className="w-full">
-                            <Button 
-                            endContent={dropdown.icon}
-                            className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
-                            variant="bordered">
-                                {commonAttributes[dropdown.stateKey] ? commonAttributes[dropdown.stateKey] : `Select ${dropdown.label.toLowerCase()}`}
-                            </Button>
-                        </DropdownTrigger>
-
-                        <DropdownMenu aria-label="Static Actions" className="w-full bg-slate-900 text-green-500 rounded-xl" onAction={(key) => handleDropDown(dropdown.stateKey, key)}>
-                            {dropdown.items.map((item, itemIndex) => (
-                                <DropdownItem key={itemIndex}>{item}</DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                        </Dropdown>
-                    ))}
-                </div>
+                <Dropdowns 
+                    commonAttributes={commonAttributes}
+                    isResetting={isResetting}
+                    setIsResetting={setIsResetting}
+                    setCommonAttributes={setCommonAttributes}
+                />
             </div>
 
             {/* buttons */}
@@ -233,5 +202,113 @@ export const InsertTeacher = () => {
                 </Button>
             </div>
         </form>
+    );
+};
+
+
+const Dropdowns = ({
+    commonAttributes, 
+    setCommonAttributes, 
+    isResetting, 
+    setIsResetting
+}) => {
+    const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
+    const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
+    const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
+    const {teacherAssignClassDetails} = useSelector(state => state.adminDashboard);
+
+    const deptSelectedValue = useMemo(
+        () => Array.from(deptSelectedKeys).join(", ").replaceAll("_", " "),
+        [deptSelectedKeys]
+    );
+
+    const semSelectedValue = useMemo(
+        () => Array.from(semSelectedKeys).join(", ").replaceAll("_", " "),
+        [semSelectedKeys]
+    );
+
+    const subjectSelectedValue = useMemo(
+        () => Array.from(subjectSelectedKeys).join(", ").replaceAll("_", " "),
+        [subjectSelectedKeys]
+    );
+
+    const dropdowns = [
+        {
+            label: 'Department',
+            stateKey: 'dept',
+            icon: <SiGoogleclassroom className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
+            items: teacherAssignClassDetails.dept,
+            selectedKeys: deptSelectedKeys,
+            setSelectedKeys: setDeptSelectedKeys,
+            selectedValue: deptSelectedValue
+        },
+        {
+            label: 'Semester',
+            stateKey: 'sem',
+            icon: <TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />,
+            items: teacherAssignClassDetails.sem,
+            selectedKeys: semSelectedKeys,
+            setSelectedKeys: setSemSelectedKeys,
+            selectedValue: semSelectedValue
+        },
+        {
+            label: 'Subject',
+            stateKey: 'subject',
+            icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
+            items: teacherAssignClassDetails.subject,
+            selectedKeys: subjectSelectedKeys,
+            setSelectedKeys: setSubjectSelectedKeys,
+            selectedValue: subjectSelectedValue
+        },
+    ];
+
+    useEffect(() => {
+        if (isResetting) {
+            setDeptSelectedKeys(new Set());
+            setSemSelectedKeys(new Set());
+            setSubjectSelectedKeys(new Set());
+            setIsResetting(false);
+        } else {
+            setCommonAttributes(prevState => ({
+                ...prevState,
+                dept: teacherAssignClassDetails.dept[Array.from(deptSelectedKeys).join(", ").replaceAll("_", " ")],
+                sem: teacherAssignClassDetails.sem[Array.from(semSelectedKeys).join(", ").replaceAll("_", " ")],
+                subject: teacherAssignClassDetails.subject[Array.from(subjectSelectedKeys).join(", ").replaceAll("_", " ")]
+            }));
+        }
+    }, [isResetting, deptSelectedKeys, semSelectedKeys, subjectSelectedKeys])
+    
+    return (
+        <div className="grid grid-cols-4 gap-x-4 gap-y-8 w-full">
+            {dropdowns.map((dropdown, index) => (
+                <div key={index} className={`w-full ${dropdown.stateKey === 'subject' ? 'col-span-4' : 'col-span-2'}`}>
+                    <Dropdown className={` w-full`}>
+                        <DropdownTrigger className="w-full">
+                            <Button 
+                                endContent={dropdown.icon}
+                                className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
+                                variant="bordered">
+                                {dropdown.selectedKeys.size > 0
+                                    ? Array.from(dropdown.selectedKeys).map((key) => dropdown.items[key]).join(', ')
+                                    : dropdown.label}
+                            </Button>
+                        </DropdownTrigger>
+
+                        <DropdownMenu 
+                        aria-label={`Multiple selection example for ${dropdown.label}`}
+                        closeOnSelect={false}
+                        disallowEmptySelection
+                        className="w-full bg-slate-900 text-green-500 rounded-xl" 
+                        selectionMode="multiple"
+                        selectedKeys={dropdown.selectedKeys}
+                        onSelectionChange={dropdown.setSelectedKeys}>
+                            {dropdown.items.map((item, itemIndex) => (
+                                <DropdownItem key={itemIndex}>{item}</DropdownItem>
+                            ))}
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+            ))}
+        </div>
     );
 };

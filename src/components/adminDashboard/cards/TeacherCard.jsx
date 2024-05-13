@@ -153,7 +153,7 @@ const TeacherCard = () => {
 
                                 <div className='grid grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
                                     {data.MCA && data.MCA.map((sub, i) => (
-                                        <div className=' flex items-center justify-center gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
+                                        <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
                                         key={i}>
                                             <span>{Object.entries(sub)[0][0]}:</span>
                                             <span>{Object.entries(sub)[0][1]}</span>
