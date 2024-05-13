@@ -71,8 +71,9 @@ const TeacherCard = () => {
             animate='animate'>
                 {dataForCanvas?.map((data, indx) => (
                     data && (
-                        <motion.div className='flex flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group'
+                        <motion.div 
                         key={data.emailId + indx}
+                        className='flex flex-wrap flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group'
                         variants={childVariants}>
                             {/* private details */}
                             <div className='w-full flex justify-between gap-x-10 relative'>
@@ -152,13 +153,22 @@ const TeacherCard = () => {
                                 </div>
 
                                 <div className='grid grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
-                                    {data.MCA && data.MCA.map((sub, i) => (
+                                    {data.MCA.length > 0 ? data.MCA
+                                    .filter(sub => Object.entries(sub).length > 0)
+                                    .sort((a, b) => {
+                                        const keyA = Object.keys(a)[0];
+                                        const keyB = Object.keys(b)[0];
+                                        return keyA.localeCompare(keyB)
+                                    })
+                                    .map((sub, i) => (   
                                         <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
                                         key={i}>
                                             <span>{Object.entries(sub)[0][0]}:</span>
                                             <span>{Object.entries(sub)[0][1]}</span>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className=' col-span-4 flex items-center justify-center rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'>No MCA classes...</div>
+                                    )}
                                 </div>
                             </div>
                             
@@ -171,13 +181,22 @@ const TeacherCard = () => {
                                 </div>
 
                                 <div className='grid grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
-                                    {data.MSc && data.MSc.map((sub, i) => (
-                                        <div className=' flex items-center justify-center gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
+                                    {data.MSc.length > 0 ? data.MSc
+                                    .filter(sub => Object.entries(sub).length > 0)
+                                    .sort((a, b) => {
+                                        const keyA = Object.keys(a)[0];
+                                        const keyB = Object.keys(b)[0];
+                                        return keyA.localeCompare(keyB)
+                                    })
+                                    .map((sub, i) => (
+                                        <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
                                         key={i}>
                                             <span>{Object.entries(sub)[0][0]}:</span>
                                             <span>{Object.entries(sub)[0][1]}</span>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className=' col-span-4 flex items-center justify-center rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'>No MSc classes...</div>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

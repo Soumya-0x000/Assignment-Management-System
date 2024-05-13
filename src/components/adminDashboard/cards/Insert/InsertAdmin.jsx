@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { BsPersonLinesFill } from "react-icons/bs";
-import { MailIcon } from "../../landingPage/icons/MailIcon";
+import { MailIcon } from "../../../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
-import { supabase } from "../../../CreateClient";
+import { supabase } from "../../../../CreateClient";
 import toast from "react-hot-toast";
 import { Button } from "@nextui-org/react";
 

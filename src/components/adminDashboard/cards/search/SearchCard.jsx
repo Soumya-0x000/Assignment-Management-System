@@ -1,23 +1,23 @@
-import React, { useState } from 'react'
-import SlidingTabs from '../../../common/SlidingTabs'
 import { motion } from 'framer-motion';
-import { InsertAdmin } from './InsertAdmin';
-import { InsertTeacher } from './InsertTeacher';
-import { InsertStudent } from './InsertStudent';
+import React, { useState } from 'react'
+import SlidingTabs from '../../../../common/SlidingTabs';
+import SearchStudent from './SearchStudent';
+import SearchTeacher from './SearchTeacher';
+import SearchAdmin from './SearchAdmin';
 
 const tabs = ['Admin', 'Teacher', 'Student'];
 
-const InsertCard = () => {
+const SearchCard = () => {
     const [selected, setSelected] = useState(tabs[0]);
 
     const renderInsertionForm = () => {
         switch (selected) {
             case 'Admin':
-                return <InsertAdmin/>;
+                return <SearchAdmin/>;
             case 'Teacher':
-                return <InsertTeacher/>
+                return <SearchTeacher/>
             case 'Student':
-                return <InsertStudent/>
+                return <SearchStudent/>
             default:
                 return <></>
         }
@@ -31,7 +31,7 @@ const InsertCard = () => {
             initial={{y: -100}}
             animate={{y: 0}}>
                 <div className=' text-white font-mavenPro md:text-[1.1rem] lg:text-[1.2rem] xl:text-[1.4rem] hidden sm:block'>
-                    Whom do you want to insert?
+                    Whom do you want to search?
                 </div>
 
                 <SlidingTabs
@@ -48,4 +48,4 @@ const InsertCard = () => {
     )
 }
 
-export default InsertCard;
+export default SearchCard;

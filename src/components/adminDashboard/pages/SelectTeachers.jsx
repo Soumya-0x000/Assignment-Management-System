@@ -14,7 +14,7 @@ const SelectTeachers = ({sidebarHold}) => {
             const { data: teacherData, error: teacherError } = await supabase
                 .from('teachers')
                 .select('*')
-console.log(teacherData)
+            
             if (teacherError) {
                 toast.error('Error in fetching teachers...')
             } else {

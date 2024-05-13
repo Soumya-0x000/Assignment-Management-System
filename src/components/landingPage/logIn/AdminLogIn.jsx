@@ -37,7 +37,6 @@ export default function AdminLogIn() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const router = useLocation();
-    // console.log(router)
 
     const handleChange = (e) => {
         const { name, value } = e.target;

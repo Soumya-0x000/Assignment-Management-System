@@ -9,15 +9,15 @@ const initialState = {
         dept: ['MCA', 'MSc'],
         sem: ['1st sem', '2nd sem', '3rd sem', '4th sem'],
         subject: [
-            'Data Structures & Algorithms',
-            'Database Management Systems',
-            'Operating Systems',
+            'DSA',
+            'DBMS',
+            'OS',
             'Computer Networks',
-            'Web Technology',
+            'IOT',
             'Software Engineering',
             'Computer Architecture',
-            'Artificial Intelligence',
-            'Machine Learning',
+            'AI',
+            'ML',
             'Cybersecurity'
         ],
     }

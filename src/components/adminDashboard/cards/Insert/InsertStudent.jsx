@@ -12,9 +12,9 @@ import { BiCalendar, BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import toast from 'react-hot-toast';
-import { formatSemester } from '../../../common/customHooks';
-import { supabase } from '../../../CreateClient';
-import { MailIcon } from '../../landingPage/icons/MailIcon';
+import { formatSemester } from '../../../../common/customHooks';
+import { supabase } from '../../../../CreateClient';
+import { MailIcon } from '../../../landingPage/icons/MailIcon';
 
 export const InsertStudent = () => {
     const [studentRegisterData, setStudentRegisterData] = useState({

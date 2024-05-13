@@ -2,8 +2,8 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import TeacherCard from './cards/TeacherCard';
 import StudentCard from './cards/StudentCard';
-import InsertCard from './cards/InsertCard';
-import SearchCard from './cards/SearchCard';
+import InsertCard from './cards/Insert/InsertCard';
+import SearchCard from './cards/search/SearchCard';
 
 const Canvas = () => {
     const { mode, dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
