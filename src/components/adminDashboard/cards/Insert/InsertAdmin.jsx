@@ -4,10 +4,11 @@ import { MailIcon } from "../../../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { supabase } from "../../../../CreateClient";
 import toast from "react-hot-toast";
-import { Button } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 
 export const InsertAdmin = () => {
     const [commonAttributes, setCommonAttributes] = useState({
+        title: "",
         name: "", 
         email:"", 
         password: "",
@@ -28,6 +29,13 @@ export const InsertAdmin = () => {
         });
     };
 
+    const handleDropDown = (name, val) => {
+        setCommonAttributes({
+            ...commonAttributes,
+            [name]: val
+        })
+    };
+
     const handleReset = () => {
         setCommonAttributes({
             name: "",
@@ -41,7 +49,12 @@ export const InsertAdmin = () => {
         try {
             const { data, error } = await supabase
                 .from('admin')
-                .insert({ name: commonAttributes.name, emailId: commonAttributes.email, password: commonAttributes.password })
+                .insert({
+                    title: commonAttributes.title, 
+                    name: commonAttributes.name, 
+                    emailId: commonAttributes.email, 
+                    password: commonAttributes.password 
+                })
 
             if (error) {
                 toast.error(`Can't insert`, {
@@ -98,29 +111,54 @@ export const InsertAdmin = () => {
         <form className=' w-full space-y-8'>
             <div className=' w-full flex flex-col items-center gap-y-8'>
                 {inputFields.map((field, index) => (
-                    <div key={index} className='relative w-full transition-all'>
-                        <input
-                            autoFocus={index === 0}
-                            type={field.name === 'password' ? isVisible ? 'text' : 'password' : field.type}
-                            name={field.name}
-                            id={field.name}
-                            className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[field.name] ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer`}
-                            value={commonAttributes[field.name]}
-                            onChange={handleChange}
-                            min={field.name === 'password' ? 6 : 3}
-                            max={field.name === 'password' ? 16 : undefined}
-                            required={true}
-                        />
+                    <div key={index} className={` w-full transition-all ${field.name === 'name' && ' grid grid-cols-4 gap-x-4 gap-y-8'}`}>
+                        {field.name === 'name' && (
+                            <div className=" col-span-4 sm:col-span-1">
+                                <Dropdown className=' w-full'>
+                                    <DropdownTrigger className=' w-full'>
+                                        <Button 
+                                        className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes.title ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
+                                        variant="bordered">
+                                            {commonAttributes.title ? commonAttributes.title : 'Select title'}
+                                        </Button>
+                                    </DropdownTrigger>
 
-                        <label
-                        htmlFor={field.name}
-                        className={`text-md text-green-400 pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${commonAttributes[field.name] ? '-translate-y-[3.1rem] translate-x-[.5rem] text-sm' : ''} peer-focus:-translate-y-[3.1rem] peer-focus:translate-x-[.5rem] peer-focus:text-sm transition-all`}>
-                            {field.label}
-                        </label>
+                                    <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
+                                    onAction={(key) => handleDropDown('title', key)}>
+                                        <DropdownItem key={'Dr.'}>Dr.</DropdownItem>
+                                        <DropdownItem key={'Mr.'}>Mr.</DropdownItem>
+                                        <DropdownItem key={'Mrs.'}>Mrs.</DropdownItem>
+                                        <DropdownItem key={'Miss'}>Miss</DropdownItem>
+                                        <DropdownItem key={'Prof.'}>Prof.</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </div>
+                        )}
 
-                        <div className={`${field.name === 'password' && 'cursor-pointer hover:scale-110 active:scale-90'} text-2xl text-default-400 absolute right-3 top-1/2 -translate-y-1/2 bg-slate-800 p-1 rounded-lg transition-all`}
-                        onClick={() => field.name === 'password' && setIsVisible(!isVisible)}>
-                            {field.icon}
+                        <div className={`${field.name === 'name' && ' col-span-4 sm:col-span-3' } relative`}>
+                            <input
+                                autoFocus={index === 0}
+                                type={field.name === 'password' ? isVisible ? 'text' : 'password' : field.type}
+                                name={field.name}
+                                id={field.name}
+                                className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[field.name] ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer`}
+                                value={commonAttributes[field.name]}
+                                onChange={handleChange}
+                                min={field.name === 'password' ? 6 : 3}
+                                max={field.name === 'password' ? 16 : undefined}
+                                required={true}
+                            />
+
+                            <label
+                            htmlFor={field.name}
+                            className={`text-md text-green-500 pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${commonAttributes[field.name] ? '-translate-y-[3.1rem] translate-x-[.5rem] text-sm' : ''} peer-focus:-translate-y-[3.1rem] peer-focus:translate-x-[.5rem] peer-focus:text-sm transition-all`}>
+                                {field.label}
+                            </label>
+
+                            <div className={`${field.name === 'password' && 'cursor-pointer hover:scale-110 active:scale-90'} text-2xl text-default-400 absolute right-3 top-1/2 -translate-y-1/2 bg-slate-800 p-1 rounded-lg transition-all`}
+                            onClick={() => field.name === 'password' && setIsVisible(!isVisible)}>
+                                {field.icon}
+                            </div>
                         </div>
                     </div>
                 ))}

@@ -1,15 +1,21 @@
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react'
-import { useState } from 'react'
+import { useState } from 'react';
 import { supabase } from '../../../../CreateClient';
 import { BsSearch } from 'react-icons/bs';
 import toast from 'react-hot-toast';
+import { MdOutlineMailOutline, MdOutlineLock, MdOutlineLockOpen } from 'react-icons/md';
+import { FiTrash2 } from 'react-icons/fi';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 import { motion } from 'framer-motion';
-import { staggerVariants } from '../../../../common/Animation';
+import { nameLogo } from '../../../../common/customHooks';
+import { TbLockAccess, TbLockAccessOff } from "react-icons/tb";
 
 const SearchAdmin = () => {
     const [searchBy, setSearchBy] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [showPswd, setShowPswd] = useState(false); 
+    const [showAuthCode, setShowAuthCode] = useState(false)
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
     const handleDropDown = (key) => {
         setSearchBy(key);
@@ -18,25 +24,34 @@ const SearchAdmin = () => {
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        
-        const { data, error } = await supabase
-            .from('admin')
-            .select('*')
-            .eq(searchBy, searchTerm)
-            .limit(10)
-            .order(searchBy, { ascending: true })
+        try {
+            const { data, error } = await supabase
+                .from('admin')
+                .select('*')
+                .eq(searchBy, searchTerm)
 
-        if(error) {
-            toast.error('No results found...')
-        } else {
-            toast.success('Search item has been found', {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            })
-            setSearchResults(data)
+            if (error) {
+                throw new Error('No results found...');
+            } else if (data.length > 0) {
+                setSearchResults(data);
+                toast.success('Search item has been found', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
+            } else {
+                toast.error('Found nothing', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                })
+            }
+        } catch (error) {
+            toast.error(error.message);
         }
     };
 
@@ -49,8 +64,48 @@ const SearchAdmin = () => {
         })
     };
 
+    const handleDeleteAdmin = async (id, name) => {
+        try {
+            const { data, error } = await supabase
+                .from('admin')
+                .delete()
+                .eq('authCode', id);
+
+            if (error) {
+                throw new Error(`Error deleting ${name}: ${error.message}`);
+            } else {
+                toast.success(`${name} deleted successfully...`);
+                const newAdmins = searchResults.filter((admin) => admin.uniqId !== id);
+                setSearchResults(newAdmins);
+            }
+        } catch (error) {
+            toast.error('Error occurred during deletion...');
+            console.error('An unexpected error occurred:', error);
+        } finally {
+            onclose()
+        }
+    };
+
+    const toggleVisibility = (name, e) => {
+        e.preventDefault();
+        if (name === 'pswd') {   
+            setShowPswd((prevState) => !prevState);
+        } else if (name === 'authCode') {
+            setShowAuthCode((prevState) => !prevState);
+        }
+    };
+
+    const handleDeleteAdminToast = (id, name) => {
+        toast.promise(handleDeleteAdmin(id, name), {
+            loading: 'Deleting admin...',
+            success: 'Deletion initiated...!',
+            error: 'Failed to initiate deletion...'
+        })
+    };
+
     return (
-        <form className=' w-full flex flex-col items-center gap-y-8'>
+        <div className=' w-full flex flex-col items-center gap-y-8'>
+            {/* Dropdown and Searchbar */}
             <div className=" w-full grid grid-cols-4 gap-x-4">
                 {/* dropdown */}
                 <div className=' col-span-1'>
@@ -98,62 +153,95 @@ const SearchAdmin = () => {
                 </div>
             </div>
 
-            <div className=' w-full flex flex-col items-center justify-center gap-y-4'>
-                <div className=' text-md text-green-500 font-onest'>Search Results</div>
-                <div className=' w-full h-full overflow-y-auto flex flex-wrap'>
+            {/* Search Results */}
+            <div className="w-full flex flex-col items-center justify-center gap-y-4">
+                <div className="text-md text-green-500 font-onest">Search Results</div>
 
-                <motion.div className='flex items-center justify-center flex-wrap overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
-                variants={staggerVariants}
-                initial='initial'
-                animate='animate'>
-                    {dataForCanvas?.map((data, indx) => (
-                        data && (
-                            <motion.div 
-                            key={data.emailId + indx}
-                            className='flex flex-wrap flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group'>
-                                {/* private details */}
-                                <div className='space-y-2 w-full'>
-                                    {/* name */}
-                                    <p className='text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1'>
-                                        {data.title} {data.name}
-                                    </p>
+                {searchResults.length > 0 && (
+                    <motion.div className=" flex justify-between gap-x-10 relative group bg-slate-900 px-3 py-3 rounded-xl w-fit max-w-[40rem]">
+                        {/* Details */}
+                        <div className="space-y-2 w-full">
+                            {/* Name */}
+                            <p className="text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1">
+                            {searchResults[0].title} {searchResults[0].name}
+                            </p>
 
-                                    {/* email, password and auth code */}
-                                    <div className='flex flex-col items-start gap-y-1 w-full'>
-                                        <div className='flex items-center gap-x-3'>
-                                            <MdOutlineMailOutline className='text-xl'/> {data.emailId}
-                                        </div>
-
-                                        <div className='flex items-center gap-x-3'>
-                                            <LockIcon className='h-5 w-5 text-[#20e9b0e8]'/>
-                                            <input
-                                                type='password'
-                                                className='outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro'
-                                                value={data.password}
-                                                disabled
-                                            />
-                                        </div>
-
-                                        <div className='flex items-center gap-x-3'>
-                                            <HiOutlineLockClosed className='text-xl'/> {data.authCode}
-                                        </div>
-                                    </div>
+                            {/* Email, pswd, authCode */}
+                            <div className="w-full bg-[#31404d] rounded-lg pr-7">
+                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                    <MdOutlineMailOutline className="text-xl" /> {searchResults[0].emailId}
                                 </div>
 
-                                {/* logo */}
-                                <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1'>
-                                    {nameLogo(data.name)}
-                                </div>
+                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                    <button className="text-xl" onClick={(e) => toggleVisibility('pswd', e)}>
+                                        {showPswd ? <MdOutlineLockOpen /> : <MdOutlineLock />}
+                                    </button>
 
-                            </motion.div>
-                        )
-                    ))}
-                </motion.div>
+                                    <input 
+                                        type={showPswd ? "text" : "password"}
+                                        className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
+                                        value={searchResults[0].password}
+                                        disabled
+                                    />
+                                </div>                                    
+                                
+                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                    <button className="text-xl" onClick={(e) => toggleVisibility('authCode', e)}>
+                                        {showAuthCode ? <TbLockAccess /> : <TbLockAccessOff />}
+                                    </button>
+
+                                    <input 
+                                        type={showAuthCode ? "text" : "password"}
+                                        className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
+                                        value={searchResults[0].authCode}
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Logo */}
+                        <div className="mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1">
+                            {nameLogo(searchResults[0].name)}
+                        </div>
+
+                        {/* Delete Button */}
+                        <button className="absolute p-2 right-3 bottom-1 text-red-500 text-xl hidden group-hover:block" onClick={() => onOpen()}>
+                            <FiTrash2 className="rounded-full" />
+                        </button>
+
+                        {/* Delete Confirmation Modal */}
+                        <Modal
+                        backdrop="transparent"
+                        isOpen={isOpen}
+                        onClose={onClose}>
+                            <ModalContent>
+                                <ModalHeader className="flex flex-col gap-1 text-lg font-mavenPro">
+                                    Deletion confirmation
+                                </ModalHeader>
+
+                                <ModalBody className="text-xl font-onest">
+                                    You want to remove {searchResults[0].name}?
+                                </ModalBody>
+
+                                <ModalFooter className="mt-3 flex justify-between">
+                                    <Button color="danger" variant="flat" onPress={onClose}>
+                                        Close
+                                    </Button>
+
+                                    <Button className="bg-cyan-200 text-cyan-800" 
+                                    onClick={() => handleDeleteAdminToast(searchResults[0].authCode, searchResults[0].name)}
+                                        onPress={() => handleDeleteMiddleware(index)}>
+                                        Delete
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
+                    </motion.div>
+                )}
             </div>
-            </div>
-        </form>
+        </div>
     )
 }
 
 export default SearchAdmin;
-

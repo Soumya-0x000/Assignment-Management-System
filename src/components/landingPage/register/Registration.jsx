@@ -92,7 +92,7 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                         birthDate: studentRegisterData.dateOfBirth,
                         semester: studentRegisterData.semester,
                         usnId: studentRegisterData.usnId,
-                        department: studentRegisterData.dept.toLowerCase()
+                        department: studentRegisterData.dept
                     }
                 ]);
     

@@ -113,7 +113,7 @@ const TeacherCard = () => {
                                 {/* delete btn */}
                                 <button className=' absolute p-2 right-0 text-red-500 text-xl -bottom-7 hidden group-hover:block'
                                 onClick={() => handleDeleteMiddleware(indx, data?.uniqId)}>
-                                    <FiTrash2 className=' rounded-full hover:bg-[#8b2a2a8f]'/>
+                                    <FiTrash2 className=' rounded-full'/>
                                 </button>
 
                                 {/* delete confirmation modal */}
