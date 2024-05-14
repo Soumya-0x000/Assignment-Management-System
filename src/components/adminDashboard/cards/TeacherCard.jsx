@@ -10,6 +10,7 @@ import { setMode, setTeachers } from '../../../reduxStore/reducers/AdminDashboar
 import { nameLogo } from '../../../common/customHooks';
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../../common/Animation';
+import { RenderDeptClass } from './RenderDeptClass';
 
 const TeacherCard = () => {
     const { dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
@@ -144,61 +145,7 @@ const TeacherCard = () => {
                                 </Modal>
                             </div>
 
-                            {/* MCA */}
-                            <div className=' mt-5 w-full'>
-                                <div className='pb-1 mb-2 w-full border-b-1 border-yellow-200 '>
-                                    <p className='text-[1.1rem] font-bold text-[#5bffd0fb] font-onest tracking-wide'>
-                                        MCA
-                                    </p>
-                                </div>
-
-                                <div className='grid grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
-                                    {data.MCA.length > 0 ? data.MCA
-                                    .filter(sub => Object.entries(sub).length > 0)
-                                    .sort((a, b) => {
-                                        const keyA = Object.keys(a)[0];
-                                        const keyB = Object.keys(b)[0];
-                                        return keyA.localeCompare(keyB)
-                                    })
-                                    .map((sub, i) => (   
-                                        <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
-                                        key={i}>
-                                            <span>{Object.entries(sub)[0][0]}:</span>
-                                            <span>{Object.entries(sub)[0][1]}</span>
-                                        </div>
-                                    )) : (
-                                        <div className=' col-span-4 flex items-center justify-center rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'>No MCA classes...</div>
-                                    )}
-                                </div>
-                            </div>
-                            
-                            {/* MSc */}
-                            <div className=' mt-5 w-full'>
-                                <div className='pb-1 mb-2 w-full border-b-1 border-yellow-200 '>
-                                    <p className='text-[1.1rem] font-bold text-[#5bffd0fb] font-onest tracking-wide'>
-                                        MSc
-                                    </p>
-                                </div>
-
-                                <div className='grid grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
-                                    {data.MSc.length > 0 ? data.MSc
-                                    .filter(sub => Object.entries(sub).length > 0)
-                                    .sort((a, b) => {
-                                        const keyA = Object.keys(a)[0];
-                                        const keyB = Object.keys(b)[0];
-                                        return keyA.localeCompare(keyB)
-                                    })
-                                    .map((sub, i) => (
-                                        <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
-                                        key={i}>
-                                            <span>{Object.entries(sub)[0][0]}:</span>
-                                            <span>{Object.entries(sub)[0][1]}</span>
-                                        </div>
-                                    )) : (
-                                        <div className=' col-span-4 flex items-center justify-center rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'>No MSc classes...</div>
-                                    )}
-                                </div>
-                            </div>
+                            <RenderDeptClass data={data}/>
                         </motion.div>
                     )
                 ))}

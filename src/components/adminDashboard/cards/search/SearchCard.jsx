@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import React, { useState } from 'react'
 import SlidingTabs from '../../../../common/SlidingTabs';
 import SearchStudent from './SearchStudent';
-import SearchTeacher from './SearchTeacher';
 import SearchAdmin from './SearchAdmin';
 
 const tabs = ['Admin', 'Teacher', 'Student'];
@@ -13,9 +12,9 @@ const SearchCard = () => {
     const renderInsertionForm = () => {
         switch (selected) {
             case 'Admin':
-                return <SearchAdmin/>;
+                return <SearchAdmin selected={selected} mode={'admin'}/>;
             case 'Teacher':
-                return <SearchTeacher/>
+                return <SearchAdmin selected={selected} mode={'teachers'}/>
             case 'Student':
                 return <SearchStudent/>
             default:
@@ -41,7 +40,7 @@ const SearchCard = () => {
                 />
             </motion.div>
 
-            <div className=' w-full md:w-[80%] max-w-[80rem] h-full flex flex-col items-center justify-center'>
+            <div className=' w-full md:w-[80%] max-w-[80rem] h-full flex flex-col items-center justify- center overflow-y-auto mt-10'>
                 {renderInsertionForm()}
             </div>
         </div>
