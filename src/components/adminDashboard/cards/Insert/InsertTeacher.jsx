@@ -76,10 +76,10 @@ export const InsertTeacher = () => {
             const { data, error } = await supabase
                 .from('teachers')
                 .insert({
-                    title: commonAttributes.title, 
-                    name: commonAttributes.name, 
-                    emailId: commonAttributes.email, 
-                    password: commonAttributes.password,
+                    title: commonAttributes.title.trim(), 
+                    name: commonAttributes.name.trim(), 
+                    emailId: commonAttributes.email.trim(), 
+                    password: commonAttributes.password.trim(),
                     MSc: MScData || [{}],
                     MCA: MCAData || [{}]
                 })

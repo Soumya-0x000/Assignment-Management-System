@@ -72,13 +72,13 @@ export const InsertStudent = () => {
             const { data: studentData, error: studentError } = await supabase
                 .from(tableName)
                 .insert([{
-                    name: studentRegisterData.name,
-                    emailId: studentRegisterData.email,
-                    password: studentRegisterData.password,
-                    birthDate: studentRegisterData.dateOfBirth,
-                    semester: studentRegisterData.semester,
-                    usnId: studentRegisterData.usnId,
-                    department: studentRegisterData.dept
+                    name: studentRegisterData.name.trim(),
+                    emailId: studentRegisterData.email.trim(),
+                    password: studentRegisterData.password.trim(),
+                    birthDate: studentRegisterData.dateOfBirth.trim(),
+                    semester: studentRegisterData.semester.trim(),
+                    usnId: studentRegisterData.usnId.trim(),
+                    department: studentRegisterData.dept.trim()
                 }]);
 
             if (studentError) {

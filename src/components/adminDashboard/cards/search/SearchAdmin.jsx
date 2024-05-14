@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../../CreateClient';
 import { BsSearch } from 'react-icons/bs';
 import toast from 'react-hot-toast';
@@ -13,9 +13,11 @@ const SearchAdmin = () => {
     const [searchBy, setSearchBy] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [showPswd, setShowPswd] = useState(false); 
-    const [showAuthCode, setShowAuthCode] = useState(false)
-    const {isOpen, onOpen, onClose} = useDisclosure();
+    const [visibility, setVisibility] = useState({
+        pswd: new Array(searchResults.length).fill(false),
+        uniqId: new Array(searchResults.length).fill(false)
+    });
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const handleDropDown = (key) => {
         setSearchBy(key);
@@ -26,7 +28,7 @@ const SearchAdmin = () => {
         e.preventDefault();
         try {
             const { data, error } = await supabase
-                .from('admin')
+                .from('teachers')
                 .select('*')
                 .eq(searchBy, searchTerm)
 
@@ -48,10 +50,10 @@ const SearchAdmin = () => {
                         background: '#333',
                         color: '#fff',
                     },
-                })
+                });
             }
         } catch (error) {
-            toast.error(error.message);
+            toast.error('not found');
         }
     };
 
@@ -61,15 +63,15 @@ const SearchAdmin = () => {
             loading: `Searching...`,
             success: `Successfully searched!`,
             error: "Failed to search.",
-        })
+        });
     };
 
     const handleDeleteAdmin = async (id, name) => {
         try {
             const { data, error } = await supabase
-                .from('admin')
+                .from('teachers')
                 .delete()
-                .eq('authCode', id);
+                .eq('uniqId', id);
 
             if (error) {
                 throw new Error(`Error deleting ${name}: ${error.message}`);
@@ -79,20 +81,20 @@ const SearchAdmin = () => {
                 setSearchResults(newAdmins);
             }
         } catch (error) {
-            toast.error('Error occurred during deletion...');
+            toast.error('Error occurred during deletion');
             console.error('An unexpected error occurred:', error);
         } finally {
-            onclose()
+            onClose();
         }
     };
 
-    const toggleVisibility = (name, e) => {
+    const toggleVisibility = (name, e, indx) => {
         e.preventDefault();
-        if (name === 'pswd') {   
-            setShowPswd((prevState) => !prevState);
-        } else if (name === 'authCode') {
-            setShowAuthCode((prevState) => !prevState);
-        }
+
+        setVisibility(prevVisibility => ({
+            ...prevVisibility,
+            [name]: prevVisibility[name].map((value, i) => (i === indx ? !value : value))
+        }));
     };
 
     const handleDeleteAdminToast = (id, name) => {
@@ -100,8 +102,15 @@ const SearchAdmin = () => {
             loading: 'Deleting admin...',
             success: 'Deletion initiated...!',
             error: 'Failed to initiate deletion...'
-        })
+        });
     };
+
+    useEffect(() => {
+        setVisibility({
+            pswd: new Array(searchResults.length).fill(false),
+            uniqId: new Array(searchResults.length).fill(false)
+        });
+    }, [searchResults]);
 
     return (
         <div className=' w-full flex flex-col items-center gap-y-8'>
@@ -136,7 +145,7 @@ const SearchAdmin = () => {
                         className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${searchTerm ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer w-full`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearchToast()}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearchToast(e)}
                         required={true}
                     />
 
@@ -157,91 +166,96 @@ const SearchAdmin = () => {
             <div className="w-full flex flex-col items-center justify-center gap-y-4">
                 <div className="text-md text-green-500 font-onest">Search Results</div>
 
-                {searchResults.length > 0 && (
-                    <motion.div className=" flex justify-between gap-x-10 relative group bg-slate-900 px-3 py-3 rounded-xl w-fit max-w-[40rem]">
-                        {/* Details */}
-                        <div className="space-y-2 w-full">
-                            {/* Name */}
-                            <p className="text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1">
-                            {searchResults[0].title} {searchResults[0].name}
-                            </p>
+                <div className=' flex flex-col lg:flex-row items-center gap-x-8 gap-y-6'>
+                    {searchResults.map((result, index) => (
+                        <motion.div key={result.uniqId} className="flex justify-between gap-x-10 relative group bg-slate-900 px-3 py-3 rounded-xl w-fit max-w-[40rem]">
+                            {/* Details */}
+                            <div className="space-y-2 w-full">
+                                {/* Name */}
+                                <p className="text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1">
+                                {result.title} {result.name}
+                                </p>
 
-                            {/* Email, pswd, authCode */}
-                            <div className="w-full bg-[#31404d] rounded-lg pr-7">
-                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
-                                    <MdOutlineMailOutline className="text-xl" /> {searchResults[0].emailId}
-                                </div>
+                                {/* Email, pswd, uniqId */}
+                                <div className="w-full bg-[#31404d] rounded-lg pr-7">
+                                    <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                        <MdOutlineMailOutline className="text-xl" /> {result.emailId}
+                                    </div>
 
-                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
-                                    <button className="text-xl" onClick={(e) => toggleVisibility('pswd', e)}>
-                                        {showPswd ? <MdOutlineLockOpen /> : <MdOutlineLock />}
-                                    </button>
+                                    <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                        <button className="text-xl" onClick={(e) => toggleVisibility('pswd', e, index)}>
+                                            {visibility.pswd[index] ? <MdOutlineLockOpen /> : <MdOutlineLock />}
+                                        </button>
 
-                                    <input 
-                                        type={showPswd ? "text" : "password"}
-                                        className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
-                                        value={searchResults[0].password}
-                                        disabled
-                                    />
-                                </div>                                    
-                                
-                                <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
-                                    <button className="text-xl" onClick={(e) => toggleVisibility('authCode', e)}>
-                                        {showAuthCode ? <TbLockAccess /> : <TbLockAccessOff />}
-                                    </button>
+                                        <input 
+                                            type={visibility.pswd[index] ? "text" : "password"}
+                                            className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
+                                            value={result.password}
+                                            disabled
+                                        />
+                                    </div>                                    
+                                    
+                                    <div className="text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full">
+                                        <button className="text-xl" onClick={(e) => toggleVisibility('uniqId', e, index)}>
+                                            {visibility.uniqId[index] ? <TbLockAccess /> : <TbLockAccessOff />}
+                                        </button>
 
-                                    <input 
-                                        type={showAuthCode ? "text" : "password"}
-                                        className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
-                                        value={searchResults[0].authCode}
-                                        disabled
-                                    />
+                                        <input 
+                                            type={visibility.uniqId[index] ? "text" : "password"}
+                                            className="outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro"
+                                            value={result.uniqId  || result.usnId}
+                                            disabled
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Logo */}
-                        <div className="mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1">
-                            {nameLogo(searchResults[0].name)}
-                        </div>
+                            {/* Logo */}
+                            <div className="mt-1 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1">
+                                {nameLogo(result.name)}
+                            </div>
 
-                        {/* Delete Button */}
-                        <button className="absolute p-2 right-3 bottom-1 text-red-500 text-xl hidden group-hover:block" onClick={() => onOpen()}>
-                            <FiTrash2 className="rounded-full" />
-                        </button>
+                            {/* icon */}
 
-                        {/* Delete Confirmation Modal */}
-                        <Modal
-                        backdrop="transparent"
-                        isOpen={isOpen}
-                        onClose={onClose}>
-                            <ModalContent>
-                                <ModalHeader className="flex flex-col gap-1 text-lg font-mavenPro">
-                                    Deletion confirmation
-                                </ModalHeader>
 
-                                <ModalBody className="text-xl font-onest">
-                                    You want to remove {searchResults[0].name}?
-                                </ModalBody>
+                            {/* Delete Button */}
+                            <button className="absolute p-2 right-3 bottom-1 text-red-500 text-xl hidden group-hover:block" onClick={() => onOpen()}>
+                                <FiTrash2 className="rounded-full" />
+                            </button>
 
-                                <ModalFooter className="mt-3 flex justify-between">
-                                    <Button color="danger" variant="flat" onPress={onClose}>
-                                        Close
-                                    </Button>
+                            {/* Delete Confirmation Modal */}
+                            <Modal
+                            backdrop="transparent"
+                            isOpen={isOpen}
+                            onClose={onClose}>
+                                <ModalContent>
+                                    <ModalHeader className="flex flex-col gap-1 text-lg font-mavenPro">
+                                        Deletion confirmation
+                                    </ModalHeader>
 
-                                    <Button className="bg-cyan-200 text-cyan-800" 
-                                    onClick={() => handleDeleteAdminToast(searchResults[0].authCode, searchResults[0].name)}
-                                        onPress={() => handleDeleteMiddleware(index)}>
-                                        Delete
-                                    </Button>
-                                </ModalFooter>
-                            </ModalContent>
-                        </Modal>
-                    </motion.div>
-                )}
+                                    <ModalBody className="text-xl font-onest">
+                                        You want to remove {result.name}?
+                                    </ModalBody>
+
+                                    <ModalFooter className="mt-3 flex justify-between">
+                                        <Button color="danger" variant="flat" onPress={onClose}>
+                                            Close
+                                        </Button>
+
+                                        <Button className="bg-cyan-200 text-cyan-800" 
+                                        onClick={() => handleDeleteAdminToast(result.uniqId, result.name)}
+                                            onPress={() => handleDeleteMiddleware(index)}>
+                                            Delete
+                                        </Button>
+                                    </ModalFooter>
+                                </ModalContent>
+                            </Modal>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default SearchAdmin;

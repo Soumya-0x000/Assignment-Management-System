@@ -50,10 +50,10 @@ export const InsertAdmin = () => {
             const { data, error } = await supabase
                 .from('admin')
                 .insert({
-                    title: commonAttributes.title, 
-                    name: commonAttributes.name, 
-                    emailId: commonAttributes.email, 
-                    password: commonAttributes.password 
+                    title: commonAttributes.title.trim(),
+                    name: commonAttributes.name.trim(), 
+                    emailId: commonAttributes.email.trim(), 
+                    password: commonAttributes.password.trim() 
                 })
 
             if (error) {
