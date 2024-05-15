@@ -26,7 +26,7 @@ import { FaChalkboardTeacher } from "react-icons/fa";
 import { childVariants, staggerVariants } from '../../../../common/Animation';
 import { RenderDeptClass } from '../RenderDeptClass';
 
-const SearchAdmin = ({mode, selected}) => {
+const SearchAdminTeacher = ({mode, selected}) => {
     const [searchBy, setSearchBy] = useState('name');
     const [searchTerm, setSearchTerm] = useState('SS Das');
     const [searchResults, setSearchResults] = useState([]);
@@ -147,7 +147,7 @@ const SearchAdmin = ({mode, selected}) => {
     return (
         <div className=' w-full flex flex-col items-cente gap-y-8 relative'>
             {/* Dropdown and Searchbar */}
-            <div className=" w-full grid grid-cols-4 gap-x-4 gap-y-8 sticky top-0 bg-slate-700 z-10">
+            <div className=" w-full grid grid-cols-4 gap-x-4 gap-y-8 sticky top-0 bg-slate-700 z-10 pb-2">
                 {/* dropdown */}
                 <div className=' col-span-4 sm:col-span-1'>
                     <Dropdown className=' w-full'>
@@ -315,4 +315,4 @@ const SearchAdmin = ({mode, selected}) => {
     );
 };
 
-export default SearchAdmin;
+export default SearchAdminTeacher;

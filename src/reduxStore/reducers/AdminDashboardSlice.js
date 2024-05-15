@@ -54,6 +54,8 @@ const setDataForCanvas = (state) => {
             return state.teachers;
         case 'student':
             return state.students;
+        case 'search':
+            return state.students;
         default:
             return [];
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PiStudentFill } from "react-icons/pi";
 import { 
     Button, 
@@ -17,16 +17,29 @@ import {
 import toast from 'react-hot-toast';
 import { supabase } from '../../../../CreateClient';
 import { BsSearch } from 'react-icons/bs';
+import { motion } from 'framer-motion';
+import { childVariants, staggerVariants } from '../../../../common/Animation';
+import { MdOutlineLockOpen, MdOutlineMailOutline } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { setMode, setStudents } from '../../../../reduxStore/reducers/AdminDashboardSlice';
+import StudentCard from '../StudentCard';
 
 const SearchStudent = () => {
     const [searchBy, setSearchBy] = useState('name');
     const [searchTerm, setSearchTerm] = useState('Kishor das');
     const [searchResults, setSearchResults] = useState([]);
-    const [visibility, setVisibility] = useState({
-        pswd: new Array(searchResults.length).fill(false),
-        uniqId: new Array(searchResults.length).fill(false)
-    });
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [tableList, setTableList] = useState([]);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        (async() => {
+            const { data: tableData, error: tableError } = await supabase
+                .from('studentsTableName')
+                .select('*')
+
+            setTableList(tableData)
+        })();
+    }, []);
 
     const handleDropDown = (key) => {
         setSearchBy(key);
@@ -35,73 +48,70 @@ const SearchStudent = () => {
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        setSearchResults([]);
+    
         try {
-            const { data: tableData, error: tableError } = await supabase
-                .from('studentsTableName')
-                .select('*')
-            console.log(tableData.tableName);
-            if (tableError) {
-                toast.error('Error occurred');
-            } else if (tableData.length > 0) {
-                (() => {
-                    let result = [];
+            const promises = tableList.map(async (val) => {
+                const { data: studentData, error: studentError } = await supabase
+                    .from(val.tableName)
+                    .select('*')
+                    .eq(searchBy, searchTerm);
                 
-                    Promise.all(tableData.map(async (val, i) => {
-                        const { data: studentData, error: studentError } = await supabase
-                            .from(val.tableName)
-                            .select('*')
-                            .eq(searchBy, searchTerm);
-                        
-                        if(studentData.length > 0) {
-                            result.push(studentData);
-
-                        } 
-                        setSearchResults(prev => ({
-                            ...prev, studentData
-                        }))
-                    })).then(
-                        setSearchResults(result)
-                    )
-                })();
-                console.log(searchResults);
-            }
-
-
-            if (error) {
-                throw new Error('No results found...');
-            } else if (tableData.length > 0) {
-                toast.success('Search item has been found', {
+                if(studentData.length > 0) {
+                    return studentData;
+                }
+                return [];
+            });
+    
+            const results = await Promise.all(promises);
+            const flattenedResults = results.flat(); // Flatten the array of arrays
+            
+            if (flattenedResults.length > 0) {
+                setSearchResults(flattenedResults);
+                toast.success('Item found!', {
                     style: {
                         borderRadius: '10px',
                         background: '#333',
                         color: '#fff',
-                    },
+                    }
                 });
             } else {
-                toast.error('Found nothing', {
+                toast.error('Nothing found', {
                     style: {
                         borderRadius: '10px',
                         background: '#333',
                         color: '#fff',
-                    },
+                    }
                 });
             }
         } catch (error) {
             toast.error('not found');
         }
     };
-
+    
     const handleSearchToast = (e) => {
         e.preventDefault();
         toast.promise(handleSearch(e), {
-            loading: `Searching...`,
-            success: `Successfully searched!`,
-            error: "Failed to search.",
+            loading: `Loading...`,
+            success: `Search initiated!`,
+            error: "Failed to initiate search.",
+        },
+        {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
         });
     };
 
+    useEffect(() => {
+        dispatch(setMode('search'));
+        dispatch(setStudents(searchResults));
+    }, [searchResults]);
+
     return (
-        <div className=' w-full flex flex-col items-cente gap-y-8 relative'>
+        <div className=' w-full flex flex-col items-center gap-y-8 relative overflow-y-auto'>
             {/* Dropdown and Searchbar */}
             <div className=" w-full grid grid-cols-4 gap-x-4 gap-y-8 sticky top-0 bg-slate-700 z-10">
                 {/* dropdown */}
@@ -149,6 +159,8 @@ const SearchStudent = () => {
                     </div>
                 </div>
             </div>
+
+            <StudentCard/>
         </div>
     )
 }

@@ -40,7 +40,6 @@ const StudentCard = () => {
                 toast.success(`${name} deleted successfully...`);
                 const tempArr = [...dataForCanvas];
                 const newStudents = tempArr.filter(mentor => mentor.uniqId !== id);
-                dispatch(setMode('student'))
                 dispatch(setStudents(newStudents))
             }
         } catch (error) {

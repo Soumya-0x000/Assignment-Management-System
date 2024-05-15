@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import React, { useState } from 'react'
 import SlidingTabs from '../../../../common/SlidingTabs';
 import SearchStudent from './SearchStudent';
-import SearchAdmin from './SearchAdmin';
+import SearchAdminTeacher from './SearchAdminTeacher';
 
 const tabs = ['Admin', 'Teacher', 'Student'];
 
@@ -12,9 +12,9 @@ const SearchCard = () => {
     const renderInsertionForm = () => {
         switch (selected) {
             case 'Admin':
-                return <SearchAdmin selected={selected} mode={'admin'}/>;
+                return <SearchAdminTeacher selected={selected} mode={'admin'}/>;
             case 'Teacher':
-                return <SearchAdmin selected={selected} mode={'teachers'}/>
+                return <SearchAdminTeacher selected={selected} mode={'teachers'}/>
             case 'Student':
                 return <SearchStudent/>
             default:

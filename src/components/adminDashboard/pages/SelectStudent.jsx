@@ -72,6 +72,12 @@ const SelectStudent = ({sidebarHold}) => {
             loading: `Loading all ${studentData.dept} students...`,
             success: `Successfully loaded ${studentData.dept} students!`,
             error: "Failed to load student data."
+        },{
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff'
+            }
         })
     };
 
