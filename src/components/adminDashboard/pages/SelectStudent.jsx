@@ -90,6 +90,8 @@ const SelectStudent = ({sidebarHold}) => {
     }, [studentData.sem]);
 
     const handleFilteredFetching = async() => {
+        dispatch(setStudents([]));
+        
         if (+studentData.sem !== 0) {
             try {
                 const { data: filteredData, error: filteredError } = await supabase
@@ -123,10 +125,10 @@ const SelectStudent = ({sidebarHold}) => {
             content={'Students'}
             color='secondary'
             closeDelay={0}>
-                <button className=' rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center justify-center gap-x-2 md:gap-x-3 border-none outline-none'
+                <button className={`${sidebarHold ? ' preLg:pl-5 justify-start' : ' justify-center preLg:group-hover:justify-start preLg:group-hover:pl-5'} rounded-lg text-xl bg-[#8446ffe8] w-full h-10 text-white flex items-center gap-x-2 md:gap-x-3 border-none outline-none`}
                 onClick={handleMainBtnClick}>
-                    <PiStudentBold className=' md:text-2xl'/>
-                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] md:text-[1.3rem]`}>Students</span>
+                    <PiStudentBold className=' md:text-xl'/>
+                    <span className={`${sidebarHold ? 'block' : 'hidden group-hover:preLg:block'} text-[1rem] preLg:text-[1.2rem] font-onest`}>Students</span>
                 </button>
             </Tooltip>
             

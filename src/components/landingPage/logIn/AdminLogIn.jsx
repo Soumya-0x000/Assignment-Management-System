@@ -128,6 +128,7 @@ export default function AdminLogIn() {
                     email: adminLoginData.email,
                     options: {
                         shouldCreateUser: false,
+                        // emailRedirectTo: 'http://localhost:5173/'
                     }
                 });
                 

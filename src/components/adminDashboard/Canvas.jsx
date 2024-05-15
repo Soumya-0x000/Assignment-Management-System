@@ -5,12 +5,13 @@ import StudentCard from './cards/StudentCard';
 import InsertCard from './cards/Insert/InsertCard';
 import SearchCard from './cards/search/SearchCard';
 import AdminHome from './pages/AdminHome';
+import HomePage from './HomePage';
 
 const Canvas = () => {
     const { mode, dataForCanvas } = useSelector(state => state.adminDashboard) ?? {};
     
     const dataToRender = () => {
-        if (!mode) return [];
+        if (!mode) return <HomePage/>;
 
         switch (mode) {
             case 'teacher':
@@ -21,8 +22,10 @@ const Canvas = () => {
                 return <InsertCard/>;
             case 'search':
                 return <SearchCard/>;
+            case 'home':
+                return <HomePage/>;
             default:
-                return <AdminHome/>;
+                return <HomePage/>;
         }
     };
 

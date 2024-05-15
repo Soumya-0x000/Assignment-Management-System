@@ -1,45 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { PiStudentFill } from "react-icons/pi";
 import { 
     Button, 
     Dropdown, 
     DropdownItem, 
     DropdownMenu, 
-    DropdownTrigger, 
-    Modal, 
-    ModalBody, 
-    ModalContent, 
-    ModalFooter, 
-    ModalHeader, 
-    Tooltip, 
-    useDisclosure
+    DropdownTrigger
 } from '@nextui-org/react';
 import toast from 'react-hot-toast';
 import { supabase } from '../../../../CreateClient';
 import { BsSearch } from 'react-icons/bs';
-import { motion } from 'framer-motion';
-import { childVariants, staggerVariants } from '../../../../common/Animation';
-import { MdOutlineLockOpen, MdOutlineMailOutline } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setMode, setStudents } from '../../../../reduxStore/reducers/AdminDashboardSlice';
 import StudentCard from '../StudentCard';
+import { tableList } from '../../../../common/customHooks';
 
 const SearchStudent = () => {
     const [searchBy, setSearchBy] = useState('name');
     const [searchTerm, setSearchTerm] = useState('Kishor das');
     const [searchResults, setSearchResults] = useState([]);
-    const [tableList, setTableList] = useState([]);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        (async() => {
-            const { data: tableData, error: tableError } = await supabase
-                .from('studentsTableName')
-                .select('*')
-
-            setTableList(tableData)
-        })();
-    }, []);
 
     const handleDropDown = (key) => {
         setSearchBy(key);
@@ -53,7 +32,7 @@ const SearchStudent = () => {
         try {
             const promises = tableList.map(async (val) => {
                 const { data: studentData, error: studentError } = await supabase
-                    .from(val.tableName)
+                    .from(val)
                     .select('*')
                     .eq(searchBy, searchTerm);
                 
@@ -64,7 +43,7 @@ const SearchStudent = () => {
             });
     
             const results = await Promise.all(promises);
-            const flattenedResults = results.flat(); // Flatten the array of arrays
+            const flattenedResults = results.flat();
             
             if (flattenedResults.length > 0) {
                 setSearchResults(flattenedResults);

@@ -26,3 +26,5 @@ export const formatSemester = (sem) => {
 export const nameLogo = (name) => {
     return name.split(' ').map(a => ([...a][0]))
 }
+
+export const tableList = ['studentsSem1', 'studentsSem2', 'studentsSem3', 'studentsSem4'];

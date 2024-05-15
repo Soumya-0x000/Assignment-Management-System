@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { GrUserAdmin } from "react-icons/gr";
 import { GrPowerShutdown } from "react-icons/gr";
 import { supabase } from '../../CreateClient';
@@ -11,11 +11,26 @@ import SearchMembers from './pages/SearchMembers';
 import { Tooltip } from '@nextui-org/react';
 import { FaRegHandPaper } from "react-icons/fa";
 import { FaRegHandRock } from "react-icons/fa";
+import AdminHome from './pages/AdminHome';
 
 const Sidebar = () => {
     const name = 'Soumya Sankar Das';
     const [sidebarHold, setSidebarHold] = useState(false);
     const navigate = useNavigate();
+
+    useLayoutEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 950) {
+                setSidebarHold(prev => !prev);
+            } else {
+                setSidebarHold(prev => !prev);
+            }
+        };
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
+    },[]);
 
     const handleAdminSignOut = async() => {
         const { error } = await supabase.auth.signOut();
@@ -65,10 +80,11 @@ const Sidebar = () => {
 
             {/* operational buttons */}
             <div className=' w-full px-3 space-y-4'>
+                <AdminHome sidebarHold={sidebarHold}/>
                 <SelectTeachers sidebarHold={sidebarHold}/>
                 <SelectStudent sidebarHold={sidebarHold}/>
                 <InsertMembers sidebarHold={sidebarHold}/>
-                <SearchMembers sidebarHold={sidebarHold}/>  
+                <SearchMembers sidebarHold={sidebarHold}/>
             </div>
 
             {/* logout */}
