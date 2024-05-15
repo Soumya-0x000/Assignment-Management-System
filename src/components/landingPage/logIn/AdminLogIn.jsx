@@ -26,9 +26,11 @@ export default function AdminLogIn() {
         password: ''
     });
     const [isVisible, setIsVisible] = useState(false);
-    const [detailsMatched, setDetailsMatched] = useState(false)
+    const [detailsMatched, setDetailsMatched] = useState(false);
+    const [adminData, setAdminData] = useState([]);
     const [sessionVal, setSessionVal] = useState({})
     const toggleVisibility = () => setIsVisible(!isVisible);
+    console.log(adminData)
 
     const {
         session: adminSession,
@@ -36,7 +38,6 @@ export default function AdminLogIn() {
     } = useSelector(state => state.adminAuth)
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const router = useLocation();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -56,6 +57,7 @@ export default function AdminLogIn() {
             
             if (!adminStatusError && adminStatusData?.length > 0){
                 setDetailsMatched(true);
+                setAdminData(adminStatusData);
 
                 toast((t) => (
                     <span>
@@ -128,12 +130,11 @@ export default function AdminLogIn() {
                     email: adminLoginData.email,
                     options: {
                         shouldCreateUser: false,
-                        // emailRedirectTo: 'http://localhost:5173/'
+                        // emailRedirectTo: `admindashboard/${adminData}`
                     }
                 });
                 
                 if (error) throw new Error(error.message);
-                console.log(data)
                 if (data.user === null && data.session === null) {
                     toast('Check your mailbox', {
                         icon: '📨',
@@ -145,25 +146,15 @@ export default function AdminLogIn() {
                     });
                 }
 
-                const setSessionVal = async () => {
-                    const {data: {session}, error} = await supabase.auth.getSession();
-                    if (error) throw error;
-                    if(session?.user?.role === 'authenticated') { 
-                        dispatch(setAdminAuthentication(true));
-                        // navigate(`/admindashboard`)
-                    }
-                };
-
                 supabase.auth.onAuthStateChange((_, session) => {
-                    console.log(session),
-                    console.log(session?.user?.role),
+                    // console.log(session),
+                    // console.log(session?.user?.role),
                     setSessionVal(session)
                     if (session?.user?.role === 'authenticated') {
                         dispatch(setAdminAuthentication(true))
-                        navigate('/admindashboard')
+                        navigate(`/admindashboard/${adminData.uniqId}`)
                     }
                 })
-                // setSessionVal();
                 
                 } catch (error) {
                     console.error('Error occurred in signing in', error);

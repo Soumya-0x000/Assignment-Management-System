@@ -12,7 +12,7 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route
-                    path="/admindashboard"
+                    path="/admindashboard/:adminId"
                     element={adminIsAuthenticated ? <AdminDashboard /> : <Navigate to="/" />}
                 />
             </Routes>

@@ -23,6 +23,10 @@ export const formatSemester = (sem) => {
     return semester;
 };
 
+export const shorthandSemester = (semester) => {
+    return semester.replace(/\b\d+(st|nd|rd|th)\b semester/g, (match) => match.replace('semester', 'sem'));
+};
+
 export const nameLogo = (name) => {
     return name.split(' ').map(a => ([...a][0]))
 }

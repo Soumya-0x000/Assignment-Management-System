@@ -11,8 +11,10 @@ export default {
   theme: {
     extend: {
       screens: {
-        'xsm': '420px',
+        'xsm': '440px',
         'preLg': '950px',
+        'preXl': '1400px',
+        '3xl': '1700px',
       },
       fontFamily: {
         montserrat: ['Montserrat', 'sans-serif'],

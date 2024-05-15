@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../CreateClient';
-import { formatSemester, tableList } from '../../common/customHooks';
+import { formatSemester, shorthandSemester, tableList } from '../../common/customHooks';
 import toast from 'react-hot-toast';
+import { useParams } from 'react-router-dom';
+import SlidingTabs from '../../common/SlidingTabs';
 
 const HomePage = () => {
+    const {adminId} = useParams();
     const [count, setCount] = useState({
         mcaStudents: {
             sem1: 0,
@@ -20,7 +23,12 @@ const HomePage = () => {
         teachers: 0,
         admin: 0
     });
-    const [trackCallingTime, setTrackCallingTime] = useState(0)
+    const [adminDetails, setAdminAccDetails] = useState([]);
+    const [trackCallingTime, setTrackCallingTime] = useState(0);
+    const [studentArr, setStudentArr] = useState([]);
+    const [adminTeacherArr, setAdminTeacherArr] = useState([]);
+    const [selected, setSelected] = useState('');
+    const [tabs, setTabs] = useState([]);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -63,7 +71,10 @@ const HomePage = () => {
                     .select('*');
 
                 if (adminData) {
+                    const adminAccDetails = adminData.filter(admin => admin.uniqId === adminId)
+                    setAdminAccDetails(adminAccDetails)
                     adminCount = adminData.length;
+                    setTabs(Object.keys(...adminData))
                 }
 
                 await Promise.all(studentPromises);
@@ -95,37 +106,73 @@ const HomePage = () => {
         }
     }, [trackCallingTime]);
 
-    return (
-        <div className=' grid grid-cols-2 lg:grid-cols-4 place-items-center gap-x-4 pt-3'>
-            {[
-                { title: 'Admins', count: count.admin },
-                { title: 'Teachers', count: count.teachers },
-                { title: 'MCA Students', data: count.mcaStudents, prefix: 'MCA' },
-                { title: 'MSC Students', data: count.mscStudents, prefix: 'MSC' }
-            ].map((category, index) => (
-                <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg p-3 rounded-lg mb-4 w-full h-full flex items-center justify- center'>
-                    {category.count !== undefined ? (
-                        <div>
-                            <div className=' mb-2 bg-slate-800 rounded-full px-4 py-2'>Currently we have:</div>
-                            {category.count} {category.title}
-                        </div>
-                    ) : (
-                        <div>
-                            <div className=' mb-2'>Currently we have:</div>
-                            {Object.entries(category.data).map(([semester, count], i) => (
-                                <div 
-                                
-                                key={i}>
-                                    {count} students in {category.prefix} {formatSemester(semester.split('sem')[1])}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ))}
+    useEffect(() => {
+        setStudentArr([
+            { title: 'MCA Students', data: count.mcaStudents, prefix: 'MCA' },
+            { title: 'MSc Students', data: count.mscStudents, prefix: 'MSC' }
+        ])
+        setAdminTeacherArr([
+            { title: 'Admins', count: count.admin },
+            { title: 'Teachers', count: count.teachers }
+        ])
+    }, [count]);
+
+    console.log(...(adminDetails))
+    return <>
+        <div className=' h-24 w-full bg-slate-800 rounded-lg'>
+            <SlidingTabs
+                tabs={tabs}
+                selected={selected}
+                setSelected={setSelected}
+            />
         </div>
-    );    
         
+        <div className='grid grid-cols-3 place-items-center preXl:gap-x-4 gap-y-4 pt-3 '>
+            <div className=' col-span-3 preXl:col-span-2 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
+                {studentArr.map((category, index) => (
+                    <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
+                        <div className='w-full '>
+                            <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>Currently we have</div>
+
+                            <div className='mt-4 w-full border-b-1 pb-1 border-b-indigo-300 font-bold tracking-wider'>
+                                {category.title}
+                            </div>
+                        
+                            <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
+                                {Object.entries(category.data).map(([semester, count], i) => (
+                                    <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
+                                        <div className=' hidden 3xl:block text-md'>
+                                            {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
+                                        </div>
+                                        <div className=' block 3xl:hidden text-sm'>
+                                            {shorthandSemester(formatSemester(semester.split('sem')[1]))}: {count} {count === 1 ? 'student' : 'students'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className=' col-span-3 preXl:col-span-1 gap-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
+                {adminTeacherArr.map((category, index) => (
+                    <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-indigo-600 to-violet-600'>
+                        <div className='mb-2 bg-slate-800 rounded-full px-4 py-2 w-fit text-sm sm:text-md lg:text-lg flex gap-x-1.5'>
+                            <span className='hidden xsm:block'>Currently</span> 
+                            we have
+                        </div>
+    
+                        <div className='mt-2 border-b-1 border-b-indigo-300'/>
+                        
+                        <div className=' mt-2 sm:text-xl'>
+                            {category.count} {category.title.toLowerCase()}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </> 
 };
 
 export default HomePage;

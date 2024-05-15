@@ -51,7 +51,7 @@ const Sidebar = () => {
             : `min-w-[4rem] max-w-[4rem] 
             md:min-w-[5rem] md:max-w-[5rem] 
             hover:preLg:min-w-[13rem] hover:preLg:max-w-[13rem]`
-        } transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-aut gap-y-8`}>
+        } transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-auto gap-y-8`}>
             {/* upper part, name and image */}
             <div className=' w-full flex flex-col md:gap-y-2 items-center justify-center relative'>
                 {/* img */}
