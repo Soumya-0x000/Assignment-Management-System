@@ -8,6 +8,10 @@ import { HiOutlineIdentification } from "react-icons/hi";
 import { MdOutlineEmail } from "react-icons/md";
 import { FiLock, FiUnlock } from "react-icons/fi";
 import { MdOutlinePerson2 } from "react-icons/md";
+import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
+import { MailIcon } from '../landingPage/icons/MailIcon';
+import { BsPersonLinesFill } from 'react-icons/bs';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 
 const navArr = [
     { name: 'Id', val: 'uniqId' },
@@ -32,7 +36,7 @@ const HomePage = () => {
     const [studentArr, setStudentArr] = useState([]);
     const [adminTeacherArr, setAdminTeacherArr] = useState([]);
     const [selected, setSelected] = useState(navArr[0].name);
-    const [pswdVisibility, setPswdVisibility] = useState(false)
+    const [pswdVisibility, setPswdVisibility] = useState(false);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -124,14 +128,14 @@ const HomePage = () => {
     const switchValues = (selected) => {
         switch (selected) {
             case 'Id':
-                return <div className=' flex items-center gap-x-5'>
-                    <HiOutlineIdentification className=' text-[1.7rem] text-green-500'/>
+                return <div className=' flex items-center gap-x-2 lg:gap-x-5  text-[12px] sm:text-lg'>
+                    <HiOutlineIdentification className=' text-[1.5rem] lg:text-[1.7rem] text-green-500'/>
                     {adminDetails.uniqId}
                 </div>
 
             case 'Name':
-                return <div className=' flex items-center gap-x-5'>
-                    <MdOutlinePerson2 className=' text-[1.75rem] text-blue-500'/>
+                return <div className=' flex items-center gap-x-5  text-[16px] lg:text-lg'>
+                    <MdOutlinePerson2 className=' text-[1.7rem] text-blue-500'/>
                     {adminDetails.title} {adminDetails.name}
                 </div>
                 
@@ -163,72 +167,281 @@ const HomePage = () => {
     };
 
     return (
-        <>
-            <div className='w-full bg-slate-800 rounded-lg flex items-center justify-between px-4 h-[5rem]'>
-                <SlidingTabs 
-                    tabs={navArr.map((a) => a.name)} 
-                    selected={selected} 
-                    setSelected={setSelected} 
-                />
+        <div className=' flex flex-col items-center gap-y-16 h-full'>  
+            <div className=' w-full'>
+                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 py-2'>
+                    <SlidingTabs 
+                        tabs={navArr.map((a) => a.name)} 
+                        selected={selected} 
+                        setSelected={setSelected} 
+                    />
 
-                <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
-                    <div className='h-14 w-14 bg-slate-950 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
-                        {nameLogo(adminDetails.name)}
+                    <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
+                        <div className='h-14 w-14 bg-slate-950 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
+                            {nameLogo(adminDetails.name)}
+                        </div>
+                    </div>
+                </div>
+
+                <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 '>
+                    <p className='text-slate-300 font-mavenPro'>
+                        {switchValues(selected)}
+                    </p>
+                </div>
+
+                <div className='grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3 '>
+                    <div className='col-span-4 preXl:col-span-3 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
+                        {studentArr.map((category, index) => (
+                            <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
+                                <div className='w-full '>
+                                    <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
+                                        Currently we have
+                                    </div>
+
+                                    <div className='mt-4 w-full border-b-1 pb-1 border-b-indigo-300 font-bold tracking-wider'>
+                                        {category.title}
+                                    </div>
+
+                                    <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
+                                        {Object.entries(category.data).map(([semester, count], i) => (
+                                            <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
+                                                <div className='hidden 3xl:block text-md'>
+                                                    {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
+                                                </div>
+
+                                                <div className='block 3xl:hidden text-sm'>
+                                                    {shorthandSemester(formatSemester(semester.split('sem')[1]))}: {count} {count === 1 ? 'student' : 'students'}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className='col-span-4 preXl:col-span-1 gap-x-2 gap-y-3 xsm:gap-x-4 xsm:gap-y-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
+                        {adminTeacherArr.map((category, index) => (
+                            <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-indigo-600 to-violet-600'>
+                                <div className='mb-2 bg-slate-800 rounded-full px-2 lg:px-4 py-1 md:py-2 w-fit text-[.8rem] md:text-md'>
+                                    Currently we have
+                                </div>
+
+                                <div className='mt-2 border-b-1 border-b-indigo-300'/>
+                                
+                                <div className='mt-2 sm:text-xl'>{category.count} {category.title.toLowerCase()}</div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            <div className='bg-slate-900 rounded-lg py-2 mt-3 px-5 h-12'>
-                <p className='text-slate-300 font-mavenPro text-lg'>{switchValues(selected)}</p>
+            <div className=' mt-[4rem] xl:mt-[5rem] w-full'>
+                <InsertAdmin 
+                    id={adminDetails.uniqId}
+                    title={adminDetails.title}
+                    name={adminDetails.name}
+                    email={adminDetails.emailId}
+                    password={adminDetails.password}
+                />
             </div>
-
-            <div className='grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3 '>
-                <div className='col-span-4 preXl:col-span-3 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
-                    {studentArr.map((category, index) => (
-                        <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
-                            <div className='w-full '>
-                                <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
-                                    Currently we have
-                                </div>
-
-                                <div className='mt-4 w-full border-b-1 pb-1 border-b-indigo-300 font-bold tracking-wider'>
-                                    {category.title}
-                                </div>
-
-                                <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
-                                    {Object.entries(category.data).map(([semester, count], i) => (
-                                        <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
-                                            <div className='hidden 3xl:block text-md'>
-                                                {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
-                                            </div>
-
-                                            <div className='block 3xl:hidden text-sm'>
-                                                {shorthandSemester(formatSemester(semester.split('sem')[1]))}: {count} {count === 1 ? 'student' : 'students'}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className='col-span-4 preXl:col-span-1 gap-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
-                    {adminTeacherArr.map((category, index) => (
-                        <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-indigo-600 to-violet-600'>
-                            <div className='mb-2 bg-slate-800 rounded-full px-4 py-2 w-fit text-sm sm:text-md lg:text-lg flex gap-x-1.5'>
-                                <span className='hidden xsm:block'>Currently</span> we have
-                            </div>
-
-                            <div className='mt-2 border-b-1 border-b-indigo-300'/>
-                            
-                            <div className='mt-2 sm:text-xl'>{category.count} {category.title.toLowerCase()}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </>
+        </div>
     );
 };
 
 export default HomePage;
+
+const InsertAdmin = ({ id, title, name, email, password }) => {
+    const [commonAttributes, setCommonAttributes] = useState({
+        id: "",
+        title: "",
+        name: "", 
+        email:"", 
+        password: "",
+    });
+    const [isVisible, setIsVisible] = useState(false);
+    const inputFields = [
+        { label: 'Name', name: 'name', type: 'text', icon: <BsPersonLinesFill /> },
+        { label: 'Email', name: 'email', type: 'email', icon: <MailIcon /> },
+        { label: 'Password', name: 'password', type: 'password', icon: isVisible ? <BiSolidLockOpen /> : <BiSolidLock /> }
+    ];
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setCommonAttributes({
+            ...commonAttributes,
+            [name]: value
+        });
+    };
+
+    const handleDropDown = (name, val) => {
+        setCommonAttributes({
+            ...commonAttributes,
+            [name]: val
+        })
+    };
+
+    const handleReset = () => {
+        setCommonAttributes({title, name, email, password});
+    };
+
+    useEffect(() => {
+        setCommonAttributes({ id, title, name, email, password })
+    }, [id, title, name, email, password])
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        try {
+            const { error } = await supabase
+                .from('admin')
+                .update({
+                    title: commonAttributes.title.trim(),
+                    name: commonAttributes.name.trim(), 
+                    emailId: commonAttributes.email.trim(), 
+                    password: commonAttributes.password.trim() 
+                })
+                .eq('uniqId', commonAttributes.uniqId)
+
+            if (error) {
+                toast.error(`Can't insert`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            } else {
+                toast.success(`Successfully updated`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+                handleReset()
+            }
+        } catch (error) {
+            console.error(error.message);
+            toast.error('Error occurred during inserting', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
+
+    const handleSubmitToast = (e) => {
+        e.preventDefault();
+        const isAnyFieldChanged =
+            commonAttributes.title.trim() !== title ||
+            commonAttributes.name.trim() !== name ||
+            commonAttributes.email.trim() !== email ||
+            commonAttributes.password.trim() !== password;
+        
+        const isMaintainingStandards = 
+            commonAttributes.name.trim().length > 4 &&
+            commonAttributes.email.trim().length > 6 &&
+            commonAttributes.email.includes('@') &&
+            commonAttributes.password.trim().length >= 6;
+        
+        if (isAnyFieldChanged && isMaintainingStandards) {
+            toast.promise(handleSubmit(e), {
+                    loading: 'Updating...',
+                    success: 'Successfully updated!',
+                    error: 'Failed to update.',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+            });
+        } else {
+            toast('Modify any value to update', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                },
+            });
+        }
+    }
+    
+    return (
+        <form className=' w-full space-y-8'>
+            <div className=' w-full flex flex-col items-center gap-y-8'>
+                {inputFields.map((field, index) => (
+                    <div key={index} className={` w-full transition-all ${field.name === 'name' && ' grid grid-cols-4 gap-x-4 gap-y-8'}`}>
+                        {field.name === 'name' && (
+                            <div className=" col-span-4 sm:col-span-1">
+                                <Dropdown className=' w-full'>
+                                    <DropdownTrigger className=' w-full'>
+                                        <Button 
+                                        className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes.title ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
+                                        variant="bordered">
+                                            {commonAttributes.title ? commonAttributes.title : 'Select title'}
+                                        </Button>
+                                    </DropdownTrigger>
+
+                                    <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
+                                    onAction={(key) => handleDropDown('title', key)}>
+                                        <DropdownItem key={'Dr.'}>Dr.</DropdownItem>
+                                        <DropdownItem key={'Mr.'}>Mr.</DropdownItem>
+                                        <DropdownItem key={'Mrs.'}>Mrs.</DropdownItem>
+                                        <DropdownItem key={'Miss'}>Miss</DropdownItem>
+                                        <DropdownItem key={'Prof.'}>Prof.</DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </div>
+                        )}
+
+                        <div className={`${field.name === 'name' && ' col-span-4 sm:col-span-3' } relative`}>
+                            <input
+                                autoFocus={index === 0}
+                                type={field.name === 'password' ? isVisible ? 'text' : 'password' : field.type}
+                                name={field.name}
+                                id={field.name}
+                                className={`border-2 rounded-xl pl-4 pr-12 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[field.name] ? 'border-green-500' : ''} focus:border-green-500 focus:placeholder:-translate-x-7 transition-all peer`}
+                                value={commonAttributes[field.name]}
+                                onChange={handleChange}
+                                min={field.name === 'password' ? 6 : 3}
+                                max={field.name === 'password' ? 16 : undefined}
+                                required={true}
+                            />
+
+                            <label
+                            htmlFor={field.name}
+                            className={`text-md text-green-500 pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${commonAttributes[field.name] ? '-translate-y-[3.1rem] translate-x-[.5rem] text-sm' : ''} peer-focus:-translate-y-[3.1rem] peer-focus:translate-x-[.5rem] peer-focus:text-sm transition-all`}>
+                                {field.label}
+                            </label>
+
+                            <div className={`${field.name === 'password' && 'cursor-pointer hover:scale-110 active:scale-90'} text-2xl text-default-400 absolute right-3 top-1/2 -translate-y-1/2 bg-slate-800 p-1 rounded-lg transition-all`}
+                            onClick={() => field.name === 'password' && setIsVisible(!isVisible)}>
+                                {field.icon}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* buttons */}
+            <div className=' w-full flex justify-between'>
+                <Button className=" font-onest text-md tracking-wide"
+                color='danger'
+                onClick={handleReset}>
+                    Reset
+                </Button>
+
+                <Button 
+                type='submit'
+                className="bg-[#23fda2ed] text-green-800 font-bold font-onest text-md tracking-wide"
+                onClick={(e) => handleSubmitToast(e)}>
+                    Update
+                </Button>
+            </div>
+        </form>
+    );
+};

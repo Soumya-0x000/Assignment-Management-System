@@ -6,13 +6,13 @@ const SlidingTabs = ({
     setSelected,
 }) => {
     return (
-        <div className=" w-lg sm:w-fit flex items-center justify-between flex-wrap sm:gap-x-2 md:gap-x-4 lg:gap-x-5">
-            {tabs.map((tab) => (
+        <div className=" py-2 sm:py-3 bg-slate-900 rounded-md flex items-center justify-between px-2 sm:justify-evenly flex-wrap gap-2">
+            {tabs.map((tab, indx) => (
                 <Chip
                     text={tab}
                     selected={selected === tab}
                     setSelected={setSelected}
-                    key={tab}
+                    key={tab + indx}
                 />
             ))}
         </div>

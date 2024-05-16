@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import BgColorAnimation from '../../animation/BgColorAnimation';
+import BgColorAnimation from '../../common/BgColorAnimation.jsx';
 import StudentLogIn from './logIn/StudentLogIn.jsx';
 import TeacherLogIn from './logIn/TeacherLogIn.jsx';
 import AdminLogIn from './logIn/AdminLogIn.jsx';
 import MainRegisterPage from './register/MainRegisterPage.jsx';
-import ChipTabs from '../../animation/Tabs';
+import SlidingTabs from '../../common/SlidingTabs.jsx';
 
-const userArr = [
-    {name: 'Student'},
-    {name: 'Teacher'},
-    {name: 'Admin'}
-];
+const userArr = ['Student', 'Teacher', 'Admin'];
 
 const LandingPage = () => {
-    const [selected, setSelected] = useState(userArr[0].name);
+    const [selected, setSelected] = useState(userArr[0]);
 
     return (
         <BgColorAnimation
@@ -28,8 +24,8 @@ const LandingPage = () => {
                         </div>
 
                         {/* tabs */}
-                        <ChipTabs
-                            tabsArr={userArr}
+                        <SlidingTabs
+                            tabs={userArr}
                             selected={selected}
                             setSelected={setSelected}
                         />

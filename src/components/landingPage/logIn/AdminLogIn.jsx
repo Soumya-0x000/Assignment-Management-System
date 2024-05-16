@@ -17,7 +17,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import toast, { Toaster } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setAdminAuthentication, setSelectedAdminId, setSession } from "../../../reduxStore/reducers/AdminAuthSlice";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -30,7 +29,8 @@ export default function AdminLogIn() {
     const [adminData, setAdminData] = useState([]);
     const [sessionVal, setSessionVal] = useState({})
     const toggleVisibility = () => setIsVisible(!isVisible);
-    console.log(adminData)
+    const router = useLocation();
+    console.log(window.currentref)
 
     const {
         session: adminSession,
@@ -148,7 +148,6 @@ export default function AdminLogIn() {
                 supabase.auth.onAuthStateChange((_, session) => {
                     setSessionVal(session)
                     if (session?.user?.role === 'authenticated') {
-                        console.log(adminData.uniqId)
                         navigate(`/admindashboard/${adminData[0].uniqId}`)
                     }
                 })
