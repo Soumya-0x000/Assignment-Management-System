@@ -1,9 +1,9 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { GrUserAdmin } from "react-icons/gr";
 import { GrPowerShutdown } from "react-icons/gr";
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import SelectStudent from './pages/SelectStudent';
 import SelectTeachers from './pages/SelectTeachers';
 import InsertMembers from './pages/InsertMembers';
@@ -14,7 +14,8 @@ import { FaRegHandRock } from "react-icons/fa";
 import AdminHome from './pages/AdminHome';
 
 const Sidebar = () => {
-    const name = 'Soumya Sankar Das';
+    const {adminId} = useParams();
+    const [name, setName] = useState('Soumya Sankar Das');
     const [sidebarHold, setSidebarHold] = useState(false);
     const navigate = useNavigate();
 
@@ -45,6 +46,24 @@ const Sidebar = () => {
         })
     };
 
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const { data: adminData, error: adminError } = await supabase
+                    .from('admin')
+                    .select('*')
+                    .eq('uniqId', adminId)
+                    .single();
+                if (adminData) {
+                    setName(adminData.name);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchInitialData();
+    }, []);
+
     return (
         <div className={`${sidebarHold 
             ? `min-w-[8rem] max-w-[8rem] md:min-w-[13rem] md:max-w-[13rem]` 
@@ -67,7 +86,7 @@ const Sidebar = () => {
                     
                     <p className={`${!sidebarHold ? 'hidden group-hover:preLg:block group-hover:preLg:mt-2' : 'block mt-2'} text-sm md:text-lg transition-all delay-1000 text-center`}>
                         <span className=' line-clamp-1'>
-                            Soumya Sankar Das
+                            {name}
                         </span>
                     </p>
                 </div>

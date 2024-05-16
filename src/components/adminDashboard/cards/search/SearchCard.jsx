@@ -26,7 +26,7 @@ const SearchCard = () => {
         <div className=' flex flex-col items-center w-full h-full'>
             {/* selection tab */}
             <motion.div 
-            className=' flex flex-col sm:flex-row gap-y-3 items-center justify-between bg-slate-900 w-full max-w-[85rem] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-10 rounded-full'
+            className=' flex flex-col sm:flex-row gap-y-3 items-center justify-between bg-slate-900 w-full max-w-[85rem] py-2 sm:py-3 md:py-4 px-2 sm:px-4 md:px-10 rounded-xl'
             initial={{y: -100}}
             animate={{y: 0}}>
                 <div className=' text-white font-mavenPro md:text-[1.1rem] lg:text-[1.2rem] xl:text-[1.4rem] hidden sm:block'>

@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 const SlidingTabs = ({
     tabs,
@@ -7,7 +6,7 @@ const SlidingTabs = ({
     setSelected,
 }) => {
     return (
-        <div className=" w-full sm:w-fit flex items-center justify-between flex-wrap sm:gap-x-2 md:gap-x-4 lg:gap-x-5">
+        <div className=" w-lg sm:w-fit flex items-center justify-between flex-wrap sm:gap-x-2 md:gap-x-4 lg:gap-x-5">
             {tabs.map((tab) => (
                 <Chip
                     text={tab}
@@ -32,12 +31,12 @@ const Chip = ({
             selected
             ? "text-white"
             : "text-slate-300 hover:text-slate-200 hover:bg-slate-700"
-        } lg:text-lg font-onest transition-colors px-6 sm:px-4 py-1 rounded-full relative`}>
+        } lg:text-lg font-onest transition-colors px-6 sm:px-4 py-1 rounded-lg relative`}>
             <span className="relative z-10 ">{text}</span>
             {selected && (
                 <motion.span
                     layoutId="pill-tab"
-                    className="absolute inset-0 z-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full"
+                    className="absolute inset-0 z-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-lg"
                     transition={{ type: "spring", duration: 0.5 }}
                 />
             )}

@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import toast, { Toaster } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setAdminAuthentication, setSession } from "../../../reduxStore/reducers/AdminAuthSlice";
+import { setAdminAuthentication, setSelectedAdminId, setSession } from "../../../reduxStore/reducers/AdminAuthSlice";
 
 export default function AdminLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -130,7 +130,6 @@ export default function AdminLogIn() {
                     email: adminLoginData.email,
                     options: {
                         shouldCreateUser: false,
-                        // emailRedirectTo: `admindashboard/${adminData}`
                     }
                 });
                 
@@ -147,21 +146,18 @@ export default function AdminLogIn() {
                 }
 
                 supabase.auth.onAuthStateChange((_, session) => {
-                    // console.log(session),
-                    // console.log(session?.user?.role),
                     setSessionVal(session)
                     if (session?.user?.role === 'authenticated') {
-                        dispatch(setAdminAuthentication(true))
-                        navigate(`/admindashboard/${adminData.uniqId}`)
+                        console.log(adminData.uniqId)
+                        navigate(`/admindashboard/${adminData[0].uniqId}`)
                     }
                 })
-                
-                } catch (error) {
-                    console.error('Error occurred in signing in', error);
-                    toast.error('Error occurred in signing in');
-                }
+            } catch (error) {
+                console.error('Error occurred in signing in', error);
+                toast.error('Error occurred in signing in');
             }
-        };
+        }
+    };
         
     const handleMagicLinkToast = () => {
         if (detailsMatched) {
