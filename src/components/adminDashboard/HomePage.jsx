@@ -177,7 +177,7 @@ const HomePage = () => {
                     />
 
                     <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
-                        <div className='h-14 w-14 bg-slate-950 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
+                        <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
                             {nameLogo(adminDetails.name)}
                         </div>
                     </div>
@@ -296,15 +296,15 @@ const InsertAdmin = ({ id, title, name, email, password }) => {
             const { error } = await supabase
                 .from('admin')
                 .update({
-                    title: commonAttributes.title.trim(),
-                    name: commonAttributes.name.trim(), 
-                    emailId: commonAttributes.email.trim(), 
-                    password: commonAttributes.password.trim() 
+                    title: commonAttributes.title,
+                    name: commonAttributes.name, 
+                    emailId: commonAttributes.email, 
+                    password: commonAttributes.password 
                 })
-                .eq('uniqId', commonAttributes.uniqId)
+                .eq('uniqId', commonAttributes.id)
 
             if (error) {
-                toast.error(`Can't insert`, {
+                toast.error(`Can't update`, {
                     style: {
                         borderRadius: '10px',
                         background: '#333',
@@ -319,7 +319,13 @@ const InsertAdmin = ({ id, title, name, email, password }) => {
                         color: '#fff',
                     }
                 })
-                handleReset()
+                setCommonAttributes({
+                    id: commonAttributes.id,
+                    title: commonAttributes.title,
+                    name: commonAttributes.name, 
+                    email: commonAttributes.email, 
+                    password: commonAttributes.password
+                })
             }
         } catch (error) {
             console.error(error.message);
@@ -350,8 +356,8 @@ const InsertAdmin = ({ id, title, name, email, password }) => {
         if (isAnyFieldChanged && isMaintainingStandards) {
             toast.promise(handleSubmit(e), {
                     loading: 'Updating...',
-                    success: 'Successfully updated!',
-                    error: 'Failed to update.',
+                    success: 'Process initiated!',
+                    error: 'Failed to initiate process.',
                     style: {
                         borderRadius: '10px',
                         background: '#333',
