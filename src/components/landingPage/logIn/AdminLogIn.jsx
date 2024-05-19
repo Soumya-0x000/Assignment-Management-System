@@ -30,7 +30,6 @@ export default function AdminLogIn() {
     const [sessionVal, setSessionVal] = useState({})
     const toggleVisibility = () => setIsVisible(!isVisible);
     const router = useLocation();
-    console.log(window.currentref)
 
     const {
         session: adminSession,

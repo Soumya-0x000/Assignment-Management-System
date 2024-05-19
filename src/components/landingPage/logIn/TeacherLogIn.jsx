@@ -15,6 +15,7 @@ import { MailIcon } from "../icons/MailIcon";
 import { supabase } from "../../../CreateClient";
 import { useNavigate } from "react-router-dom";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
+import toast from "react-hot-toast";
 
 export default function TeacherLogIn() {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -51,14 +52,28 @@ export default function TeacherLogIn() {
                 setTeacherLoginData({
                     email: '',
                     password: ''
-                })
+                });
+                navigate(`/teacherdashboard/${data.uniqId}`)
             }
-            console.log('Teacher data:', data);
         } catch (error) {
             console.error('An unexpected error occurred:', error.message);
             alert('An unexpected error occurred. Please try again.');
         }
         onClose();
+    };
+
+    const handleLoginToast = () => {
+        toast.promise(handleLogin(), {
+            loading: 'Logging in...',
+            success: 'Logged in successfully...',
+            error: 'Failed to log in...'
+        }, {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff'
+            }
+        })
     };
 
     return (
@@ -128,7 +143,7 @@ export default function TeacherLogIn() {
                             Close
                         </Button>
 
-                        <Button className="bg-cyan-200 text-cyan-800" onPress={handleLogin}>
+                        <Button className="bg-cyan-200 text-cyan-800" onPress={handleLoginToast}>
                             Sign in
                         </Button>
                     </ModalFooter>
