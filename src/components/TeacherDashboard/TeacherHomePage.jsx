@@ -55,6 +55,8 @@ const TeacherHomePage = () => {
                         alert(`No teacher found with the provided credentials.`);
                         return;
                     } else {
+                        sortDept(data[0].MCA)
+                        sortDept(data[0].MSc)
                         setTeacherData(data[0])
                     }
                 } catch (error) {
@@ -275,52 +277,67 @@ const EditTeacher = ({
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        try {
-            const { data, error } = await supabase
-                .from('teachers')
-                .update({
-                    title: commonAttributes.title.trim(), 
-                    name: commonAttributes.name.trim(), 
-                    emailId: commonAttributes.email.trim(), 
-                    password: commonAttributes.password.trim(),
-                    MSc: MScData || [{}],
-                    MCA: MCAData || [{}]
-                })
-                .eq('uniqId', teacherId)
+        // try {
+        //     const { data, error } = await supabase
+        //         .from('teachers')
+        //         .update({
+        //             title: commonAttributes.title.trim(), 
+        //             name: commonAttributes.name.trim(), 
+        //             emailId: commonAttributes.email.trim(), 
+        //             password: commonAttributes.password.trim(),
+        //             MSc: MScData || [{}],
+        //             MCA: MCAData || [{}]
+        //         })
+        //         .eq('uniqId', teacherId)
 
-            if (error) {
-                toast.error(`Can't update`, {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                })
-            } else {
-                toast.success(`Successfully inserted ${commonAttributes.name} as Teacher`, {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                })
-                window.location.reload()
-                handleReset()
-            }
-        } catch (error) {
-            console.error(error.message);
-            toast.error('Error occurred during updating...')
-        }
+        //     if (error) {
+        //         toast.error(`Can't update`, {
+        //             style: {
+        //                 borderRadius: '10px',
+        //                 background: '#333',
+        //                 color: '#fff',
+        //             }
+        //         })
+        //     } else {
+        //         toast.success(`Successfully inserted ${commonAttributes.name} as Teacher`, {
+        //             style: {
+        //                 borderRadius: '10px',
+        //                 background: '#333',
+        //                 color: '#fff',
+        //             }
+        //         })
+        //         window.location.reload()
+        //         handleReset()
+        //     }
+        // } catch (error) {
+        //     console.error(error.message);
+        //     toast.error('Error occurred during updating...')
+        // }
     };
 
     const handleSubmitToast = (e) => {
         e.preventDefault();
+        const areEqual = (arr1, arr2) => {
+            if (arr1.length !== arr2.length) return false;
+
+            for (let i = 0; i < arr1.length; i++) {
+                const key1 = Object.keys(arr1[i])[0];
+                const key2 = Object.keys(arr2[i])[0];
+                const val1 = arr1[i][key1];
+                const val2 = arr2[i][key2];
+
+                if (key1 !== key2 || val1 !== val2) return false;
+            }
+            return true;
+        }
+        console.log(areEqual(sortDept([...MCAData]), sortDept([...mcaSub])))
+
         const checkCondition = commonAttributes.name.trim().length > 4 &&
         commonAttributes.email.trim().length > 6 &&
         commonAttributes.email.includes('@') &&
         commonAttributes.password.trim().length >= 6;
         
-        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)) {
+        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0) && areEqual) {
             if (checkCondition) {
                 toast.promise(handleSubmit(e), {
                     loading: 'Updating process started...',
@@ -340,22 +357,24 @@ const EditTeacher = ({
                     color: '#fff',
                 },
             })
-        } else toast(() => (
-            <span>
-                Click
-                <span className="text-cyan-400 mx-2 font-bold font-onest">
-                    Save Instance
+        } else if (!areEqual) {
+            toast(() => (
+                <span>
+                    Click
+                    <span className="text-cyan-400 mx-2 font-bold font-onest">
+                        Save Instance
+                    </span>
+                    to proceed
                 </span>
-                to proceed
-            </span>
-        ), {
-            icon: '⚠️',
-            style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            }
-        })
+            ), {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
     };
 
     return (
@@ -527,9 +546,9 @@ const Dropdowns = ({
                     color: '#fff',
                 }
             });
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
-            setSubjectSelectedKeys(new Set());
+            // setDeptSelectedKeys(new Set());
+            // setSemSelectedKeys(new Set());
+            // setSubjectSelectedKeys(new Set());
         } else if (dept === 'MSc') {
             setMScData(formattedCourses);
             setSaveInstance(prev => ({
@@ -605,9 +624,14 @@ const Dropdowns = ({
                         selectionMode= {dropdown.stateKey !== 'dept' ? "multiple" : 'single'}
                         selectedKeys={dropdown.selectedKeys}
                         onSelectionChange={dropdown.setSelectedKeys}>
-                            {dropdown.items.map((item, itemIndex) => (
-                                <DropdownItem key={itemIndex}>{item}</DropdownItem>
-                            ))}
+                            {index !== 0 
+                                ? [...dropdown.items, 'Nothing'].map((item, itemIndex) => (
+                                    <DropdownItem key={itemIndex}>{item}</DropdownItem>
+                                ))
+                                : dropdown.items.map((item, itemIndex) => (
+                                    <DropdownItem key={itemIndex}>{item}</DropdownItem>
+                                ))
+                            }
                         </DropdownMenu>
                     </Dropdown>
                 </div>
@@ -626,3 +650,11 @@ const Dropdowns = ({
 const formatCourses = (sem, subject) => {
     return sem.split(', ').map((semester, index) => ({ [`${semester}`]: subject.split(', ')[index] }));
 };
+
+const sortDept = (data) => {
+    return data.sort((a, b) => {
+        const aKey = Object.keys(a)[0];
+        const bKey = Object.keys(b)[0];
+        return aKey.localeCompare(bKey, undefined, { numeric: true });
+    })
+}
