@@ -237,7 +237,7 @@ const HomePage = () => {
             </div>
 
             <div className=' mt-[4rem] xl:mt-[5rem] w-full'>
-                <InsertAdmin 
+                <EditAdmin 
                     id={adminDetails.uniqId}
                     title={adminDetails.title}
                     name={adminDetails.name}
@@ -251,7 +251,7 @@ const HomePage = () => {
 
 export default HomePage;
 
-const InsertAdmin = ({ id, title, name, email, password }) => {
+const EditAdmin = ({ id, title, name, email, password }) => {
     const [commonAttributes, setCommonAttributes] = useState({
         id: "",
         title: "",
