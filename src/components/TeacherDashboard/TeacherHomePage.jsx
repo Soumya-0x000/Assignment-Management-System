@@ -48,17 +48,26 @@ const TeacherHomePage = () => {
                     const { data, error } = await supabase
                         .from('teachers')
                         .select('*')
-                        .eq('uniqId', teacherId)
-        
+                        .eq('uniqId', teacherId);
+                    
                     if (error) {
                         console.error('Error querying database:', error.message);
-                        alert(`No teacher found with the provided credentials.`);
+                        toast.error('No teacher found with the provided credentials.');
                         return;
-                    } else {
-                        sortDept(data[0].MCA)
-                        sortDept(data[0].MSc)
-                        setTeacherData(data[0])
                     }
+    
+                    if (!data || data.length === 0) {
+                        console.error('No data received from database.');
+                        toast.error('No teacher found with the provided credentials.');
+                        return;
+                    }
+    
+                    const teacherData = data[0];
+                    
+                    teacherData.MCA = sortDept(teacherData.MCA);
+                    teacherData.MSc = sortDept(teacherData.MSc);
+    
+                    setTeacherData(teacherData);
                 } catch (error) {
                     console.error('An unexpected error occurred:', error.message);
                     toast.error('An unexpected error occurred', {
@@ -72,7 +81,7 @@ const TeacherHomePage = () => {
             })(), {
                 loading: 'Loading',
                 success: 'Response received',
-                error: 'An unexpected error occurred'
+                error: 'Error occurred to get response'
             }, {
                 style: {
                     borderRadius: '10px',
@@ -142,7 +151,7 @@ const TeacherHomePage = () => {
                     </div>
                 </div>
 
-                <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 '>
+                <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
                     <div className='text-slate-300 font-mavenPro'>
                         {switchValues(selected)}
                     </div>
@@ -166,8 +175,8 @@ const TeacherHomePage = () => {
                                             <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}>
                                                 {val !== '' && (
                                                     <div>
-                                                        <span className=' font-bold font-robotoMono tracking-wider text-gray-300'>{key}: </span> 
-                                                        <span className=' font-bold font-onest tracking-wider text-gray-300'>{val}</span>
+                                                        <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
+                                                        <span className=' font-bold font-onest tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
                                                     </div>
                                                 )} 
                                             </div>
@@ -198,6 +207,8 @@ const TeacherHomePage = () => {
 export default TeacherHomePage;
 
 
+
+
 const EditTeacher = ({
     title,
     name,
@@ -225,10 +236,6 @@ const EditTeacher = ({
     const [isResetting, setIsResetting] = useState(false);
     const [MCAData, setMCAData] = useState(mcaSub || [{}]);
     const [MScData, setMScData] = useState(mscSub || [{}]);
-    const [saveInstance, setSaveInstance] = useState({
-        MCA: false,
-        MSc: false
-    });
 
     useEffect(() => {
         setCommonAttributes({
@@ -268,76 +275,58 @@ const EditTeacher = ({
         });
         setMCAData(mcaSub);
         setMScData(mscSub);
-        setSaveInstance({
-            MCA: false,
-            MSc: false
-        });
     };
 
     const handleSubmit = async(e) => {
         e.preventDefault();
 
-        // try {
-        //     const { data, error } = await supabase
-        //         .from('teachers')
-        //         .update({
-        //             title: commonAttributes.title.trim(), 
-        //             name: commonAttributes.name.trim(), 
-        //             emailId: commonAttributes.email.trim(), 
-        //             password: commonAttributes.password.trim(),
-        //             MSc: MScData || [{}],
-        //             MCA: MCAData || [{}]
-        //         })
-        //         .eq('uniqId', teacherId)
+        try {
+            const { data, error } = await supabase
+                .from('teachers')
+                .update({
+                    title: commonAttributes.title.trim(), 
+                    name: commonAttributes.name.trim(), 
+                    emailId: commonAttributes.email.trim(), 
+                    password: commonAttributes.password.trim(),
+                    MSc: MScData || [{}],
+                    MCA: MCAData || [{}]
+                })
+                .eq('uniqId', teacherId)
 
-        //     if (error) {
-        //         toast.error(`Can't update`, {
-        //             style: {
-        //                 borderRadius: '10px',
-        //                 background: '#333',
-        //                 color: '#fff',
-        //             }
-        //         })
-        //     } else {
-        //         toast.success(`Successfully inserted ${commonAttributes.name} as Teacher`, {
-        //             style: {
-        //                 borderRadius: '10px',
-        //                 background: '#333',
-        //                 color: '#fff',
-        //             }
-        //         })
-        //         window.location.reload()
-        //         handleReset()
-        //     }
-        // } catch (error) {
-        //     console.error(error.message);
-        //     toast.error('Error occurred during updating...')
-        // }
+            if (error) {
+                toast.error(`Can't update`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            } else {
+                toast.success(`Successfully inserted ${commonAttributes.name} as Teacher`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+                window.location.reload()
+                handleReset()
+            }
+        } catch (error) {
+            console.error(error.message);
+            toast.error('Error occurred during updating...')
+        }
     };
 
     const handleSubmitToast = (e) => {
         e.preventDefault();
-        const areEqual = (arr1, arr2) => {
-            if (arr1.length !== arr2.length) return false;
-
-            for (let i = 0; i < arr1.length; i++) {
-                const key1 = Object.keys(arr1[i])[0];
-                const key2 = Object.keys(arr2[i])[0];
-                const val1 = arr1[i][key1];
-                const val2 = arr2[i][key2];
-
-                if (key1 !== key2 || val1 !== val2) return false;
-            }
-            return true;
-        }
-        console.log(areEqual(sortDept([...MCAData]), sortDept([...mcaSub])))
 
         const checkCondition = commonAttributes.name.trim().length > 4 &&
         commonAttributes.email.trim().length > 6 &&
         commonAttributes.email.includes('@') &&
         commonAttributes.password.trim().length >= 6;
         
-        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0) && areEqual) {
+        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)) {
             if (checkCondition) {
                 toast.promise(handleSubmit(e), {
                     loading: 'Updating process started...',
@@ -356,23 +345,6 @@ const EditTeacher = ({
                     background: '#333',
                     color: '#fff',
                 },
-            })
-        } else if (!areEqual) {
-            toast(() => (
-                <span>
-                    Click
-                    <span className="text-cyan-400 mx-2 font-bold font-onest">
-                        Save Instance
-                    </span>
-                    to proceed
-                </span>
-            ), {
-                icon: '⚠️',
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
             })
         }
     };
@@ -439,7 +411,6 @@ const EditTeacher = ({
                     isResetting={isResetting}
                     setIsResetting={setIsResetting}
                     setCommonAttributes={setCommonAttributes}
-                    setSaveInstance={setSaveInstance}
                     setMCAData={setMCAData}
                     setMScData={setMScData}
                     handleReset={handleReset}
@@ -471,7 +442,6 @@ const Dropdowns = ({
     commonAttributes,
     setCommonAttributes, 
     isResetting,
-    setSaveInstance,
     setIsResetting,
     setMCAData,
     setMScData,
@@ -536,9 +506,6 @@ const Dropdowns = ({
 
         if (dept === 'MCA') {
             setMCAData(formattedCourses);
-            setSaveInstance(prev => ({
-                ...prev, MCA: true
-            }));
             toast.success(`${dept} instance created`, {
                 style: {
                     borderRadius: '10px',
@@ -546,14 +513,11 @@ const Dropdowns = ({
                     color: '#fff',
                 }
             });
-            // setDeptSelectedKeys(new Set());
-            // setSemSelectedKeys(new Set());
-            // setSubjectSelectedKeys(new Set());
+            setDeptSelectedKeys(new Set());
+            setSemSelectedKeys(new Set());
+            setSubjectSelectedKeys(new Set());
         } else if (dept === 'MSc') {
             setMScData(formattedCourses);
-            setSaveInstance(prev => ({
-                ...prev, MSc: true
-            }));
             toast.success(`${dept} instance created`, {
                 style: {
                     borderRadius: '10px',
@@ -566,7 +530,6 @@ const Dropdowns = ({
             setSubjectSelectedKeys(new Set());
         } else {
             setMScData(formattedCourses);
-            setSaveInstance(prev => ({ ...prev }));
             toast.success(`${dept} instance created`, {
                 style: {
                     borderRadius: '10px',
@@ -651,10 +614,15 @@ const formatCourses = (sem, subject) => {
     return sem.split(', ').map((semester, index) => ({ [`${semester}`]: subject.split(', ')[index] }));
 };
 
-const sortDept = (data) => {
-    return data.sort((a, b) => {
-        const aKey = Object.keys(a)[0];
-        const bKey = Object.keys(b)[0];
-        return aKey.localeCompare(bKey, undefined, { numeric: true });
-    })
-}
+const sortDept = (dept) => {
+    if (!Array.isArray(dept)) return [];
+
+    return dept
+        .filter(entry => Object.keys(entry).length > 0)
+        .sort((a, b) => {
+            const aKey = Object.keys(a)[0];
+            const bKey = Object.keys(b)[0];
+            return aKey.localeCompare(bKey, undefined, { numeric: true });
+        });
+};
+
