@@ -15,12 +15,18 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { useSelector } from "react-redux";
+import { CiLogout } from 'react-icons/ci';
+import { FlyoutLink, userActions } from '../../common/Animation';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
     { name: 'Id', val: 'uniqId' },
+];
+
+const logOutOptions = [
+    { text: 'LogOut', icon: <CiLogout/> },
 ];
 
 const TeacherHomePage = () => {
@@ -144,11 +150,15 @@ const TeacherHomePage = () => {
                         setSelected={setSelected} 
                     />
 
-                    <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
-                        <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
-                            {nameLogo(teacherData.name)}
+                    <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
+                        <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
+                            <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
+                                <div className='flex items-center justify-center gap-x-2'>
+                                    {nameLogo(teacherData.name)}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </FlyoutLink>
                 </div>
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
@@ -625,4 +635,3 @@ const sortDept = (dept) => {
             return aKey.localeCompare(bKey, undefined, { numeric: true });
         });
 };
-
