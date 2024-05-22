@@ -20,7 +20,7 @@ import {
     ModalHeader, 
     useDisclosure 
 } from '@nextui-org/react';
-import Component from './Uppy';
+import FileUploader from './Uppy';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -51,6 +51,10 @@ const TeacherHomePage = () => {
     });
     const [selected, setSelected] = useState(navArr[0].name);
     const [pswdVisibility, setPswdVisibility] = useState(false);
+    const [currentSemSub, setCurrentSemSub] = useState({
+        sem: '',
+        subject: ''
+    })
 
     useEffect(() => {
         toast.promise(
@@ -134,8 +138,8 @@ const TeacherHomePage = () => {
                     <input 
                         type={`${pswdVisibility ? 'text' : 'password'}`} 
                         value={teacherData.password}
-                        disabled
                         className=' w-full bg-transparent'
+                        disabled
                     />
                 </div>
                 
@@ -144,9 +148,10 @@ const TeacherHomePage = () => {
         }
     };
 
-    const handleUploadingModal = (e) => {
+    const handleUploadingModal = (e, sem, subject) => {
         e.preventDefault();
-        onOpen()
+        onOpen();
+        setCurrentSemSub({ sem, subject })
     };
 
     return (
@@ -188,12 +193,12 @@ const TeacherHomePage = () => {
                         </div>
 
                         {Object.entries(teacherData?.[dept]).length !== 0 ? (
-                            <div className=' cursor-pointer grid grid-cols-2  gap-x-4 gap-y-2 mt-3'
-                            onClick={(e) => handleUploadingModal(e)}>
+                            <div className=' cursor-pointer grid grid-cols-2  gap-x-4 gap-y-2 mt-3'>
                                 {teacherData?.[dept].map((val, index) => (
                                     <React.Fragment key={index}>
                                         {Object.entries(val).map(([key, val], indx) => (
-                                            <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}>
+                                            <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
+                                            onClick={(e) => handleUploadingModal(e, key, val)}>
                                                 {val !== '' && (
                                                     <div>
                                                         <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
@@ -224,7 +229,7 @@ const TeacherHomePage = () => {
 
             <Modal 
             backdrop={'blur'} 
-            className=' bg-slate-700 text-slate-200' 
+            className=' bg-slate-700 text-slate-200 relative' 
             isOpen={isOpen} 
             onClose={onClose}>
                 <ModalContent>
@@ -233,16 +238,14 @@ const TeacherHomePage = () => {
                     <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <Component/>
+                        <FileUploader
+                            currentValue={currentSemSub}
+                        />
                     </ModalBody>
 
                     <ModalFooter>
                         <Button color="danger" onPress={onClose}>
                             Close
-                        </Button>
-
-                        <Button color="primary" onPress={onClose}>
-                            Action
                         </Button>
                     </ModalFooter>
                     </>

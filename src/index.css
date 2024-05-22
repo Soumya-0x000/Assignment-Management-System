@@ -27,3 +27,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{
     right:  11px;
     opacity: 0;
 }
+
+.uppy-StatusBar-actionBtn--upload {
+    display: none;
+}
