@@ -9,20 +9,18 @@ const initialState = {
         dept: ['MCA', 'MSc'],
         sem: ['1st sem', '2nd sem', '3rd sem', '4th sem'],
         subjects: [
-            { name: 'DSA', fName: 'dataStructuresAndAlgorithms' },
-            { name: 'DBMS', fName: 'databaseManagementSystems' },
-            { name: 'OS', fName: 'operatingSystems' },
-            { name: 'Computer Networks', fName: 'computerNetworks' },
-            { name: 'IOT', fName: 'internetOfThings' },
-            { name: 'Software Engineering', fName: 'softwareEngineering' },
-            { name: 'Computer Architecture', fName: 'computerArchitecture' },
-            { name: 'AI', fName: 'artificialIntelligence' },
-            { name: 'ML', fName: 'machineLearning' },
-            { name: 'Cybersecurity', fName: 'cybersecurity' }
-        ]
-        
+            { name: 'DSA', fName: 'DataStructuresAndAlgorithms' },
+            { name: 'DBMS', fName: 'DatabaseManagementSystems' },
+            { name: 'OS', fName: 'OperatingSystems' },
+            { name: 'Computer Networks', fName: 'ComputerNetworks' },
+            { name: 'IOT', fName: 'InternetOfThings' },
+            { name: 'Software Engineering', fName: 'SoftwareEngineering' },
+            { name: 'Computer Architecture', fName: 'ComputerArchitecture' },
+            { name: 'AI', fName: 'ArtificialIntelligence' },
+            { name: 'ML', fName: 'MachineLearning' },
+            { name: 'Cybersecurity', fName: 'Cybersecurity' }
+        ]   
     }
-    
 };
 
 export const AdminDashboardSlice = createSlice({

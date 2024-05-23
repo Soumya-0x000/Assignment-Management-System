@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Uppy from '@uppy/core';
 import { Dashboard } from '@uppy/react';
 import GoogleDrive from '@uppy/google-drive';
@@ -11,8 +11,12 @@ import '@uppy/drag-drop/dist/style.css';
 import '@uppy/file-input/dist/style.css';
 import '@uppy/progress-bar/dist/style.css';
 import '@uppy/status-bar/dist/style.css';
+import { useSelector } from 'react-redux';
 
 const FileUploader = ({ currentValue }) => {
+    const [fileName, setFileName] = useState('');
+    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard)
+
     const uppy = new Uppy({
         restrictions: {
             maxNumberOfFiles: 5,
@@ -32,7 +36,13 @@ const FileUploader = ({ currentValue }) => {
     useEffect(() => {
         return () => uppy.close();
     }, [uppy]);
-    console.log(currentValue)
+    
+    useEffect(() => {
+        const semName = currentValue.sem.split(' ').join('');
+        const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName
+        setFileName(currentValue.dept+semName+subName)
+    }, [currentValue]);
+    console.log(fileName)
 
     return (
         <div>

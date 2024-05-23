@@ -177,7 +177,7 @@ const HomePage = () => {
                     />
 
                     <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
-                        <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
+                        <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
                             {nameLogo(adminDetails.name)}
                         </div>
                     </div>

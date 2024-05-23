@@ -53,7 +53,8 @@ const TeacherHomePage = () => {
     const [pswdVisibility, setPswdVisibility] = useState(false);
     const [currentSemSub, setCurrentSemSub] = useState({
         sem: '',
-        subject: ''
+        subject: '',
+        dept: ''
     })
 
     useEffect(() => {
@@ -148,10 +149,10 @@ const TeacherHomePage = () => {
         }
     };
 
-    const handleUploadingModal = (e, sem, subject) => {
+    const handleUploadingModal = (e, sem, subject, dept) => {
         e.preventDefault();
         onOpen();
-        setCurrentSemSub({ sem, subject })
+        setCurrentSemSub({ sem, subject, dept })
     };
 
     return (
@@ -167,7 +168,7 @@ const TeacherHomePage = () => {
 
                     <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
                         <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
-                            <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full'>
+                            <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
                                 <div className='flex items-center justify-center gap-x-2'>
                                     {nameLogo(teacherData.name)}
                                 </div>
@@ -198,7 +199,7 @@ const TeacherHomePage = () => {
                                     <React.Fragment key={index}>
                                         {Object.entries(val).map(([key, val], indx) => (
                                             <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
-                                            onClick={(e) => handleUploadingModal(e, key, val)}>
+                                            onClick={(e) => handleUploadingModal(e, key, val, dept)}>
                                                 {val !== '' && (
                                                     <div>
                                                         <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
@@ -238,9 +239,7 @@ const TeacherHomePage = () => {
                     <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <FileUploader
-                            currentValue={currentSemSub}
-                        />
+                        <FileUploader currentValue={currentSemSub} />
                     </ModalBody>
 
                     <ModalFooter>
