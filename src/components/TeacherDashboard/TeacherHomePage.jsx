@@ -218,6 +218,14 @@ const TeacherHomePage = () => {
                 ))}
             </div>
 
+            {/* given assignments */}
+            <div className=' bg-gradient-to-br from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'>
+                <div className=' text-xl border-b-2 pb-1 font-onest'>
+                    Given Assignments
+                </div>
+            </div>
+
+            {/* edit own data */}
             <EditOwnData
                 title={teacherData.title}
                 name={teacherData.name}
@@ -228,6 +236,7 @@ const TeacherHomePage = () => {
                 mscSub={teacherData.MSc}
             />
 
+            {/* Upload assignments modal */}
             <Modal 
             backdrop={'blur'} 
             className=' bg-slate-700 text-slate-200 relative' 
@@ -239,7 +248,7 @@ const TeacherHomePage = () => {
                     <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <FileUploader currentValue={currentSemSub} department={department} />
+                        <FileUploader currentValue={currentSemSub} />
                     </ModalBody>
 
                     <ModalFooter>

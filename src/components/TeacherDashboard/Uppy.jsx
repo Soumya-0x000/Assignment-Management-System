@@ -13,9 +13,9 @@ import '@uppy/progress-bar/dist/style.css';
 import '@uppy/status-bar/dist/style.css';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { supabase } from '../../CreateClient';
 
-const FileUploader = ({ currentValue, department }) => {
-    const [fileNames, setFileNames] = useState([]);
+const FileUploader = ({ currentValue }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [filePath, setFilePath] = useState('');
 
@@ -47,7 +47,7 @@ const FileUploader = ({ currentValue, department }) => {
         for (const [index, file] of files.entries()) {
             const semName = currentValue.sem.split(' ').join('');
             const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName;
-            const newFileName = `${currentValue.dept}${semName}${subName}_${index}_${file.name}`;
+            const newFileName = `${currentValue.dept}_${semName}_${subName}_${index}_${file.name}`;
             const fileBlob = file.data;
             const fullPath = `${filePath}${newFileName}`;
 
@@ -62,11 +62,31 @@ const FileUploader = ({ currentValue, department }) => {
 
                 if (error) {
                     console.error(`Error uploading file ${newFileName}:`, error);
+                    toast.error(`Can't upload`, {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
                 } else {
-                    console.log(`File uploaded: ${data.Key}`);
+                    toast.success('Successfully uploaded', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
                 }
             } catch (err) {
                 console.error(`Error uploading file ${newFileName}:`, err);
+                toast.error(`Can't upload`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
             }
         }
     };
