@@ -12,10 +12,12 @@ import '@uppy/file-input/dist/style.css';
 import '@uppy/progress-bar/dist/style.css';
 import '@uppy/status-bar/dist/style.css';
 import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
-const FileUploader = ({ currentValue }) => {
-    const [fileName, setFileName] = useState('');
-    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard)
+const FileUploader = ({ currentValue, department }) => {
+    const [fileNames, setFileNames] = useState([]);
+    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    const [filePath, setFilePath] = useState('');
 
     const uppy = new Uppy({
         restrictions: {
@@ -31,18 +33,56 @@ const FileUploader = ({ currentValue }) => {
     })
     .use(ImageEditor, { id: 'ImageEditor' })
     .use(Tus, { endpoint: 'https://tusd.tusdemo.net/files/', id: 'Tus' })
-    .use(ProgressBar, { id: 'ProgressBar', hideAfterFinish: true })
+    .use(ProgressBar, { id: 'ProgressBar', hideAfterFinish: true });
 
     useEffect(() => {
-        return () => uppy.close();
-    }, [uppy]);
-    
-    useEffect(() => {
         const semName = currentValue.sem.split(' ').join('');
-        const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName
-        setFileName(currentValue.dept+semName+subName)
+        const pathName = `${currentValue.dept}/${semName}/`;
+        setFilePath(pathName);
     }, [currentValue]);
-    console.log(fileName)
+
+    const handleRenameUpload = async () => {
+        const files = uppy.getFiles();
+
+        for (const [index, file] of files.entries()) {
+            const semName = currentValue.sem.split(' ').join('');
+            const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName;
+            const newFileName = `${currentValue.dept}${semName}${subName}_${index}_${file.name}`;
+            const fileBlob = file.data;
+            const fullPath = `${filePath}${newFileName}`;
+
+            try {
+                const { data, error } = await supabase
+                    .storage
+                    .from('assignments')
+                    .upload(fullPath, fileBlob, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) {
+                    console.error(`Error uploading file ${newFileName}:`, error);
+                } else {
+                    console.log(`File uploaded: ${data.Key}`);
+                }
+            } catch (err) {
+                console.error(`Error uploading file ${newFileName}:`, err);
+            }
+        }
+    };
+
+    const handleRenameUploadToast = () => {
+        toast.promise(handleRenameUpload(), {
+            loading: 'Uploading files...',
+            success: 'Files uploaded successfully',
+            error: 'Failed to upload files'
+        }, {style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
+    };
 
     return (
         <div>
@@ -54,8 +94,8 @@ const FileUploader = ({ currentValue }) => {
             />
 
             <button 
-            className=' bg-violet-600 rounded-xl px-3 py-2 absolute bottom-4'
-            onClick={() => uppy.upload()}>
+                className='bg-violet-600 rounded-xl px-3 py-2 absolute bottom-4'
+                onClick={handleRenameUploadToast}>
                 Upload Files
             </button>
         </div>

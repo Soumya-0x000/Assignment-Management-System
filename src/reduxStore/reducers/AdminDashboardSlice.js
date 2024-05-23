@@ -7,7 +7,7 @@ const initialState = {
     dataForCanvas: [],
     teacherAssignClassDetails: {
         dept: ['MCA', 'MSc'],
-        sem: ['1st sem', '2nd sem', '3rd sem', '4th sem'],
+        sem: ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'],
         subjects: [
             { name: 'DSA', fName: 'DataStructuresAndAlgorithms' },
             { name: 'DBMS', fName: 'DatabaseManagementSystems' },

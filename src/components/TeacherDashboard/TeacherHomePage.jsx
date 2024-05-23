@@ -239,7 +239,7 @@ const TeacherHomePage = () => {
                     <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <FileUploader currentValue={currentSemSub} />
+                        <FileUploader currentValue={currentSemSub} department={department} />
                     </ModalBody>
 
                     <ModalFooter>
