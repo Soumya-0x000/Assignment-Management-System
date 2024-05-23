@@ -244,7 +244,7 @@ const TeacherHomePage = () => {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button color="danger" onPress={onClose}>
+                        <Button color="danger" className=' text-md' onPress={onClose}>
                             Close
                         </Button>
                     </ModalFooter>

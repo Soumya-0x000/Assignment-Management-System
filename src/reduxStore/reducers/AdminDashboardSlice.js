@@ -8,18 +8,19 @@ const initialState = {
     teacherAssignClassDetails: {
         dept: ['MCA', 'MSc'],
         sem: ['1st sem', '2nd sem', '3rd sem', '4th sem'],
-        subject: [
-            'DSA',
-            'DBMS',
-            'OS',
-            'Computer Networks',
-            'IOT',
-            'Software Engineering',
-            'Computer Architecture',
-            'AI',
-            'ML',
-            'Cybersecurity'
-        ],
+        subjects: [
+            { name: 'DSA', fName: 'dataStructuresAndAlgorithms' },
+            { name: 'DBMS', fName: 'databaseManagementSystems' },
+            { name: 'OS', fName: 'operatingSystems' },
+            { name: 'Computer Networks', fName: 'computerNetworks' },
+            { name: 'IOT', fName: 'internetOfThings' },
+            { name: 'Software Engineering', fName: 'softwareEngineering' },
+            { name: 'Computer Architecture', fName: 'computerArchitecture' },
+            { name: 'AI', fName: 'artificialIntelligence' },
+            { name: 'ML', fName: 'machineLearning' },
+            { name: 'Cybersecurity', fName: 'cybersecurity' }
+        ]
+        
     }
     
 };

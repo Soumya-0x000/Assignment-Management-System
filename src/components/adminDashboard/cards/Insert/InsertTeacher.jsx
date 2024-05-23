@@ -258,6 +258,9 @@ const Dropdowns = ({
     const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
     const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    const subjectItems = useMemo(() => {
+        return teacherAssignClassDetails.subjects.map((val, indx) => val.name);
+    }, [teacherAssignClassDetails.subjects]);
 
     const deptSelectedValue = useMemo(
         () => Array.from(deptSelectedKeys).join(", ").replaceAll("_", " "),
@@ -297,7 +300,7 @@ const Dropdowns = ({
             label: 'Subject',
             stateKey: 'subject',
             icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: teacherAssignClassDetails.subject,
+            items: subjectItems,
             selectedKeys: subjectSelectedKeys,
             setSelectedKeys: setSubjectSelectedKeys,
             selectedValue: subjectSelectedValue
@@ -312,43 +315,26 @@ const Dropdowns = ({
         e.preventDefault();
         const formattedCourses = formatCourses(sem, subject);
 
-        if (Object.keys(formattedCourses).length > 0 && dept === 'MCA' && sem && subject) {
-            setMCAData(formattedCourses);
-            setSaveInstance(prev => ({
-                ...prev, MCA: true
-            }));
-            toast.success(`${dept} instance created`, {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            });
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
-            setSubjectSelectedKeys(new Set());
-        } else if (Object.keys(formattedCourses).length > 0 && dept === 'MSc' && sem && subject) {
-            setMScData(formattedCourses);
-            setSaveInstance(prev => ({
-                ...prev, MSc: true
-            }));
-            toast.success(`${dept} instance created`, {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            });
+        if (Object.keys(formattedCourses).length > 0 && dept && sem && subject) {
+            if (dept === 'MCA') {
+                setMCAData(formattedCourses);
+                setSaveInstance(prev => ({ ...prev, MCA: true }));
+                toast.success(`${dept} instance created`, {
+                    style: { borderRadius: '10px', background: '#333', color: '#fff' }
+                });
+            } else if (dept === 'MSc') {
+                setMScData(formattedCourses);
+                setSaveInstance(prev => ({ ...prev, MSc: true }));
+                toast.success(`${dept} instance created`, {
+                    style: { borderRadius: '10px', background: '#333', color: '#fff' }
+                });
+            }
             setDeptSelectedKeys(new Set());
             setSemSelectedKeys(new Set());
             setSubjectSelectedKeys(new Set());
         } else {
             toast.error('Select some values', {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
+                style: { borderRadius: '10px', background: '#333', color: '#fff' }
             });
         }
     };
@@ -362,10 +348,8 @@ const Dropdowns = ({
         } else {
             const dept = mapIndexesToValues(Array.from(deptSelectedKeys), teacherAssignClassDetails.dept).join(', ');
             const sem = mapIndexesToValues(Array.from(semSelectedKeys), teacherAssignClassDetails.sem).join(', ');
-            const subject = mapIndexesToValues(Array.from(subjectSelectedKeys), teacherAssignClassDetails.subject).join(', ');
-            setCommonAttributes(prevState => ({
-                ...prevState, dept, sem, subject
-            }));
+            const subject = mapIndexesToValues(Array.from(subjectSelectedKeys), subjectItems).join(', ');
+            setCommonAttributes(prevState => ({ ...prevState, dept, sem, subject }));
         }
     }, [isResetting, deptSelectedKeys, semSelectedKeys, subjectSelectedKeys]);
 
@@ -373,17 +357,17 @@ const Dropdowns = ({
         <div className="grid grid-cols-4 gap-x-4 gap-y-8 w-full">
             {dropdowns.map((dropdown, index) => (
                 <div 
-                key={index} 
-                className={`w-full ${
-                dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
-                dropdown.stateKey === 'subject' ? 'col-span-4' :
-                dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' }`}>
-                    <Dropdown className={` w-full`}>
+                    key={index} 
+                    className={`w-full ${
+                        dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
+                        dropdown.stateKey === 'subject' ? 'col-span-4' :
+                        dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' }`}>
+                    <Dropdown className="w-full">
                         <DropdownTrigger className="w-full">
                             <Button 
-                            endContent={dropdown.icon}
-                            className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
-                            variant="bordered">
+                                endContent={dropdown.icon}
+                                className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
+                                variant="bordered">
                                 {dropdown.selectedKeys.size > 0
                                     ? Array.from(dropdown.selectedKeys).map((key) => dropdown.items[key]).join(', ')
                                     : dropdown.label}
@@ -391,13 +375,13 @@ const Dropdowns = ({
                         </DropdownTrigger>
 
                         <DropdownMenu 
-                        aria-label={`Multiple selection example`}
-                        closeOnSelect={false}
-                        disallowEmptySelection
-                        className="w-full bg-slate-900 text-green-500 rounded-xl" 
-                        selectionMode= {dropdown.stateKey !== 'dept' ? "multiple" : 'single'}
-                        selectedKeys={dropdown.selectedKeys}
-                        onSelectionChange={dropdown.setSelectedKeys}>
+                            aria-label={`Multiple selection example`}
+                            closeOnSelect={false}
+                            disallowEmptySelection
+                            className="w-full bg-slate-900 text-green-500 rounded-xl" 
+                            selectionMode={dropdown.stateKey !== 'dept' ? "multiple" : 'single'}
+                            selectedKeys={dropdown.selectedKeys}
+                            onSelectionChange={dropdown.setSelectedKeys}>
                             {dropdown.items.map((item, itemIndex) => (
                                 <DropdownItem key={itemIndex}>{item}</DropdownItem>
                             ))}
@@ -408,7 +392,7 @@ const Dropdowns = ({
 
             <div className="col-span-4">
                 <button className="bg-[#fdd833] text-yellow-800 font-onest font-bold rounded-xl px-4 py-2 absolute right-[6.5rem] bottom-0"
-                onClick={(e) => saveInstance(commonAttributes.dept, commonAttributes.sem, commonAttributes.subject, e)}>
+                    onClick={(e) => saveInstance(commonAttributes.dept, commonAttributes.sem, commonAttributes.subject, e)}>
                     Save Instance
                 </button>
             </div>

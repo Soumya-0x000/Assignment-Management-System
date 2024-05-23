@@ -109,9 +109,8 @@ export const EditOwnData = ({
                         background: '#333',
                         color: '#fff',
                     }
-                })
+                });
                 window.location.reload()
-                handleReset()
             }
         } catch (error) {
             console.error(error.message);
@@ -250,7 +249,12 @@ const Dropdowns = ({
     const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
     const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
     const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
+
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+
+    const subjectsList = useMemo(() => {
+        return teacherAssignClassDetails.subjects.map(val => val.name);
+    }, [teacherAssignClassDetails.subjects])
 
     const deptSelectedValue = useMemo(
         () => Array.from(deptSelectedKeys).join(", ").replaceAll("_", " "),
@@ -290,7 +294,7 @@ const Dropdowns = ({
             label: 'Subject',
             stateKey: 'subject',
             icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: teacherAssignClassDetails.subject,
+            items: subjectsList,
             selectedKeys: subjectSelectedKeys,
             setSelectedKeys: setSubjectSelectedKeys,
             selectedValue: subjectSelectedValue
@@ -314,9 +318,7 @@ const Dropdowns = ({
                     color: '#fff',
                 }
             });
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
-            setSubjectSelectedKeys(new Set());
+            resetSelections();
         } else if (dept === 'MSc') {
             setMScData(formattedCourses);
             toast.success(`${dept} instance created`, {
@@ -326,35 +328,26 @@ const Dropdowns = ({
                     color: '#fff',
                 }
             });
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
-            setSubjectSelectedKeys(new Set());
-        } else {
-            setMScData(formattedCourses);
-            toast.success(`${dept} instance created`, {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            });
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
+            resetSelections();
         }
+    };
+
+    const resetSelections = () => {
+        setDeptSelectedKeys(new Set());
+        setSemSelectedKeys(new Set());
+        setSubjectSelectedKeys(new Set());
     };
 
     useEffect(() => {
         if (isResetting) {
-            setDeptSelectedKeys(new Set());
-            setSemSelectedKeys(new Set());
-            setSubjectSelectedKeys(new Set());
+            resetSelections();
             setIsResetting(false);
         } else {
             const dept = mapIndexesToValues(Array.from(deptSelectedKeys), teacherAssignClassDetails.dept).join(', ');
             const sem = mapIndexesToValues(Array.from(semSelectedKeys), teacherAssignClassDetails.sem).join(', ');
-            const subject = mapIndexesToValues(Array.from(subjectSelectedKeys), teacherAssignClassDetails.subject).join(', ');
+            const subjectValues = mapIndexesToValues(Array.from(subjectSelectedKeys), subjectsList).join(', ');
             setCommonAttributes(prevState => ({
-                ...prevState, dept, sem, subject
+                ...prevState, dept, sem, subject: subjectValues
             }));
         }
     }, [isResetting, deptSelectedKeys, semSelectedKeys, subjectSelectedKeys]);
@@ -368,7 +361,7 @@ const Dropdowns = ({
                 dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
                 dropdown.stateKey === 'subject' ? 'col-span-4' :
                 dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' }`}>
-                    <Dropdown className={` w-full`}>
+                    <Dropdown className={`w-full`}>
                         <DropdownTrigger className="w-full">
                             <Button 
                             endContent={dropdown.icon}
