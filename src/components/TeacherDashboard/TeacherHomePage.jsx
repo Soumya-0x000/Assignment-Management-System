@@ -239,7 +239,7 @@ const TeacherHomePage = () => {
 
                 <div className='mt-4 flex flex-wrap items-center gap-3'>
                     {assignments?.map((assignment, indx) => (
-                        <div className='bg-[#2f3646] rounded-xl px-5 py-3 flex flex-col' key={indx}>
+                        <div className='bg-[#2f3646] rounded-xl px-5 py-3 flex flex-col gap-y-3' key={indx}>
                             <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
                                 {assignment.find(item => item.orgName).orgName}
                             </div>
