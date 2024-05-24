@@ -47,8 +47,11 @@ const TeacherHomePage = () => {
         sem: "",
         subject: "",
         MCA: [],
-        MSc: []
+        MSc: [],
+        MCAassignments: [],
+        MScassignments: []
     });
+    const [assignments, setAssignments] = useState([]);
     const [selected, setSelected] = useState(navArr[0].name);
     const [pswdVisibility, setPswdVisibility] = useState(false);
     const [currentSemSub, setCurrentSemSub] = useState({
@@ -82,7 +85,7 @@ const TeacherHomePage = () => {
                     
                     teacherData.MCA = sortDept(teacherData.MCA);
                     teacherData.MSc = sortDept(teacherData.MSc);
-    
+
                     setTeacherData(teacherData);
                 } catch (error) {
                     console.error('An unexpected error occurred:', error.message);
@@ -106,7 +109,17 @@ const TeacherHomePage = () => {
                 }
             }
         )
-    }, []);
+    }, []); 
+
+    useEffect(() => {
+        const totalAssignments = [...teacherData.MCAassignments, ...teacherData.MScassignments];
+        const updatedAssignments = totalAssignments.map(assignment => {
+            const orgName = assignment.find(item => item.name).name.split('_').slice(3).join('_');
+            assignment.push({orgName});
+            return assignment
+        });
+        setAssignments(updatedAssignments);
+    }, [teacherData])
 
     const switchValues = (selected) => {
         switch (selected) {
@@ -219,9 +232,34 @@ const TeacherHomePage = () => {
             </div>
 
             {/* given assignments */}
-            <div className=' bg-gradient-to-br from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'>
+            <div className=' bg-gradient-to-br from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-full'>
                 <div className=' text-xl border-b-2 pb-1 font-onest'>
                     Given Assignments
+                </div>
+
+                <div className='mt-4 flex flex-wrap items-center gap-3'>
+                    {assignments?.map((assignment, indx) => (
+                        <div className='bg-[#2f3646] rounded-xl px-5 py-3 flex flex-col' key={indx}>
+                            <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
+                                {assignment.find(item => item.orgName).orgName}
+                            </div>
+
+                            <div className='text-gray-300 font-onest tracking-wider flex gap-x-1 xl:gap-x-3'>
+                                {assignment.map((item, idx) => {
+                                    const key = Object.keys(item)[0];
+                                    const value = Object.values(item)[0];
+                                    if (key !== 'name' && key !== 'orgName') {
+                                        return (
+                                            <div key={idx} className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>
+                                                <span>{value}</span>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -279,3 +317,39 @@ const sortDept = (dept) => {
             return aKey.localeCompare(bKey, undefined, { numeric: true });
         });
 };
+
+const useless = () => {
+    return (
+        <div className=' flex flex-wrap items-center gap-x-2'>
+                    {Object.entries(teacherData).map(([key, val], indx) => (
+                        <React.Fragment key={indx+key}>
+                            {key === 'MCAassignments' || key === 'MScassignments' ? (<>
+                                {Object.entries(val).map(([key, val], indx) => (
+                                    <div 
+                                    className=' flex flex-col'
+                                    key={indx}>
+                                        {/* <div className=''> */}
+                                            <div className=' bg-slate-900 rounded-lg'>
+                                                {val.name}
+                                            </div>
+
+                                            <div className=' flex'>
+                                                <span>
+                                                    {val.sem}
+                                                </span>
+                                                <span>
+                                                    {val.department}
+                                                </span>
+                                                <span>
+                                                    {val.subject}
+                                                </span>
+                                            </div>
+                                        {/* </div> */}
+                                    </div>
+                                ))}
+                            </>) : (<></>)}
+                        </React.Fragment>
+                    ))}
+                </div>
+    )
+}
