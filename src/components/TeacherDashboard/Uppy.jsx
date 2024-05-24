@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
 
-const FileUploader = ({ currentValue }) => {
+const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assignments }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [filePath, setFilePath] = useState('');
 
@@ -40,17 +40,18 @@ const FileUploader = ({ currentValue }) => {
         const pathName = `${currentValue.dept}/${semName}/`;
         setFilePath(pathName);
     }, [currentValue]);
+    setAssignments(prev => prev)
 
     const handleRenameUpload = async () => {
         const files = uppy.getFiles();
-
+    
         for (const [index, file] of files.entries()) {
             const semName = currentValue.sem.split(' ').join('');
             const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName;
             const newFileName = `${currentValue.dept}_${semName}_${subName}_${index}_${file.name}`;
             const fileBlob = file.data;
             const fullPath = `${filePath}${newFileName}`;
-
+    
             try {
                 const { data, error } = await supabase
                     .storage
@@ -59,16 +60,18 @@ const FileUploader = ({ currentValue }) => {
                         cacheControl: '3600',
                         upsert: false
                     });
-
+    
                 if (error) {
                     console.error(`Error uploading file ${newFileName}:`, error);
-                    toast.error(`Can't upload`, {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#333',
-                            color: '#fff',
-                        }
-                    })
+                    if (error.error === 'Duplicate') {
+                        toast.error(`File already exists`, {
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                            }
+                        })
+                    }
                 } else {
                     toast.success('Successfully uploaded', {
                         style: {
@@ -77,6 +80,55 @@ const FileUploader = ({ currentValue }) => {
                             color: '#fff',
                         }
                     })
+    
+                    const columnName = `${currentValue.dept}assignments`;
+                    const newAssignment = {
+                        sem: currentValue.sem,
+                        department: currentValue.dept,
+                        subject: currentValue.subject,
+                        name: newFileName,
+                        orgName: files[0].name
+                    };
+                    // setAssignments(prev => [...prev, newAssignment]);
+
+                    // Fetch existing assignments
+                    const { data: teacherData, error: teacherError } = await supabase
+                        .from('teachers')
+                        .select(columnName)
+                        .eq('uniqId', teacherId)
+                        .single();
+    
+                    if (teacherError) {
+                        console.error('Error fetching teacher data:', teacherError.message);
+                        toast.error('An error occurred while fetching teacher data');
+                        return;
+                    }
+    
+                    let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
+                    console.log(updatedAssignments)
+                    updatedAssignments.push([newAssignment]);
+    
+                    // Update teacher data with new assignments
+                    const { data: updateData, error: updateError } = await supabase
+                        .from('teachers')
+                        .update({
+                            [columnName]: updatedAssignments
+                        })
+                        .eq('uniqId', teacherId);
+    
+                    if (updateError) {
+                        console.error('Error updating teacher data:', updateError.message);
+                        toast.error('An error occurred while updating teacher data', {
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                            }
+                        });
+                        return;
+                    } else {
+                        onClose();
+                    }
                 }
             } catch (err) {
                 console.error(`Error uploading file ${newFileName}:`, err);
@@ -92,16 +144,27 @@ const FileUploader = ({ currentValue }) => {
     };
 
     const handleRenameUploadToast = () => {
-        toast.promise(handleRenameUpload(), {
-            loading: 'Uploading files...',
-            success: 'Files uploaded successfully',
-            error: 'Failed to upload files'
-        }, {style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            }
-        })
+        const files = uppy.getFiles();
+        if (files.length === 0) {
+            toast.error('No files selected', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        } else {    
+            toast.promise(handleRenameUpload(), {
+                loading: 'Uploading files...',
+                success: 'Files uploaded successfully',
+                error: 'Failed to upload files'
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
     };
 
     return (

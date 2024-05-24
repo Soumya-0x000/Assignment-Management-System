@@ -21,6 +21,7 @@ import {
     useDisclosure 
 } from '@nextui-org/react';
 import FileUploader from './Uppy';
+import { FaRegTrashAlt } from "react-icons/fa";
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -85,8 +86,16 @@ const TeacherHomePage = () => {
                     
                     teacherData.MCA = sortDept(teacherData.MCA);
                     teacherData.MSc = sortDept(teacherData.MSc);
-
                     setTeacherData(teacherData);
+
+                    if (teacherData.MCAassignments || teacherData.MScassignments) {
+                        const totalAssignments = [
+                            ...(teacherData.MCAassignments !== null ? teacherData.MCAassignments : []),
+                            ...(teacherData.MScassignments !== null ? teacherData.MScassignments : [])
+                        ];
+    
+                        setAssignments(totalAssignments);
+                    }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error.message);
                     toast.error('An unexpected error occurred', {
@@ -110,16 +119,6 @@ const TeacherHomePage = () => {
             }
         )
     }, []); 
-
-    useEffect(() => {
-        const totalAssignments = [...teacherData.MCAassignments, ...teacherData.MScassignments];
-        const updatedAssignments = totalAssignments.map(assignment => {
-            const orgName = assignment.find(item => item.name).name.split('_').slice(3).join('_');
-            assignment.push({orgName});
-            return assignment
-        });
-        setAssignments(updatedAssignments);
-    }, [teacherData])
 
     const switchValues = (selected) => {
         switch (selected) {
@@ -168,6 +167,75 @@ const TeacherHomePage = () => {
         setCurrentSemSub({ sem, subject, dept })
     };
 
+    const handleFileDelete = async(item) => {
+        try {
+            const semName = item.sem.split(' ').join('');
+            const path = `${item?.department}/${semName}/${item?.name}`
+
+            const { data, error } = await supabase
+                .storage
+                .from('assignments')
+                .remove([path])
+
+            if (error) {
+                console.error('Error in deleting file')
+                toast.error('Error in deleting file', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            } else {
+                toast.success(`${item.orgName} deleted successfully`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                
+                const columnName = `${item.dept}assignments`;
+
+                let updatedAssignments = teacherData.columnName;
+                console.log(teacherData[columnName])
+                const newAssignments = updatedAssignments.filter(val => val.name !== item.name)
+                updatedAssignments.push([newAssignments]);
+
+                // Update teacher data with new assignments
+                // const { data: updateData, error: updateError } = await supabase
+                    // .from('teachers')
+                    // .update({
+                    //     [columnName]: updatedAssignments
+                    // })
+                    // .eq('uniqId', teacherId);
+
+                if (updateError) {
+                    console.error('Error updating teacher data:', updateError.message);
+                    toast.error('An error occurred while updating teacher data', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+                    return;
+                } else {
+                    onClose();
+                }
+            }
+        } catch (error) {
+            console.error('Error in deleting file')
+            toast.error('Error in deleting file', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
+
     return (
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 px-5'>
             {/* navbar */}
@@ -200,7 +268,7 @@ const TeacherHomePage = () => {
             {/* department */}
             <div className=' w-full flex flex-col md:flex-row items-center justify-between gap-x-4 gap-y-3'>
                 {department.map((dept, i) => (
-                    <div className=' bg-gradient-to-br from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'
+                    <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'
                     key={dept + i}>
                         <div className=' text-xl border-b-2 pb-1 font-onest'>
                             {dept}
@@ -232,35 +300,40 @@ const TeacherHomePage = () => {
             </div>
 
             {/* given assignments */}
-            <div className=' bg-gradient-to-br from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-full'>
+            <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
                 <div className=' text-xl border-b-2 pb-1 font-onest'>
-                    Given Assignments
+                    Given Assignments ( {assignments.length} )
                 </div>
 
-                <div className='mt-4 flex flex-wrap items-center gap-3'>
-                    {assignments?.map((assignment, indx) => (
-                        <div className='bg-[#2f3646] rounded-xl px-5 py-3 flex flex-col gap-y-3' key={indx}>
-                            <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
-                                {assignment.find(item => item.orgName).orgName}
-                            </div>
+                {assignments.length ? (
+                    <div className='mt-4 flex flex-wrap items-center gap-3'>
+                        {assignments?.map((assignment, indx) => (
+                            <div 
+                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-fit' 
+                            key={indx}>
+                                <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
+                                    {assignment[0].orgName}
+                                </div>
 
-                            <div className='text-gray-300 font-onest tracking-wider flex gap-x-1 xl:gap-x-3'>
-                                {assignment.map((item, idx) => {
-                                    const key = Object.keys(item)[0];
-                                    const value = Object.values(item)[0];
-                                    if (key !== 'name' && key !== 'orgName') {
-                                        return (
-                                            <div key={idx} className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>
-                                                <span>{value}</span>
-                                            </div>
-                                        );
-                                    }
-                                    return null;
-                                })}
+                                <div className='text-gray-300 font-onest tracking-wider flex gap-x-1.5 xl:gap-x-2.5'>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
+                                </div>
+
+                                <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit mt-3 active:scale-110 transition-all'
+                                onClick={() => handleFileDelete(assignment[0])}>
+                                    <FaRegTrashAlt />
+                                    Remove
+                                </button>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
+                        No assignments from your side
+                    </div>
+                )}
             </div>
 
             {/* edit own data */}
@@ -281,12 +354,17 @@ const TeacherHomePage = () => {
             isOpen={isOpen} 
             onClose={onClose}>
                 <ModalContent>
-                {(onClose) => (
-                    <>
+                {(onClose) => (<>
                     <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <FileUploader currentValue={currentSemSub} />
+                        <FileUploader 
+                            currentValue={currentSemSub} 
+                            teacherId={teacherId}
+                            onClose={onClose}
+                            setAssignments={setAssignments}
+                            assignments={assignments}
+                        />
                     </ModalBody>
 
                     <ModalFooter>
@@ -294,8 +372,7 @@ const TeacherHomePage = () => {
                             Close
                         </Button>
                     </ModalFooter>
-                    </>
-                )}
+                </>)}
                 </ModalContent>
             </Modal>
         </div>
