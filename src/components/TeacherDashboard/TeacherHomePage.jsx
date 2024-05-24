@@ -195,20 +195,18 @@ const TeacherHomePage = () => {
                     }
                 });
                 
-                const columnName = `${item.dept}assignments`;
-
-                let updatedAssignments = teacherData.columnName;
-                console.log(teacherData[columnName])
-                const newAssignments = updatedAssignments.filter(val => val.name !== item.name)
-                updatedAssignments.push([newAssignments]);
+                const columnName = `${item.department}assignments`;
+                let updatedAssignments = teacherData[columnName];
+                const newAssignments = updatedAssignments.filter(val => val[0].name !== item.name)
+                setAssignments(newAssignments)
 
                 // Update teacher data with new assignments
-                // const { data: updateData, error: updateError } = await supabase
-                    // .from('teachers')
-                    // .update({
-                    //     [columnName]: updatedAssignments
-                    // })
-                    // .eq('uniqId', teacherId);
+                const { data: updateData, error: updateError } = await supabase
+                    .from('teachers')
+                    .update({
+                        [columnName]: newAssignments
+                    })
+                    .eq('uniqId', teacherId);
 
                 if (updateError) {
                     console.error('Error updating teacher data:', updateError.message);
@@ -220,8 +218,6 @@ const TeacherHomePage = () => {
                         }
                     });
                     return;
-                } else {
-                    onClose();
                 }
             }
         } catch (error) {
