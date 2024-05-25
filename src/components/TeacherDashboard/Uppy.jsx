@@ -20,11 +20,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
     const [filePath, setFilePath] = useState('');
     const [fileToUpload, setFileToUpload] = useState(assignments)
 
-    useEffect(() => {
-        // setAssignments(fileToUpload)
-        console.log(fileToUpload)
-    }, [fileToUpload])
-
     const uppy = new Uppy({
         restrictions: {
             maxNumberOfFiles: 5,
@@ -46,7 +41,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
         const pathName = `${currentValue.dept}/${semName}/`;
         setFilePath(pathName);
     }, [currentValue]);
-    setAssignments(prev => prev)
 
     const handleRenameUpload = async () => {
         const files = uppy.getFiles();
@@ -113,7 +107,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
                     updatedAssignments.push([newAssignment]);
 
                     const tempAssignments = [...assignments, [newAssignment]]
-                    console.log(tempAssignments)
                     setAssignments(tempAssignments)
                     fileToUpload.push([newAssignment])
     
