@@ -239,6 +239,7 @@ const TeacherHomePage = () => {
             <GivenAssignments
                 assignments={assignments}
                 setAssignments={setAssignments}
+                teacherId={teacherId}
             />
 
             {/* edit own data */}
@@ -299,39 +300,3 @@ const sortDept = (dept) => {
             return aKey.localeCompare(bKey, undefined, { numeric: true });
         });
 };
-
-const useless = () => {
-    return (
-        <div className=' flex flex-wrap items-center gap-x-2'>
-                    {Object.entries(teacherData).map(([key, val], indx) => (
-                        <React.Fragment key={indx+key}>
-                            {key === 'MCAassignments' || key === 'MScassignments' ? (<>
-                                {Object.entries(val).map(([key, val], indx) => (
-                                    <div 
-                                    className=' flex flex-col'
-                                    key={indx}>
-                                        {/* <div className=''> */}
-                                            <div className=' bg-slate-900 rounded-lg'>
-                                                {val.name}
-                                            </div>
-
-                                            <div className=' flex'>
-                                                <span>
-                                                    {val.sem}
-                                                </span>
-                                                <span>
-                                                    {val.department}
-                                                </span>
-                                                <span>
-                                                    {val.subject}
-                                                </span>
-                                            </div>
-                                        {/* </div> */}
-                                    </div>
-                                ))}
-                            </>) : (<></>)}
-                        </React.Fragment>
-                    ))}
-                </div>
-    )
-}

@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 
-const GivenAssignments = ({ assignments, setAssignments }) => {
+const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const [assignmentDetails, setAssignmentDetails] = useState({})
 
     const handleFileDelete = async(item) => {
         try {
@@ -40,7 +41,7 @@ const GivenAssignments = ({ assignments, setAssignments }) => {
                 const updatedAssignments = assignments
                     .filter(val => val[0].department === item.department)
                     .filter(val => val[0].name !== item.name)
-
+                
                 // Update teacher data with new assignments
                 const { data: updateData, error: updateError } = await supabase
                     .from('teachers')
@@ -61,7 +62,8 @@ const GivenAssignments = ({ assignments, setAssignments }) => {
                     return;
                 } else {
                     const updatedAssignmentsOnUI = assignments.filter(val => val[0].name !== item.name)
-                    setAssignments(updatedAssignmentsOnUI)
+                    setAssignments(updatedAssignmentsOnUI);
+                    setAssignmentDetails({});
                 }
             }
         } catch (error) {
@@ -154,6 +156,11 @@ const GivenAssignments = ({ assignments, setAssignments }) => {
         })
     }
 
+    const handleDeleteModal = (assignment) => {
+        setAssignmentDetails(assignment)
+        onOpen()
+    };
+
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className=' text-xl border-b-2 pb-1 font-onest'>
@@ -178,7 +185,7 @@ const GivenAssignments = ({ assignments, setAssignments }) => {
 
                             <div className=' flex items-center justify-between mt-3'>
                                 <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all'
-                                onClick={() => handleFileDeleteToast(assignment[0])}>
+                                onClick={() => handleDeleteModal(assignment[0])}>
                                     <FaRegTrashAlt />
                                     Remove
                                 </button>
@@ -204,15 +211,18 @@ const GivenAssignments = ({ assignments, setAssignments }) => {
             onClose={onClose}>
                 <ModalContent>
                 {(onClose) => (<>
-                    <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
-
-                    <ModalBody>
-                        
-                    </ModalBody>
+                    <ModalHeader className="flex flex-col gap-1">Delete {assignmentDetails.orgName} ?</ModalHeader>
 
                     <ModalFooter>
                         <Button color="danger" className=' text-md' onPress={onClose}>
                             Close
+                        </Button>
+
+                        <Button 
+                        color="primary" 
+                        onClick={() => handleFileDeleteToast(assignmentDetails)}
+                        onPress={onClose}>
+                            Delete
                         </Button>
                     </ModalFooter>
                 </>)}
