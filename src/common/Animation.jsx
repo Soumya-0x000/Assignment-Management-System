@@ -64,13 +64,13 @@ export const userActions = ({selectedArray}) => {
             {selectedArray.map((item, index) => (
                 <button 
                 onClick={() => handleAction(item.text)}
-                className='w-[12rem] lg:w-[15rem] pl-4 xl:pl-6 no-underline flex items-center py-2 gap-x-3 hover:bg-gradient-to-l hover:from-violet-800 hover:to-indigo-800'
-                
+                className='w-[12rem] lg:w-[15rem] pl-4 xl:pl-6 no-underline flex items-center md:py-2 gap-x-3 hover:bg-gradient-to-l hover:from-violet-800 hover:to-indigo-800'
                 key={item.text+index}>
                     <span className='text-violet-200 text-[1.2rem] xl:text-[1.3rem]'>
                         {item.icon}
                     </span>
-                    <span className='flex flex-wrap text-violet-200 font-bold font-robotoMono tracking-wider'>
+                    
+                    <span className='flex flex-wrap text-violet-200 font-bold font-robotoMono tracking-wider text-sm sm:text-md'>
                         {item.text}
                     </span>
                 </button>

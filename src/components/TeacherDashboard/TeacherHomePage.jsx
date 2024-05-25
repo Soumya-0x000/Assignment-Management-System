@@ -122,7 +122,6 @@ const TeacherHomePage = () => {
 
     useEffect(() => {
         setAssignments(assignments)
-        console.log(assignments)
     }, [assignments])
 
     const switchValues = (selected) => {
