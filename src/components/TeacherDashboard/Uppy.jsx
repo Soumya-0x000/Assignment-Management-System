@@ -87,7 +87,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
                         department: currentValue.dept,
                         subject: currentValue.subject,
                         name: newFileName,
-                        orgName: files[0].name
+                        orgName: file.name
                     };
                     // setAssignments(prev => [...prev, newAssignment]);
 
@@ -105,8 +105,11 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
                     }
     
                     let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
-                    console.log(updatedAssignments)
                     updatedAssignments.push([newAssignment]);
+
+                    const tempAssignments = [...assignments, [newAssignment]]
+                    console.log(tempAssignments)
+                    setAssignments(tempAssignments)
     
                     // Update teacher data with new assignments
                     const { data: updateData, error: updateError } = await supabase

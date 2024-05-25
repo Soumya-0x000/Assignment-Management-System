@@ -120,6 +120,11 @@ const TeacherHomePage = () => {
         )
     }, []); 
 
+    // useEffect(() => {
+    //     setAssignments(assignments)
+    //     console.log(assignments)
+    // }, [assignments])
+
     const switchValues = (selected) => {
         switch (selected) {
             case 'Id':
@@ -172,12 +177,12 @@ const TeacherHomePage = () => {
             const semName = item.sem.split(' ').join('');
             const path = `${item?.department}/${semName}/${item?.name}`
 
-            const { data, error } = await supabase
+            const { data: storageData, error: storageError } = await supabase
                 .storage
                 .from('assignments')
-                .remove([path])
+                .remove([path]);
 
-            if (error) {
+            if (storageError) {
                 console.error('Error in deleting file')
                 toast.error('Error in deleting file', {
                     style: {
@@ -195,16 +200,16 @@ const TeacherHomePage = () => {
                     }
                 });
                 
-                const columnName = `${item.department}assignments`;
-                let updatedAssignments = teacherData[columnName];
-                const newAssignments = updatedAssignments.filter(val => val[0].name !== item.name)
-                setAssignments(newAssignments)
+                const columnName = `${item?.department}assignments`;
+                const updatedAssignments = assignments
+                    .filter(val => val[0].department === item.department)
+                    .filter(val => val[0].name !== item.name)
 
                 // Update teacher data with new assignments
                 const { data: updateData, error: updateError } = await supabase
                     .from('teachers')
                     .update({
-                        [columnName]: newAssignments
+                        [columnName]: updatedAssignments
                     })
                     .eq('uniqId', teacherId);
 
@@ -218,6 +223,9 @@ const TeacherHomePage = () => {
                         }
                     });
                     return;
+                } else {
+                    const updatedAssignmentsOnUI = assignments.filter(val => val[0].name !== item.name)
+                    setAssignments(updatedAssignmentsOnUI)
                 }
             }
         } catch (error) {
