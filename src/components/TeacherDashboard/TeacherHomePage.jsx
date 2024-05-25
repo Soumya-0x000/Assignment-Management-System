@@ -120,10 +120,10 @@ const TeacherHomePage = () => {
         )
     }, []); 
 
-    // useEffect(() => {
-    //     setAssignments(assignments)
-    //     console.log(assignments)
-    // }, [assignments])
+    useEffect(() => {
+        setAssignments(assignments)
+        console.log(assignments)
+    }, [assignments])
 
     const switchValues = (selected) => {
         switch (selected) {
