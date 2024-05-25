@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegTrashAlt, FaSearch } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const {isOpen, onOpen, onClose} = useDisclosure();
-    const [assignmentDetails, setAssignmentDetails] = useState({})
+    const [assignmentDetails, setAssignmentDetails] = useState({});
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchItem, setSearchItem] = useState([]);
 
     const handleFileDelete = async(item) => {
         try {
@@ -161,10 +163,33 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         onOpen()
     };
 
+    const handelSearch = (e) => {
+        e.preventDefault();
+        console.log(e.target.value)
+    };
+
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
-            <div className=' text-xl border-b-2 pb-1 font-onest'>
-                Given Assignments ( {assignments.length} )
+            <div className='  border-b-2 pb-2 flex flex-col md:flex-row md:items-center justify-between gap-4'>
+                <div className=' text-xl font-onest'>
+                    Given Assignments ( {assignments.length} )
+                </div>
+
+                <div className=' relative rounded-lg overflow-hidden'>
+                    <input 
+                        type="text" 
+                        placeholder="Search"
+                        className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider py-3 pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        value={searchKeyword}
+                        onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                    />
+
+                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1.5 md:px-2.5'
+                    onClick={(e) => handelSearch(e)}>
+                        <FaSearch className=' text-gray-300' />
+                    </button>
+                </div>
             </div>
 
             {assignments.length ? (
