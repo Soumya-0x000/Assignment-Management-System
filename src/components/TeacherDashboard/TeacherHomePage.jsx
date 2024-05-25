@@ -21,7 +21,7 @@ import {
     useDisclosure 
 } from '@nextui-org/react';
 import FileUploader from './Uppy';
-import { FaRegTrashAlt } from "react-icons/fa";
+import GivenAssignments from './GivenAssignments';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -59,7 +59,7 @@ const TeacherHomePage = () => {
         sem: '',
         subject: '',
         dept: ''
-    })
+    });
 
     useEffect(() => {
         toast.promise(
@@ -172,74 +172,6 @@ const TeacherHomePage = () => {
         setCurrentSemSub({ sem, subject, dept })
     };
 
-    const handleFileDelete = async(item) => {
-        try {
-            const semName = item.sem.split(' ').join('');
-            const path = `${item?.department}/${semName}/${item?.name}`
-
-            const { data: storageData, error: storageError } = await supabase
-                .storage
-                .from('assignments')
-                .remove([path]);
-
-            if (storageError) {
-                console.error('Error in deleting file')
-                toast.error('Error in deleting file', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                })
-            } else {
-                toast.success(`${item.orgName} deleted successfully`, {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                });
-                
-                const columnName = `${item?.department}assignments`;
-                const updatedAssignments = assignments
-                    .filter(val => val[0].department === item.department)
-                    .filter(val => val[0].name !== item.name)
-
-                // Update teacher data with new assignments
-                const { data: updateData, error: updateError } = await supabase
-                    .from('teachers')
-                    .update({
-                        [columnName]: updatedAssignments
-                    })
-                    .eq('uniqId', teacherId);
-
-                if (updateError) {
-                    console.error('Error updating teacher data:', updateError.message);
-                    toast.error('An error occurred while updating teacher data', {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#333',
-                            color: '#fff',
-                        }
-                    });
-                    return;
-                } else {
-                    const updatedAssignmentsOnUI = assignments.filter(val => val[0].name !== item.name)
-                    setAssignments(updatedAssignmentsOnUI)
-                }
-            }
-        } catch (error) {
-            console.error('Error in deleting file')
-            toast.error('Error in deleting file', {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            })
-        }
-    };
-
     return (
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 px-5'>
             {/* navbar */}
@@ -304,41 +236,10 @@ const TeacherHomePage = () => {
             </div>
 
             {/* given assignments */}
-            <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
-                <div className=' text-xl border-b-2 pb-1 font-onest'>
-                    Given Assignments ( {assignments.length} )
-                </div>
-
-                {assignments.length ? (
-                    <div className='mt-4 flex flex-wrap items-center gap-3'>
-                        {assignments?.map((assignment, indx) => (
-                            <div 
-                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-fit' 
-                            key={indx}>
-                                <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
-                                    {assignment[0].orgName}
-                                </div>
-
-                                <div className='text-gray-300 font-onest tracking-wider flex gap-x-1.5 xl:gap-x-2.5'>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
-                                </div>
-
-                                <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit mt-3 active:scale-110 transition-all'
-                                onClick={() => handleFileDelete(assignment[0])}>
-                                    <FaRegTrashAlt />
-                                    Remove
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
-                        No assignments from your side
-                    </div>
-                )}
-            </div>
+            <GivenAssignments
+                assignments={assignments}
+                setAssignments={setAssignments}
+            />
 
             {/* edit own data */}
             <EditOwnData

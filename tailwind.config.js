@@ -12,6 +12,7 @@ export default {
     extend: {
       screens: {
         'xsm': '440px',
+        'xmd': '510px',
         'preLg': '950px',
         'preXl': '1400px',
         '3xl': '1700px',

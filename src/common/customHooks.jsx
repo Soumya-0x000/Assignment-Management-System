@@ -32,3 +32,15 @@ export const nameLogo = (name) => {
 }
 
 export const tableList = ['studentsSem1', 'studentsSem2', 'studentsSem3', 'studentsSem4'];
+
+export const downloadFile = async(downloadData) => {
+    const url = URL.createObjectURL(downloadData);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = item.orgName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+}
