@@ -1,15 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { FaRegTrashAlt, FaSearch } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { RxCross2 } from "react-icons/rx";
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchItem, setSearchItem] = useState([]);
+    const [orgCopy, setOrgCopy] = useState([...assignments]);
+
+    useEffect(() => {
+        setOrgCopy([...assignments]);
+    }, [assignments]);
 
     const handleFileDelete = async(item) => {
         try {
@@ -165,7 +171,19 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     const handelSearch = (e) => {
         e.preventDefault();
-        console.log(e.target.value)
+
+        if (searchKeyword) {
+            const filteredAssignments = orgCopy.filter(val => val[0].name.toLowerCase().includes(searchKeyword.toLowerCase()))
+            console.log(filteredAssignments)
+            setAssignments(filteredAssignments)
+        }
+    };
+
+    const handelCancelSearch = (e) => {
+        e.preventDefault();
+        console.log(orgCopy)
+        setSearchKeyword('')
+        setAssignments(orgCopy)
     };
 
     return (
@@ -185,9 +203,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
                     />
 
-                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1.5 md:px-2.5'
-                    onClick={(e) => handelSearch(e)}>
-                        <FaSearch className=' text-gray-300' />
+                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1 md:px-2.5'
+                    onClick={(e) => handelCancelSearch(e)}>
+                        <RxCross2 className=' text-gray-300 text-xl' />
                     </button>
                 </div>
             </div>
