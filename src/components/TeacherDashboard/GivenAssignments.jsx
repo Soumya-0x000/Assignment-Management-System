@@ -5,17 +5,31 @@ import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
 import { Button, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
+import { motion } from 'framer-motion';
+import { childVariants, staggerVariants } from '../../common/Animation';
+
+const searchModeArr = [
+    {key: 'orgName', name: 'Name'},
+    {key: 'sem', name: 'Semester'},
+    {key: 'department', name: 'Department'},
+    {key: 'subject', name: 'Subject'}
+];
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
+    const [populatingKey, setPopulatingKey] = useState([...assignments])
     const [searchKeyword, setSearchKeyword] = useState('');
-    const [searchItem, setSearchItem] = useState([]);
-    const [orgCopy, setOrgCopy] = useState([...assignments]);
+    const [searchedItem, setSearchedItem] = useState([]);
+    const [searchMode, setSearchMode] = useState('orgName');
 
     useEffect(() => {
-        setOrgCopy([...assignments]);
-    }, [assignments]);
+        if (searchedItem.length > 0) {
+            setPopulatingKey(searchedItem)
+        } else {
+            setPopulatingKey([...assignments])
+        }
+    }, [searchedItem, assignments]);
 
     const handleFileDelete = async(item) => {
         try {
@@ -171,19 +185,29 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     const handelSearch = (e) => {
         e.preventDefault();
+        console.log(searchMode)
 
         if (searchKeyword) {
-            const filteredAssignments = orgCopy.filter(val => val[0].name.toLowerCase().includes(searchKeyword.toLowerCase()))
-            console.log(filteredAssignments)
-            setAssignments(filteredAssignments)
+            const filteredAssignments = assignments.filter(val => val[0][searchMode].toLowerCase().includes(searchKeyword.toLowerCase()))
+            setSearchedItem(filteredAssignments)
+
+            if (filteredAssignments.length === 0) {
+                toast.error(`No search result found for ${searchKeyword}`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            }
         }
     };
 
     const handelCancelSearch = (e) => {
         e.preventDefault();
-        console.log(orgCopy)
-        setSearchKeyword('')
-        setAssignments(orgCopy)
+
+        setSearchKeyword('');
+        setSearchedItem([]);
     };
 
     return (
@@ -193,27 +217,35 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     Given Assignments ( {assignments.length} )
                 </div>
 
-                <div className=' relative rounded-lg overflow-hidden'>
-                    <input 
-                        type="text" 
-                        placeholder="Search"
-                        className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider py-3 pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
-                        onChange={(e) => setSearchKeyword(e.target.value)}
-                        value={searchKeyword}
-                        onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
-                    />
+                <div className=' flex'>
+                    <div className=' relative rounded-lg overflow-hidden'>
+                        <input 
+                            type="text" 
+                            placeholder="Search"
+                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider py-3 pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            value={searchKeyword}
+                            onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                        />
 
-                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1 md:px-2.5'
-                    onClick={(e) => handelCancelSearch(e)}>
-                        <RxCross2 className=' text-gray-300 text-xl' />
-                    </button>
+                        <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1 lg:px-2'
+                        onClick={(e) => handelCancelSearch(e)}>
+                            <RxCross2 className=' text-gray-300 text-xl' />
+                        </button>
+                    </div>
+
+                    <div></div>
                 </div>
             </div>
 
             {assignments.length ? (
-                <div className='mt-4 flex flex-wrap items-center gap-3'>
-                    {assignments?.map((assignment, indx) => (
-                        <div 
+                <motion.div className='mt-4 flex flex-wrap items-center gap-3'
+                variants={staggerVariants}
+                initial="initial"
+                animate="animate">
+                    {populatingKey?.map((assignment, indx) => (
+                        <motion.div 
+                        variants={childVariants}
                         className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group  w-full xmd:w-fit' 
                         key={indx}>
                             <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
@@ -238,9 +270,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                     <FaDownload/>
                                 </button>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             ) : (
                 <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
                     No assignments from your side

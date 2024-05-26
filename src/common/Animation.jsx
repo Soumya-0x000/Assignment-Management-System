@@ -7,14 +7,14 @@ export const staggerVariants = {
     initial: {},
     animate: {
         transition: {
-            staggerChildren: 0.15,
+            staggerChildren: 0.09,
         },
     },
 };
 
 export const childVariants = {
-    initial: { opacity: 0, y: 200, },
-    animate: { opacity: 1, y: 0,  transition: {duration: .3}},
+    initial: { opacity: 0, y: 100, },
+    animate: { opacity: 1, y: 0,  transition: {duration: .15}},
 };
 
 
