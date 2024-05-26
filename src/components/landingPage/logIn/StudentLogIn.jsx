@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { formatSemester } from "../../../common/customHooks";
+import toast from "react-hot-toast";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
@@ -69,28 +70,69 @@ export default function StudentLogIn({ userType }) {
             const { data: studentData, error: studentError } = await supabase
                 .from(tableName)
                 .select('*')
+                .eq('usnId', studentLoginData.usnId)
                 .eq('semester', studentLoginData.semester)
                 .eq('department', studentLoginData.dept)
-                .eq('usnId', studentLoginData.usnId)
                 .single();
     
             if (!studentData) {
-                alert(`No ${userType} found with USN ID ${studentLoginData.usnId} in semester ${studentLoginData.semester} in ${studentLoginData.dept} department`);
+                toast.error(`No ${userType} found with provided USN ID`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
                 return;
-            } else {   
-                console.log(studentData);
+            } else {
+                onOpenChange(false);
                 setStudentLoginData({ usnId: '', semester: '', dept: '' });
+                onClose();
+                navigate(`/studentdashboard/${studentData.usnId}`, { state: {tableName} });
             }
         } catch (error) {
             console.error('An unexpected error occurred:', error);
+            toast.error('An unexpected error occurred', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
         }
-    
-        onClose();
     };
     
     useEffect(() => {
         setTableName(prevTableName => 'studentsSem' + studentLoginData.semester);
     }, [studentLoginData.semester]);
+
+    const handleLoginToast = async() => {
+        const conditionCheck = 
+            studentLoginData.dept.trim() !== ''
+            && studentLoginData.semester.trim() !== ''
+            && studentLoginData.usnId.trim() !== '';
+
+        if (conditionCheck) {
+            toast.promise(handleLogin() , {
+                loading: 'Logging in...',
+                success: 'Logged in successfully...',
+                error: 'Failed to log in...'
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff'
+                }
+            })
+        } else {
+            toast.error('Fill up the form 🥸', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff'
+                }
+            })
+        }
+    }
 
     return (
         <>
@@ -177,7 +219,8 @@ export default function StudentLogIn({ userType }) {
                                 Close
                             </Button>
 
-                            <Button className=" bg-cyan-200 text-cyan-800" onPress={handleLogin}>
+                            <Button className=" bg-cyan-200 text-cyan-800" 
+                            onPress={handleLoginToast}>
                                 Sign in
                             </Button>
                         </ModalFooter>

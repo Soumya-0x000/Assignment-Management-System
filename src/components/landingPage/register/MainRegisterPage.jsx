@@ -13,7 +13,7 @@ import {
     Input, 
     Link
 } from "@nextui-org/react";
-import Registration from './Registration';
+import StudentRegistration from './StudentRegistration';
 import { supabase } from '../../../CreateClient';
 
 const MainRegisterPage = ({userType}) => {
@@ -45,7 +45,7 @@ const MainRegisterPage = ({userType}) => {
                 <span className='text-[14px] sm:text-[16px]'>Sign up Manually</span>
             </Button>
 
-            <Registration
+            <StudentRegistration
                 userType={userType}
                 isOpen={isOpen}
                 onOpen={onOpen}

@@ -23,7 +23,7 @@ import { formatSemester } from '../../../common/customHooks';
 import toast from 'react-hot-toast';
 import { FaCalendarAlt } from "react-icons/fa";
 
-const Registration = ({userType, isOpen, onOpen, onClose}) => {
+const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
         name: "", 
         email:"", 
@@ -84,40 +84,39 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
             }
     
             if (userType === 'Student') {
-                const { data, error } = await supabase.from(tableName).insert([
-                    {
-                        name: commonAttributes.name,
-                        emailId: commonAttributes.email,
-                        password: commonAttributes.password,
-                        birthDate: studentRegisterData.dateOfBirth,
-                        semester: studentRegisterData.semester,
-                        usnId: studentRegisterData.usnId,
-                        department: studentRegisterData.dept
-                    }
-                ]);
+                const { data, error } = await supabase
+                    .from(tableName)
+                    .insert([
+                        {
+                            name: commonAttributes.name,
+                            emailId: commonAttributes.email,
+                            password: commonAttributes.password,
+                            birthDate: studentRegisterData.dateOfBirth,
+                            semester: studentRegisterData.semester,
+                            usnId: studentRegisterData.usnId,
+                            department: studentRegisterData.dept
+                        }
+                    ]);
     
                 if (error) {
                     console.error('Error inserting data into student table:', error.message);
                 } else {
-                    setCommonAttributes({
-                        name: "", 
-                        email:"", 
-                        password: "",
-                    })
-                    setStudentRegisterData({
-                        usnId: "",
-                        dateOfBirth: "",
-                        semester: "",
-                        dept: "",
-                    })
+                    handleReset()
                     onClose();
                 }
             }
         } catch (error) {
             console.error('An unexpected error occurred:', error);
+        } finally {
+            setIsVisible(false);
+            onClose();
         }
-    
-        onClose();
+    };
+
+    const handleReset = () => {
+        setCommonAttributes({name: "", email:"", password: ""});
+        setStudentRegisterData({usnId: "", dateOfBirth: "", semester: "", dept: ""});
+        setIsVisible(false);
     };
     
     useEffect(() => {
@@ -246,19 +245,27 @@ const Registration = ({userType, isOpen, onOpen, onClose}) => {
                     </Dropdown>
                 </ModalBody>
 
-                <ModalFooter className="mt-10">
-                    <Button color="danger" variant="flat" onClick={onClose}>
-                        Close
-                    </Button>
+                <ModalFooter className="mt-10 flex items-center justify-between">
+                    <div>
+                        <Button color="secondary" variant="flat" onClick={handleReset}>
+                            Reset
+                        </Button>
+                    </div>
 
-                    <Button className="bg-green-200 text-green-800" onClick={(e) => handleRegisterToast(e)}>
-                        Register
-                    </Button>
+                    <div className=' space-x-2'>
+                        <Button color="danger" variant="flat" onClick={onClose}>
+                            Close
+                        </Button>
+
+                        <Button className="bg-green-200 text-green-800" onClick={(e) => handleRegisterToast(e)}>
+                            Register
+                        </Button>
+                    </div>
                 </ModalFooter>
             </ModalContent>
         </Modal>
     );
 }
 
-export default Registration;
+export default StudentRegistration;
 
