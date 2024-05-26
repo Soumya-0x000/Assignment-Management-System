@@ -172,7 +172,7 @@ const TeacherHomePage = () => {
     };
 
     return (
-        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 px-5'>
+        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
                 <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 py-2'>

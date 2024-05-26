@@ -226,16 +226,17 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className='  border-b-2 pb-2 flex flex-col md:flex-row md:items-center justify-between gap-4'>
-                <div className=' text-xl font-onest'>
-                    Given Assignments ( {assignments.length} )
+                <div className='text-[1rem] lg:text-xl font-onest'>
+                    Given Assignments ({assignments.length})
                 </div>
 
-                <div className=' flex gap-x-2'>
-                    <div className=' relative rounded-lg overflow-hidden h-[3rem]'>
+                <div className=' flex gap-x-2  h-[2.7rem]'>
+                    {/* input */}
+                    <div className=' relative rounded-lg overflow-hidden w-full'>
                         <input 
                             type="text" 
                             placeholder="Search"
-                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider h-full pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
+                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider h-full pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[23rem] lg:w-[30rem] xl:w-[35rem] outline-none border-none'
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             value={searchKeyword}
                             onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
@@ -247,12 +248,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         </button>
                     </div>
 
+                    {/* category */}
                     <div>
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button 
                                 variant="bordered" 
-                                className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-md`}>
+                                className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[6.8rem] md:w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-sm md:text-md`}>
                                     {searchMode.name}
                                 </Button>
                             </DropdownTrigger>
@@ -260,7 +262,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             <DropdownMenu 
                             closeOnSelect={false}
                             disallowEmptySelection
-                            className="w-full bg-slate-900 text-green-500 rounded-xl"
+                            className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
                             selectionMode="single"
                             selectedKeys={searchMode.key}
                             onSelectionChange={(e) => handleSelectionChange(e)}>
@@ -283,7 +285,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     {populatingKey?.map((assignment, indx) => (
                         <motion.div 
                         variants={childVariants}
-                        className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group  w-full xmd:w-fit' 
+                        className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group  w-full sm:w-fit' 
                         key={indx}>
                             <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
                                 {assignment[0].orgName}

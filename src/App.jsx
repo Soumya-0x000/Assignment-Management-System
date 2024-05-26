@@ -24,6 +24,10 @@ const App = () => {
                         path="/teacherdashboard/:teacherId"
                         element={teacherIsAuthenticated ? <TeacherHomePage /> : <Navigate to="/" />}
                     />
+                    <Route
+                        path="/studentdashboard/:"
+                        element={teacherIsAuthenticated ? <TeacherHomePage /> : <Navigate to="/" />}
+                    />
                 </Routes>
             </Router>
         </>
