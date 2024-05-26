@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
-import { FaRegTrashAlt, FaSearch } from "react-icons/fa";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../common/Animation';
@@ -21,7 +21,10 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [populatingKey, setPopulatingKey] = useState([...assignments])
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchedItem, setSearchedItem] = useState([]);
-    const [searchMode, setSearchMode] = useState('orgName');
+    const [searchMode, setSearchMode] = useState({
+        name: searchModeArr[0].name,
+        value: searchModeArr[0].key
+    });
 
     useEffect(() => {
         if (searchedItem.length > 0) {
@@ -185,10 +188,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     const handelSearch = (e) => {
         e.preventDefault();
-        console.log(searchMode)
 
         if (searchKeyword) {
-            const filteredAssignments = assignments.filter(val => val[0][searchMode].toLowerCase().includes(searchKeyword.toLowerCase()))
+            const filteredAssignments = assignments.filter(val => val[0][searchMode.value].toLowerCase().includes(searchKeyword.toLowerCase()))
             setSearchedItem(filteredAssignments)
 
             if (filteredAssignments.length === 0) {
@@ -208,6 +210,17 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
         setSearchKeyword('');
         setSearchedItem([]);
+        setSearchMode({
+            name: searchModeArr[0].name,
+            value: searchModeArr[0].key
+        })
+    };
+
+    const handleSelectionChange = (e) => {
+        const changedName = searchModeArr.find(val => val.key === e.currentKey)
+        setSearchMode(prev => ({
+            name: changedName.name, value: changedName.key
+        }))
     };
 
     return (
@@ -217,12 +230,12 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     Given Assignments ( {assignments.length} )
                 </div>
 
-                <div className=' flex'>
-                    <div className=' relative rounded-lg overflow-hidden'>
+                <div className=' flex gap-x-2'>
+                    <div className=' relative rounded-lg overflow-hidden h-[3rem]'>
                         <input 
                             type="text" 
                             placeholder="Search"
-                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider py-3 pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
+                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider h-full pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[24rem] xl:w-[35rem] outline-none border-none'
                             onChange={(e) => setSearchKeyword(e.target.value)}
                             value={searchKeyword}
                             onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
@@ -234,7 +247,31 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         </button>
                     </div>
 
-                    <div></div>
+                    <div>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button 
+                                variant="bordered" 
+                                className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-md`}>
+                                    {searchMode.name}
+                                </Button>
+                            </DropdownTrigger>
+
+                            <DropdownMenu 
+                            closeOnSelect={false}
+                            disallowEmptySelection
+                            className="w-full bg-slate-900 text-green-500 rounded-xl"
+                            selectionMode="single"
+                            selectedKeys={searchMode.key}
+                            onSelectionChange={(e) => handleSelectionChange(e)}>
+                                {searchModeArr?.map((item, indx) => (
+                                    <DropdownItem key={item.key}>
+                                        {item.name}
+                                    </DropdownItem>
+                                ))}
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
                 </div>
             </div>
 
