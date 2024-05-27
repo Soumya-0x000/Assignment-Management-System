@@ -10,7 +10,7 @@ import { FlyoutLink, userActions } from '../../common/Animation';
 import SlidingTabs from '../../common/SlidingTabs';
 import { nameLogo } from '../../common/customHooks';
 import UpdateData from './UpdateData';
-import { useSelector } from 'react-redux';
+import RenderAssignments from './RenderAssignments';
 
 const navigationItems = [
     { name: 'Name', val: 'name' },
@@ -24,7 +24,9 @@ const logoutOptions = [
 ];
 
 const StudentHomePage = () => {
-    const { tableName } = useSelector(state => state.studentDashboard);
+    const tableName = useMemo(() => {
+        return localStorage.getItem('studentTableName')
+    }, []);
     const { usnid } = useParams();
     const [studentData, setStudentData] = useState({
         name: '',
@@ -184,6 +186,11 @@ const StudentHomePage = () => {
                     tableName={tableName}
                     usnId={usnid}
                 />
+            </div>
+
+            {/* assignments */}
+            <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
+                <RenderAssignments/>
             </div>
         </div>
     );

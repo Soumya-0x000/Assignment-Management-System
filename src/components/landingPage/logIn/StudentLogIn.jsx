@@ -92,7 +92,7 @@ export default function StudentLogIn({ userType }) {
                 setStudentLoginData({ usnId: '', semester: '', dept: '' });
                 onClose();
                 navigate(`/studentdashboard/${studentData.usnId}`);
-                dispatch(setStudentTable(tableName))
+                localStorage.setItem('studentTableName', tableName);
             }
         } catch (error) {
             console.error('An unexpected error occurred:', error);

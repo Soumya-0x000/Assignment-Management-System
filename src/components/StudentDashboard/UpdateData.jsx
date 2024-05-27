@@ -129,7 +129,7 @@ const UpdateData = ({ studentData, setStudentData, tableName, usnId }) => {
                             }
                         });
                         setStudentData(updatedStudentData);
-                        dispatch(setStudentTable(currentTableName))
+                        localStorage.setItem('studentTableName', currentTableName);
                     }
                 }
             }
