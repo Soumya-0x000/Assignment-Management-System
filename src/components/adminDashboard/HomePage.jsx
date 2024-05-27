@@ -66,9 +66,7 @@ const HomePage = () => {
                 // Fetch data for teachers
                 const { data: teachersData, error: teachersError } = await supabase.from('teachers').select('*');
 
-                if (teachersData) {
-                    teachersCount = teachersData.length;
-                }
+                if (teachersData) teachersCount = teachersData.length
 
                 // Fetch data for admin
                 const { data: adminData, error: adminError } = await supabase.from('admin').select('*');
@@ -94,21 +92,16 @@ const HomePage = () => {
         };
 
         if (trackCallingTime === 0) {
-            toast.promise(
-                fetchInitialData(),
-                {
-                    loading: 'Loading...',
-                    success: 'Data fetched successfully',
-                    error: 'Error occurred while fetching data',
+            toast.promise(fetchInitialData(), {
+                loading: 'Loading...',
+                success: 'Data fetched successfully',
+                error: 'Error occurred while fetching data',
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
                 },
-                {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
-                }
-            );
+            });
             setTrackCallingTime(1);
         }
     }, [trackCallingTime, adminId]);
@@ -176,59 +169,59 @@ const HomePage = () => {
                     personName={adminDetails.name}
                 />
 
-                <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 '>
+                <div className='bg-slate-800 rounded-lg py-3 mt-3 px-2 lg:px-5 '>
                     <div className='text-slate-300 font-mavenPro'>
                         {switchValues(selected)}
                     </div>
                 </div>
+            </div>
 
-                <div className='grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3 '>
-                    <div className='col-span-4 preXl:col-span-3 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
-                        {studentArr.map((category, index) => (
-                            <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
-                                <div className='w-full '>
-                                    <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
-                                        Currently we have
-                                    </div>
-
-                                    <div className='mt-4 w-full border-b-1 pb-1 border-b-indigo-300 font-bold tracking-wider'>
-                                        {category.title}
-                                    </div>
-
-                                    <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
-                                        {Object.entries(category.data).map(([semester, count], i) => (
-                                            <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
-                                                <div className='hidden 3xl:block text-md'>
-                                                    {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
-                                                </div>
-
-                                                <div className='block 3xl:hidden text-sm'>
-                                                    {shorthandSemester(formatSemester(semester.split('sem')[1]))}: {count} {count === 1 ? 'student' : 'students'}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className='col-span-4 preXl:col-span-1 gap-x-2 gap-y-3 xsm:gap-x-4 xsm:gap-y-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
-                        {adminTeacherArr.map((category, index) => (
-                            <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-indigo-600 to-violet-600'>
-                                <div className='mb-2 bg-slate-800 rounded-full px-2 lg:px-4 py-1 md:py-2 w-fit text-[.8rem] md:text-md'>
+            <div className=' w-full grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3'>
+                <div className='col-span-4 preXl:col-span-3 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
+                    {studentArr.map((category, index) => (
+                        <div key={index} className='bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
+                            <div className='w-full '>
+                                <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
                                     Currently we have
                                 </div>
 
-                                <div className='mt-2 border-b-1 border-b-indigo-300'/>
-                                
-                                <div className='mt-2 sm:text-xl'>{category.count} {category.title.toLowerCase()}</div>
+                                <div className='mt-4 w-full border-b-1 pb-1 border-b-indigo-300 font-bold tracking-wider'>
+                                    {category.title}
+                                </div>
+
+                                <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
+                                    {Object.entries(category.data).map(([semester, count], i) => (
+                                        <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
+                                            <div className='hidden 3xl:block text-md'>
+                                                {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
+                                            </div>
+
+                                            <div className='block 3xl:hidden text-sm'>
+                                                {shorthandSemester(formatSemester(semester.split('sem')[1]))}: {count} {count === 1 ? 'student' : 'students'}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className='col-span-4 preXl:col-span-1 gap-x-2 gap-y-3 xsm:gap-x-4 xsm:gap-y-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
+                    {adminTeacherArr.map((category, index) => (
+                        <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-indigo-600 to-violet-600'>
+                            <div className='mb-2 bg-slate-800 rounded-full px-2 lg:px-4 py-1 md:py-2 w-fit text-[.8rem] md:text-md'>
+                                Currently we have
+                            </div>
+
+                            <div className='mt-2 border-b-1 border-b-indigo-300'/>
+                            
+                            <div className='mt-2 sm:text-xl'>{category.count} {category.title.toLowerCase()}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
-
+            
             <div className=' mt-[4rem] xl:mt-[5rem] w-full'>
                 <EditAdmin 
                     id={adminDetails.uniqId}

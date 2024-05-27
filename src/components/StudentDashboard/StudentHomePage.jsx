@@ -92,20 +92,6 @@ const StudentHomePage = () => {
         }
     }, [tableName, usnid]);
 
-    const memoizedStudentInfo = useMemo(() => {
-        if (studentData) {
-            return {
-                name: studentData.name,
-                emailId: studentData.emailId,
-                usnId: studentData.usnId,
-                dateOfBirth: studentData.birthDate,
-                semester: studentData.semester,
-                department: studentData.department,
-            };
-        }
-        return null;
-    }, [studentData]);
-
     const switchValues = (selected) => {
         switch (selected) {
             case 'USN Id':
@@ -165,6 +151,13 @@ const StudentHomePage = () => {
                 </div>
             </div>
 
+            {/* assignments */}
+            <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
+                <RenderAssignments
+                    studentData={studentData}
+                />
+            </div>
+
             {/* content */}
             <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
                 <UpdateData
@@ -172,11 +165,6 @@ const StudentHomePage = () => {
                     setStudentData={setStudentData}
                     usnId={usnid}
                 />
-            </div>
-
-            {/* assignments */}
-            <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
-                <RenderAssignments/>
             </div>
         </div>
     );

@@ -126,9 +126,9 @@ const AnimatedHamburgerButton = ({ hamburgerActive, setHamburgerActive }) => {
         className="relative w-10 h-20 transition-colors"
         onClick={() => setHamburgerActive((pv) => !pv)}>
             <div className={`flex items-center justify-center flex-col gap-y-[.4rem] rounded-full w-9 h-9 transition-all cursor-pointer`}>
-                <div className={`w-7 md:w-8 h-[2px] md:h-[3px] transition-all ${hamburgerActive ? 'rotate-45 translate-y-[5px]' : 'rotate-0'}  bg-blue-300`}/>
-                <div className={`w-7 md:w-8 h-[2px] md:h-[3px] ${!hamburgerActive ? 'block' : 'hidden'} bg-blue-300 `}/>
-                <div className={`w-7 md:w-8 h-[2px] md:h-[3px] bg-blue-300 ${hamburgerActive ? '-rotate-45 -translate-y-[4px]' : 'rotate-0'}  transition-all`}/>
+                <div className={`w-6 md:w-8 h-[2px] md:h-[3px] transition-all ${hamburgerActive ? 'rotate-45 translate-y-[8px]' : 'rotate-0'}  bg-blue-300`}/>
+                <div className={`w-6 md:w-8 h-[2px] md:h-[3px] ${!hamburgerActive ? 'block' : 'hidden'} bg-blue-300 `}/>
+                <div className={`w-6 md:w-8 h-[2px] md:h-[3px] bg-blue-300 ${hamburgerActive ? '-rotate-45' : 'rotate-0'}  transition-all`}/>
             </div> 
         </button>
     );
@@ -167,7 +167,7 @@ const HamburgerMenu = ({ tabs, setSelected }) => {
             <div className="absolute flex items-center justify-center -right-11">
                 <motion.div animate={isDropdownOpen ? "open" : "closed"} className="relative">
                     <motion.ul
-                    className="flex flex-col gap-2 p-2 rounded-lg bg-slate-900 shadow-xl absolute top-[120%] w-fit overflow-hidden z-30 ring-1 ring-blue-400"
+                    className="flex flex-col gap-2 p-2 rounded-lg bg-slate-900 shadow-xl absolute top-[120%] overflow-hidden z-30 ring-1 w-[11rem] ring-blue-400"
                     initial={wrapperVariants.closed}
                     variants={wrapperVariants}
                     style={{ originY: "top", translateX: "-50%" }}>
@@ -193,7 +193,7 @@ export const NavigationActions = ({ navArr, selected, setSelected, personName })
     ];
 
     return (
-        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
+        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2 h-16'>
             <div className=' hidden md:block'>
                 <SlidingTabs 
                     tabs={navArr.map((a) => a.name)} 
@@ -211,11 +211,9 @@ export const NavigationActions = ({ navArr, selected, setSelected, personName })
             </div>
 
             <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
-                <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
-                    <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
-                        <div className='flex items-center justify-center gap-x-2'>
-                            {nameLogo(personName)}
-                        </div>
+                <div className='cursor-pointer aspect-square w-11 md:w-14 bg-slate-700 text-green-300 flex items-center justify-center text-md md:text-lg font-robotoMono tracking-wider rounded-full overflow-hidden '>
+                    <div className='flex items-center justify-center gap-x-2'>
+                        {nameLogo(personName)}
                     </div>
                 </div>
             </FlyoutLink>
