@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { CiLogout } from 'react-icons/ci';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../CreateClient';
 import { HiOutlineIdentification } from 'react-icons/hi';
 import { MdOutlineEmail, MdOutlinePerson2 } from 'react-icons/md';
@@ -24,6 +24,7 @@ const logoutOptions = [
 ];
 
 const StudentHomePage = () => {
+    const navigate = useNavigate();
     const tableName = useMemo(() => {
         return localStorage.getItem('studentTableName')
     }, []);
@@ -39,6 +40,10 @@ const StudentHomePage = () => {
     });
     const [pswdVisibility, setPswdVisibility] = useState(false);
     const [selected, setSelected] = useState(navigationItems[0].name);
+
+    useEffect(() => {
+        if (tableName === null) navigate('/')
+    }, []);
 
     useEffect(() => {
         const fetchStudentData = async () => {
@@ -80,16 +85,18 @@ const StudentHomePage = () => {
             }
         };
 
-        toast.promise(fetchStudentData(), {
-            loading: 'Loading student data...',
-            success: 'Student data loaded successfully!',
-            error: 'Failed to load student data.',
-        }, {style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            }
-        })
+        if (tableName !== null) {
+            toast.promise(fetchStudentData(), {
+                loading: 'Loading student data...',
+                success: 'Student data loaded successfully!',
+                error: 'Failed to load student data.',
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
     }, [tableName, usnid]);
 
     const memoizedStudentInfo = useMemo(() => {
@@ -183,7 +190,6 @@ const StudentHomePage = () => {
                 <UpdateData
                     studentData={studentData}
                     setStudentData={setStudentData}
-                    tableName={tableName}
                     usnId={usnid}
                 />
             </div>

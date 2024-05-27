@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BsPersonLinesFill } from 'react-icons/bs';
 import { MailIcon } from '../landingPage/icons/MailIcon';
 import { BiCalendar, BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
@@ -9,9 +9,8 @@ import { TbListNumbers } from 'react-icons/tb';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
 import { useDispatch } from 'react-redux';
-import { setStudentTable } from '../../reduxStore/reducers/StudentDashboardSlice';
 
-const UpdateData = ({ studentData, setStudentData, tableName, usnId }) => {
+const UpdateData = ({ studentData, setStudentData, usnId }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [updatedStudentData, setUpdatedStudentData] = useState({
         name: studentData.name || '',
@@ -22,8 +21,12 @@ const UpdateData = ({ studentData, setStudentData, tableName, usnId }) => {
         semester: studentData.semester || '',
         department: studentData.department || '',
     });
+    const [tableName, setTableName] = useState(localStorage.getItem('studentTableName'))
     const [currentTableName, setCurrentTableName] = useState('studentsSem');
-    const dispatch = useDispatch();
+    
+    useEffect(() => {
+        setTableName(localStorage.getItem('studentTableName'))
+    }, [currentTableName]);
 
     useEffect(() => {
         setUpdatedStudentData(studentData);
@@ -100,15 +103,13 @@ const UpdateData = ({ studentData, setStudentData, tableName, usnId }) => {
                         department: updatedStudentData.department.trim(),
                         usnId: updatedStudentData.usnId.trim()
                     })
-
-                if (responseError) {
-                    return
-                } else {                
+                    
+                if (responseError === null && responseData === null) {
                     const { error: delError } = await supabase
                         .from(tableName)
                         .delete()
                         .eq('usnId', usnId)
-                    
+
                     if (delError) {
                         toast.error('Error deleting data...', {
                             style: {
