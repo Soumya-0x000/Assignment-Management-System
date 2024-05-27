@@ -6,7 +6,7 @@ import { supabase } from '../../CreateClient';
 import { HiOutlineIdentification } from 'react-icons/hi';
 import { MdOutlineEmail, MdOutlinePerson2 } from 'react-icons/md';
 import { FiLock, FiUnlock } from 'react-icons/fi';
-import { FlyoutLink, userActions } from '../../common/Animation';
+import { FlyoutLink, HamburgerMenu, userActions } from '../../common/Animation';
 import SlidingTabs from '../../common/SlidingTabs';
 import { nameLogo } from '../../common/customHooks';
 import UpdateData from './UpdateData';
@@ -133,7 +133,7 @@ const StudentHomePage = () => {
                 </div>
 
             case 'Password':
-                return <div className=' flex items-center gap-x-5'>
+                return <div className=' flex items-center gap-x-5 w-full'>
                     <button onClick={() => setPswdVisibility(!pswdVisibility)}>
                         {pswdVisibility 
                             ? <FiUnlock className=' text-2xl text-red-500'/> 
@@ -158,12 +158,22 @@ const StudentHomePage = () => {
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
-                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 py-2'>
-                    <SlidingTabs 
-                        tabs={navigationItems.map((a) => a.name)} 
-                        selected={selected} 
-                        setSelected={setSelected} 
-                    />
+                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
+                    <div className=' hidden md:block'>
+                        <SlidingTabs 
+                            tabs={navigationItems.map((a) => a.name)} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
+                    
+                    <div className=' block md:hidden'>
+                        <HamburgerMenu 
+                            tabs={navigationItems} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
 
                     {memoizedStudentInfo && (
                         <FlyoutLink FlyoutContent={userActions} array={logoutOptions}>
@@ -179,7 +189,7 @@ const StudentHomePage = () => {
                 </div>
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
-                    <div className='text-slate-300 font-mavenPro'>
+                    <div className='text-slate-300 font-mavenPro w-full'>
                         {switchValues(selected)}
                     </div>
                 </div>
