@@ -1,14 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { CiLogout } from 'react-icons/ci';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../CreateClient';
 import { HiOutlineIdentification } from 'react-icons/hi';
 import { MdOutlineEmail, MdOutlinePerson2 } from 'react-icons/md';
 import { FiLock, FiUnlock } from 'react-icons/fi';
-import { FlyoutLink, HamburgerMenu, userActions } from '../../common/Animation';
-import SlidingTabs from '../../common/SlidingTabs';
-import { nameLogo } from '../../common/customHooks';
+import { NavigationActions } from '../../common/Animation';
 import UpdateData from './UpdateData';
 import RenderAssignments from './RenderAssignments';
 
@@ -17,10 +14,6 @@ const navArr = [
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
     { name: 'USN Id', val: 'usnId' },
-];
-
-const logoutOptions = [
-    { text: 'LogOut', icon: <CiLogout /> },
 ];
 
 const StudentHomePage = () => {
@@ -158,35 +151,12 @@ const StudentHomePage = () => {
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
-                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
-                    <div className=' hidden md:block'>
-                        <SlidingTabs 
-                            tabs={navArr.map((a) => a.name)} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-                    
-                    <div className=' block md:hidden'>
-                        <HamburgerMenu 
-                            tabs={navArr} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-
-                    {memoizedStudentInfo && (
-                        <FlyoutLink FlyoutContent={userActions} array={logoutOptions}>
-                            <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
-                                <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
-                                    <div className='flex items-center justify-center gap-x-2'>
-                                        {nameLogo(studentData.name)}
-                                    </div>
-                                </div>
-                            </div>
-                        </FlyoutLink>
-                    )}
-                </div>
+                <NavigationActions
+                    navArr={navArr}
+                    selected={selected} 
+                    setSelected={setSelected}
+                    personName={studentData.name}
+                />
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
                     <div className='text-slate-300 font-mavenPro w-full'>

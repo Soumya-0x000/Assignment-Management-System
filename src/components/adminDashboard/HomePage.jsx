@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../CreateClient';
-import { formatSemester, nameLogo, shorthandSemester, tableList } from '../../common/customHooks';
+import { formatSemester, shorthandSemester, tableList } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
-import SlidingTabs from '../../common/SlidingTabs';
 import { HiOutlineIdentification } from "react-icons/hi";
 import { MdOutlineEmail } from "react-icons/md";
 import { FiLock, FiUnlock } from "react-icons/fi";
@@ -12,7 +11,7 @@ import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { MailIcon } from '../landingPage/icons/MailIcon';
 import { BsPersonLinesFill } from 'react-icons/bs';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
-import { HamburgerMenu } from '../../common/Animation';
+import { NavigationActions } from '../../common/Animation';
 
 const navArr = [
     { name: 'Id', val: 'uniqId' },
@@ -170,34 +169,17 @@ const HomePage = () => {
     return (
         <div className=' flex flex-col items-center gap-y-16 h-full'>  
             <div className=' w-full'>
-                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
-                    <div className=' hidden md:block'>
-                        <SlidingTabs 
-                            tabs={navArr.map((a) => a.name)} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-                    
-                    <div className=' block md:hidden'>
-                        <HamburgerMenu 
-                            tabs={navArr} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-
-                    <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
-                        <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
-                            {nameLogo(adminDetails.name)}
-                        </div>
-                    </div>
-                </div>
+                <NavigationActions
+                    navArr={navArr}
+                    selected={selected} 
+                    setSelected={setSelected}
+                    personName={adminDetails.name}
+                />
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 '>
-                    <p className='text-slate-300 font-mavenPro'>
+                    <div className='text-slate-300 font-mavenPro'>
                         {switchValues(selected)}
-                    </p>
+                    </div>
                 </div>
 
                 <div className='grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3 '>
@@ -298,8 +280,14 @@ const EditAdmin = ({ id, title, name, email, password }) => {
     };
 
     useEffect(() => {
-        setCommonAttributes({ id, title, name, email, password })
-    }, [id, title, name, email, password])
+        setCommonAttributes({
+            id: id || "",
+            title: title || "",
+            name: name || "",
+            email: email || "",
+            password: password || "",
+        });
+    }, [id, title, name, email, password]);    
 
     const handleSubmit = async(e) => {
         e.preventDefault();
@@ -366,14 +354,14 @@ const EditAdmin = ({ id, title, name, email, password }) => {
         
         if (isAnyFieldChanged && isMaintainingStandards) {
             toast.promise(handleSubmit(e), {
-                    loading: 'Updating...',
-                    success: 'Process initiated!',
-                    error: 'Failed to initiate process.',
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
+                loading: 'Updating...',
+                success: 'Process initiated!',
+                error: 'Failed to initiate process.',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                },
             });
         } else {
             toast('Modify any value to update', {
@@ -388,7 +376,7 @@ const EditAdmin = ({ id, title, name, email, password }) => {
     }
     
     return (
-        <form className=' w-full space-y-8'>
+        <form className=' w-full space-y-8 pb-6'>
             <div className=' w-full flex flex-col items-center gap-y-8'>
                 {inputFields.map((field, index) => (
                     <div key={index} className={` w-full transition-all ${field.name === 'name' && ' grid grid-cols-4 gap-x-4 gap-y-8'}`}>

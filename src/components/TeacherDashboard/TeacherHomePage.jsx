@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
-import SlidingTabs from '../../common/SlidingTabs';
-import { nameLogo } from '../../common/customHooks';
 import { HiOutlineIdentification } from "react-icons/hi";
 import { MdOutlineEmail } from "react-icons/md";
 import { FiLock, FiUnlock } from "react-icons/fi";
 import { MdOutlinePerson2 } from "react-icons/md";
-import { CiLogout } from 'react-icons/ci';
-import { FlyoutLink, HamburgerMenu, userActions } from '../../common/Animation';
+import { NavigationActions } from '../../common/Animation';
 import { EditOwnData } from './EditOwnData';
 import { 
     Button, 
@@ -28,10 +25,6 @@ const navArr = [
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
     { name: 'Id', val: 'uniqId' },
-];
-
-const logOutOptions = [
-    { text: 'LogOut', icon: <CiLogout/> },
 ];
 
 const TeacherHomePage = () => {
@@ -175,33 +168,12 @@ const TeacherHomePage = () => {
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
-                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
-                    <div className=' hidden md:block'>
-                        <SlidingTabs 
-                            tabs={navArr.map((a) => a.name)} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-                    
-                    <div className=' block md:hidden'>
-                        <HamburgerMenu 
-                            tabs={navArr} 
-                            selected={selected} 
-                            setSelected={setSelected} 
-                        />
-                    </div>
-
-                    <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
-                        <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
-                            <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
-                                <div className='flex items-center justify-center gap-x-2'>
-                                    {nameLogo(teacherData.name)}
-                                </div>
-                            </div>
-                        </div>
-                    </FlyoutLink>
-                </div>
+                <NavigationActions
+                    navArr={navArr}
+                    selected={selected} 
+                    setSelected={setSelected}
+                    personName={teacherData.name}
+                />
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
                     <div className='text-slate-300 font-mavenPro w-full'>

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "../CreateClient";
 import { useNavigate } from "react-router-dom";
+import { nameLogo } from "./customHooks";
+import { CiLogout } from 'react-icons/ci';
+import SlidingTabs from './SlidingTabs'
 
 export const staggerVariants = {
     initial: {},
@@ -148,7 +151,7 @@ const Option = ({ text, setIsDropdownOpen, setSelected, setHamburgerActive }) =>
     );
 };
 
-export const HamburgerMenu = ({ tabs, setSelected }) => {
+const HamburgerMenu = ({ tabs, setSelected }) => {
     const [hamburgerActive, setHamburgerActive] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -184,3 +187,38 @@ export const HamburgerMenu = ({ tabs, setSelected }) => {
     )
 }
 
+export const NavigationActions = ({ navArr, selected, setSelected, personName }) => {
+    const logOutOptions = [
+        { text: 'LogOut', icon: <CiLogout /> },
+    ];
+
+    return (
+        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
+            <div className=' hidden md:block'>
+                <SlidingTabs 
+                    tabs={navArr.map((a) => a.name)} 
+                    selected={selected} 
+                    setSelected={setSelected} 
+                />
+            </div>
+            
+            <div className=' block md:hidden'>
+                <HamburgerMenu 
+                    tabs={navArr} 
+                    selected={selected} 
+                    setSelected={setSelected} 
+                />
+            </div>
+
+            <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
+                <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
+                    <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
+                        <div className='flex items-center justify-center gap-x-2'>
+                            {nameLogo(personName)}
+                        </div>
+                    </div>
+                </div>
+            </FlyoutLink>
+        </div>
+    )
+}
