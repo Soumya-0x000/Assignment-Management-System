@@ -9,7 +9,7 @@ import { MdOutlineEmail } from "react-icons/md";
 import { FiLock, FiUnlock } from "react-icons/fi";
 import { MdOutlinePerson2 } from "react-icons/md";
 import { CiLogout } from 'react-icons/ci';
-import { FlyoutLink, userActions } from '../../common/Animation';
+import { FlyoutLink, HamburgerMenu, userActions } from '../../common/Animation';
 import { EditOwnData } from './EditOwnData';
 import { 
     Button, 
@@ -176,11 +176,21 @@ const TeacherHomePage = () => {
             {/* navbar */}
             <div className=' w-full'>
                 <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 py-2'>
-                    <SlidingTabs 
-                        tabs={navArr.map((a) => a.name)} 
-                        selected={selected} 
-                        setSelected={setSelected} 
-                    />
+                    <div className=' hidden md:block'>
+                        <SlidingTabs 
+                            tabs={navArr.map((a) => a.name)} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
+                    
+                    <div className=' block md:hidden'>
+                        <HamburgerMenu 
+                            tabs={navArr} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
 
                     <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
                         <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3 cursor-pointer'>
@@ -194,7 +204,7 @@ const TeacherHomePage = () => {
                 </div>
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
-                    <div className='text-slate-300 font-mavenPro'>
+                    <div className='text-slate-300 font-mavenPro w-full'>
                         {switchValues(selected)}
                     </div>
                 </div>
