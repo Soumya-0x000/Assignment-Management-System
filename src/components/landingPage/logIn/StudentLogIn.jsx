@@ -22,6 +22,8 @@ import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { formatSemester } from "../../../common/customHooks";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { setStudentTable } from "../../../reduxStore/reducers/StudentDashboardSlice";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
@@ -32,6 +34,7 @@ export default function StudentLogIn({ userType }) {
     });
     const [tableName, setTableName] = useState('studentsSem');
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -88,7 +91,8 @@ export default function StudentLogIn({ userType }) {
                 onOpenChange(false);
                 setStudentLoginData({ usnId: '', semester: '', dept: '' });
                 onClose();
-                navigate(`/studentdashboard/${studentData.usnId}`, { state: {tableName} });
+                navigate(`/studentdashboard/${studentData.usnId}`);
+                dispatch(setStudentTable(tableName))
             }
         } catch (error) {
             console.error('An unexpected error occurred:', error);

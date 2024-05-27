@@ -28,6 +28,7 @@ export const InsertStudent = () => {
     });
     const [tableName, setTableName] = useState('studentsSem');
     const [isVisible, setIsVisible] = useState(false);
+    
     const inputFields = [
         { label: 'Name', name: 'name', type: 'text', icon: <BsPersonLinesFill /> },
         { label: 'Email', name: 'email', type: 'email', icon: <MailIcon /> },
@@ -82,16 +83,35 @@ export const InsertStudent = () => {
                 }]);
 
             if (studentError) {
-                toast.error('Error inserting data...')
+                toast.error('Error inserting data', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
                 console.error('Error inserting data into student table:', error.message);
             } else {
-                toast.success('Successfully inserted...')
+                toast.success('Successfully inserted', {
+                    icon: '🥳',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
                 handleReset()
             }
             
         } catch (error) {
             console.error('An unexpected error occurred:', error);
-            toast.error('Error occurred...');
+            toast.error('Error occurred...', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
         }
     };
     
@@ -113,7 +133,8 @@ export const InsertStudent = () => {
 
     const handleRegisterToast = (e) => {
         e.preventDefault();
-        if(
+        
+        const checkCondition = 
             studentRegisterData.name.trim().length > 4 &&
             studentRegisterData.email.trim().length > 6 &&
             studentRegisterData.email.includes('@') &&
@@ -121,12 +142,18 @@ export const InsertStudent = () => {
             studentRegisterData.birthdate !== '' &&
             studentRegisterData.semester !== '' &&
             studentRegisterData.usnId.trim().length > 6 &&
-            studentRegisterData.department !== ''
-        ) {
+            studentRegisterData.department !== '' 
+        
+        if(checkCondition) {
             toast.promise(handleRegister(e), {
                 loading: 'Registering...',
                 success: 'Successfully Registered',
                 error: 'Failed to Register',
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
             })
         } else toast('Fill up all required fields...', {
             icon: '⚠️',
@@ -169,7 +196,7 @@ export const InsertStudent = () => {
                 </div>
             ))}
 
-            <div className=' flex gap-x-3 gap-y-8 flex-col md:flex-row'>
+            <div className=' flex gap-x-3 gap-y-8 flex-col sm:flex-row'>
                 {/* department */}
                 <Dropdown className=' w-full'>
                     <DropdownTrigger className=' w-full'>
