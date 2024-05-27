@@ -5,9 +5,11 @@ import { supabase } from '../../CreateClient';
 import { HiOutlineIdentification } from 'react-icons/hi';
 import { MdOutlineEmail, MdOutlinePerson2 } from 'react-icons/md';
 import { FiLock, FiUnlock } from 'react-icons/fi';
-import { NavigationActions } from '../../common/Animation';
+import ShiftingCountdown, { NavigationActions } from '../../common/Animation';
 import UpdateData from './UpdateData';
 import RenderAssignments from './RenderAssignments';
+import { useDispatch } from 'react-redux';
+import { setStudentInfo } from '../../reduxStore/reducers/StudentDashboardSlice';
 
 const navArr = [
     { name: 'Name', val: 'name' },
@@ -33,6 +35,7 @@ const StudentHomePage = () => {
     });
     const [pswdVisibility, setPswdVisibility] = useState(false);
     const [selected, setSelected] = useState(navArr[0].name);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (tableName === null) navigate('/')
@@ -65,6 +68,7 @@ const StudentHomePage = () => {
                     return;
                 } else {
                     setStudentData(data);
+                    dispatch(setStudentInfo(data))
                 }
             } catch (error) {
                 console.error('An unexpected error occurred:', error.message);
@@ -151,11 +155,11 @@ const StudentHomePage = () => {
                 </div>
             </div>
 
+            {/* <ShiftingCountdown date={studentData?.birthDate}/> */}
+
             {/* assignments */}
             <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
-                <RenderAssignments
-                    studentData={studentData}
-                />
+                <RenderAssignments/>
             </div>
 
             {/* content */}

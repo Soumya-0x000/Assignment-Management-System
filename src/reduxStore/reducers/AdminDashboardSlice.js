@@ -18,8 +18,19 @@ const initialState = {
             { name: 'Computer Architecture', fName: 'ComputerArchitecture' },
             { name: 'AI', fName: 'ArtificialIntelligence' },
             { name: 'ML', fName: 'MachineLearning' },
-            { name: 'Cybersecurity', fName: 'Cybersecurity' }
-        ]   
+            { name: 'Cybersecurity', fName: 'Cybersecurity' },
+            { name: 'Cloud Computing', fName: 'CloudComputing' },
+            { name: 'Human-Computer Interaction', fName: 'HumanComputerInteraction' },
+            { name: 'Blockchain', fName: 'Blockchain' },
+            { name: 'Quantum Computing', fName: 'QuantumComputing' },
+            { name: 'Robotics', fName: 'Robotics' },
+            { name: 'Data Science', fName: 'DataScience' },
+            { name: 'Big Data', fName: 'BigData' },
+            { name: 'Bioinformatics', fName: 'Bioinformatics' },
+            { name: 'Game Development', fName: 'GameDevelopment' },
+            { name: 'Embedded Systems', fName: 'EmbeddedSystems' },
+            { name: 'Information Retrieval', fName: 'InformationRetrieval' }
+        ]
     }
 };
 

@@ -23,7 +23,6 @@ import { SiGoogleclassroom } from "react-icons/si";
 import { formatSemester } from "../../../common/customHooks";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { setStudentTable } from "../../../reduxStore/reducers/StudentDashboardSlice";
 
 export default function StudentLogIn({ userType }) {
     const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
@@ -34,7 +33,6 @@ export default function StudentLogIn({ userType }) {
     });
     const [tableName, setTableName] = useState('studentsSem');
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const handleChange = (e) => {
         const { name, value } = e.target

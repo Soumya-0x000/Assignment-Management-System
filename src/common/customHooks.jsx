@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 export const formatSemester = (sem) => {
     let semester = '';
 
@@ -43,4 +45,14 @@ export const downloadFile = async(downloadData) => {
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
+};
+
+export const formatDate = (date) => {
+    // const memoizedDate = useMemo(() => {
+        console.log(date)
+        const [year, month, day] = date.split('-');
+        return `${month}/${day}/${year}`
+    // }, [date]);
+
+    return memoizedDate;
 }
