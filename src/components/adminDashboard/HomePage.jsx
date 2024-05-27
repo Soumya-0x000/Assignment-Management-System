@@ -12,6 +12,7 @@ import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { MailIcon } from '../landingPage/icons/MailIcon';
 import { BsPersonLinesFill } from 'react-icons/bs';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
+import { HamburgerMenu } from '../../common/Animation';
 
 const navArr = [
     { name: 'Id', val: 'uniqId' },
@@ -128,7 +129,7 @@ const HomePage = () => {
     const switchValues = (selected) => {
         switch (selected) {
             case 'Id':
-                return <div className=' flex items-center gap-x-2 lg:gap-x-5  text-[12px] sm:text-lg'>
+                return <div className=' flex items-center gap-x-2 lg:gap-x-5  text-[15px] sm:text-lg'>
                     <HiOutlineIdentification className=' text-[1.5rem] lg:text-[1.7rem] text-green-500'/>
                     {adminDetails.uniqId}
                 </div>
@@ -169,12 +170,22 @@ const HomePage = () => {
     return (
         <div className=' flex flex-col items-center gap-y-16 h-full'>  
             <div className=' w-full'>
-                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 py-2'>
-                    <SlidingTabs 
-                        tabs={navArr.map((a) => a.name)} 
-                        selected={selected} 
-                        setSelected={setSelected} 
-                    />
+                <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
+                    <div className=' hidden md:block'>
+                        <SlidingTabs 
+                            tabs={navArr.map((a) => a.name)} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
+                    
+                    <div className=' block md:hidden'>
+                        <HamburgerMenu 
+                            tabs={navArr} 
+                            selected={selected} 
+                            setSelected={setSelected} 
+                        />
+                    </div>
 
                     <div className='flex flex-col-reverse items-end gap-y-2 justify-center gap-x-3'>
                         <div className='h-14 w-14 bg-slate-700 text-green-300 flex items-center justify-center text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>

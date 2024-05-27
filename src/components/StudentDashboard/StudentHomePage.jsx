@@ -12,7 +12,7 @@ import { nameLogo } from '../../common/customHooks';
 import UpdateData from './UpdateData';
 import RenderAssignments from './RenderAssignments';
 
-const navigationItems = [
+const navArr = [
     { name: 'Name', val: 'name' },
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
@@ -39,7 +39,7 @@ const StudentHomePage = () => {
         department: '',
     });
     const [pswdVisibility, setPswdVisibility] = useState(false);
-    const [selected, setSelected] = useState(navigationItems[0].name);
+    const [selected, setSelected] = useState(navArr[0].name);
 
     useEffect(() => {
         if (tableName === null) navigate('/')
@@ -161,7 +161,7 @@ const StudentHomePage = () => {
                 <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2'>
                     <div className=' hidden md:block'>
                         <SlidingTabs 
-                            tabs={navigationItems.map((a) => a.name)} 
+                            tabs={navArr.map((a) => a.name)} 
                             selected={selected} 
                             setSelected={setSelected} 
                         />
@@ -169,7 +169,7 @@ const StudentHomePage = () => {
                     
                     <div className=' block md:hidden'>
                         <HamburgerMenu 
-                            tabs={navigationItems} 
+                            tabs={navArr} 
                             selected={selected} 
                             setSelected={setSelected} 
                         />
