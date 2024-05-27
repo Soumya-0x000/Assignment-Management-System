@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '../../CreateClient';
 import { formatSemester } from '../../common/customHooks';
 import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 const RenderAssignments = () => {
     const { studentData, subjectsArray } = useSelector(state => state.studentDashboard);
+    const [mySubjects, setMySubjects] = useState([]);
 
     useEffect(() => {
         (async() => {
@@ -28,8 +30,10 @@ const RenderAssignments = () => {
                         }
                     })
                 } else {
-                    const subjects = subjectsArray[studentData.department].find(val => Object.entries(val))
+                    const subjects = (subjectsArray[studentData.department].find(val => Object.keys(val)[0] === semName))?.[semName];
+                    setMySubjects(subjects)
                     console.log(subjects)
+                    console.log(updatedAssignments)
                 }
             } catch (error) {
                 console.log('Error fetching assignments from Supabase:', error);
