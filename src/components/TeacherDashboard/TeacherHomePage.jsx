@@ -17,7 +17,7 @@ import {
     ModalHeader, 
     useDisclosure 
 } from '@nextui-org/react';
-import FileUploader from './Uppy';
+import FileUploader from './FileUploader';
 import GivenAssignments from './GivenAssignments';
 
 const navArr = [
