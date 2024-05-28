@@ -4,7 +4,7 @@ import { MailIcon } from "../../../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { supabase } from "../../../../CreateClient";
 import toast from "react-hot-toast";
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@nextui-org/react";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { MdOutlinePortrait } from "react-icons/md";
@@ -257,14 +257,16 @@ const Dropdowns = ({
     const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
     const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
     const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
+    const [allSubNames, setAllSubNames] = useState([]);
+    const [subjectsData, setSubjectsData] = useState([]);
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
 
     useEffect(() => {
-        (async() => {
+        const fetchSubjects = async () => {
             try {
                 const { data: subjectData, error: subjectError } = await supabase
                     .from('subjects')
-                    .select('MCA, MSc')
+                    .select('MCA, MSc');
                 
                 if (subjectError) {
                     toast.error('Error in fetching subjects', {
@@ -273,27 +275,43 @@ const Dropdowns = ({
                             background: '#333',
                             color: '#fff',
                         }
-                    })
-                    console.error('Error in fetching subjects', subjectError)
+                    });
+                    console.error('Error in fetching subjects', subjectError);
                 } else {
-                    console.log(subjectData);
+                    setSubjectsData(subjectData[0]);
                 }
             } catch (error) {
-                console.error(error)
+                console.error(error);
                 toast.error('Error in fetching subjects', {
                     style: {
                         borderRadius: '10px',
                         background: '#333',
                         color: '#fff',
                     }
-                })
+                });
             }
-        })();
+        };
+
+        fetchSubjects();
     }, []);
 
-    const subjectItems = useMemo(() => {
-        return teacherAssignClassDetails.subjects.map((val, indx) => val.name);
-    }, [teacherAssignClassDetails.subjects]);
+    useEffect(() => {
+        if (subjectsData) {
+            const updatedSubNames = [];
+            const deptKey = Array.from(deptSelectedKeys).join(', ');
+            const deptSubjects = subjectsData[teacherAssignClassDetails.dept[deptKey]];
+            
+            if (deptSubjects) {
+                Array.from(semSelectedKeys).forEach(semKey => {
+                    const semName = teacherAssignClassDetails.sem[semKey].split(' ').join('');
+                    const subjectsForSem = deptSubjects[semName]?.map(item => item.name) || [];
+                    updatedSubNames.push(...subjectsForSem);
+                });
+            }
+            
+            setAllSubNames(updatedSubNames);
+        }
+    }, [deptSelectedKeys, semSelectedKeys, teacherAssignClassDetails, subjectsData]);
 
     const deptSelectedValue = useMemo(
         () => Array.from(deptSelectedKeys).join(", ").replaceAll("_", " "),
@@ -333,7 +351,7 @@ const Dropdowns = ({
             label: 'Subject',
             stateKey: 'subject',
             icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: (Object.entries(semSelectedKeys).length > 0 && Object.entries(deptSelectedKeys).length > 0) ? subjectItems : [],
+            items: (deptSelectedKeys.size > 0 && semSelectedKeys.size > 0) ? allSubNames : [],
             selectedKeys: subjectSelectedKeys,
             setSelectedKeys: setSubjectSelectedKeys,
             selectedValue: subjectSelectedValue
@@ -381,10 +399,23 @@ const Dropdowns = ({
         } else {
             const dept = mapIndexesToValues(Array.from(deptSelectedKeys), teacherAssignClassDetails.dept).join(', ');
             const sem = mapIndexesToValues(Array.from(semSelectedKeys), teacherAssignClassDetails.sem).join(', ');
-            const subject = mapIndexesToValues(Array.from(subjectSelectedKeys), subjectItems).join(', ');
+            const subject = mapIndexesToValues(Array.from(subjectSelectedKeys), allSubNames).join(', ');
             setCommonAttributes(prevState => ({ ...prevState, dept, sem, subject }));
         }
     }, [isResetting, deptSelectedKeys, semSelectedKeys, subjectSelectedKeys]);
+
+    const handleCheckDeptSemValue = (dropdown) => {
+        if (dropdown.stateKey === 'subject' && (deptSelectedKeys.size === 0 || semSelectedKeys.size === 0)) {
+            toast.error('Select Department and Semester first', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+        }
+    };
 
     return (
         <div className="grid grid-cols-4 gap-x-4 gap-y-8 w-full">
@@ -401,7 +432,8 @@ const Dropdowns = ({
                             <Button 
                                 endContent={dropdown.icon}
                                 className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
-                                variant="bordered">
+                                variant="bordered"
+                                onClick={() => handleCheckDeptSemValue(dropdown)}>
                                 {dropdown.selectedKeys.size > 0
                                     ? Array.from(dropdown.selectedKeys).map((key) => dropdown.items[key]).join(', ')
                                     : dropdown.label}
@@ -433,6 +465,7 @@ const Dropdowns = ({
         </div>
     );
 };
+
 
 const formatCourses = (sem, subject) => {
     return sem.split(', ').map((semester, index) => ({ [`${semester}`]: subject.split(', ')[index] }));

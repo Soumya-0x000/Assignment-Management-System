@@ -189,7 +189,7 @@ export const NavigationActions = ({ navArr, selected, setSelected, personName })
     ];
 
     return (
-        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:py-2 h-16'>
+        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:h-20 h-16 '>
             <div className=' hidden md:block'>
                 <SlidingTabs 
                     tabs={navArr.map((a) => a.name)} 
