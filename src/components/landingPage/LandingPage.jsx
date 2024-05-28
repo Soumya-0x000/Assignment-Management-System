@@ -32,7 +32,7 @@ const LandingPage = () => {
 
                         <div className='mt-4 flex justify-between w-full '>
                             {/* login */}
-                            <div className={` flex flex-col ${selected === 'Student' ? ' xsm:max-w-[8rem] sm:max-w-[9rem] max-w-[6rem]' : ''} bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md xsm:w-full h-[10.5rem]`}>
+                            <div className={` flex flex-col ${selected === 'Student' ? ' xsm:max-w-[8rem] sm:max-w-[9rem] max-w-[6.7rem]' : ''} bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md w-full h-[10.5rem]`}>
                                 <div className=' bg-slate-900 h-16 text-slate-200 font-robotoMono font-bold flex items-center justify-center'>
                                     Sign In
                                 </div>

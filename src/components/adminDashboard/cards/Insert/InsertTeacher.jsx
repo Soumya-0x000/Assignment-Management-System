@@ -258,6 +258,39 @@ const Dropdowns = ({
     const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
     const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+
+    useEffect(() => {
+        (async() => {
+            try {
+                const { data: subjectData, error: subjectError } = await supabase
+                    .from('subjects')
+                    .select('MCA, MSc')
+                
+                if (subjectError) {
+                    toast.error('Error in fetching subjects', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
+                    console.error('Error in fetching subjects', subjectError)
+                } else {
+                    console.log(subjectData);
+                }
+            } catch (error) {
+                console.error(error)
+                toast.error('Error in fetching subjects', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            }
+        })();
+    }, []);
+
     const subjectItems = useMemo(() => {
         return teacherAssignClassDetails.subjects.map((val, indx) => val.name);
     }, [teacherAssignClassDetails.subjects]);
@@ -300,7 +333,7 @@ const Dropdowns = ({
             label: 'Subject',
             stateKey: 'subject',
             icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: subjectItems,
+            items: (Object.entries(semSelectedKeys).length > 0 && Object.entries(deptSelectedKeys).length > 0) ? subjectItems : [],
             selectedKeys: subjectSelectedKeys,
             setSelectedKeys: setSubjectSelectedKeys,
             selectedValue: subjectSelectedValue
@@ -357,11 +390,12 @@ const Dropdowns = ({
         <div className="grid grid-cols-4 gap-x-4 gap-y-8 w-full">
             {dropdowns.map((dropdown, index) => (
                 <div 
-                    key={index} 
-                    className={`w-full ${
-                        dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
-                        dropdown.stateKey === 'subject' ? 'col-span-4' :
-                        dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' }`}>
+                key={index} 
+                className={`w-full ${
+                    dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
+                    dropdown.stateKey === 'subject' ? 'col-span-4' :
+                    dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' 
+                }`}>
                     <Dropdown className="w-full">
                         <DropdownTrigger className="w-full">
                             <Button 
@@ -382,7 +416,7 @@ const Dropdowns = ({
                             selectionMode={dropdown.stateKey !== 'dept' ? "multiple" : 'single'}
                             selectedKeys={dropdown.selectedKeys}
                             onSelectionChange={dropdown.setSelectedKeys}>
-                            {dropdown.items.map((item, itemIndex) => (
+                            {dropdown?.items?.map((item, itemIndex) => (
                                 <DropdownItem key={itemIndex}>{item}</DropdownItem>
                             ))}
                         </DropdownMenu>

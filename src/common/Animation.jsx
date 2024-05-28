@@ -53,11 +53,6 @@ const itemVariants = {
         },
     },
 };
-  
-const actionIconVariants = {
-    open: { scale: 1, y: 0 },
-    closed: { scale: 0, y: -7 },
-};
 
 export const FlyoutLink = ({ children, FlyoutContent, array }) => {
     const [open, setOpen] = useState(false);
@@ -134,7 +129,7 @@ const AnimatedHamburgerButton = ({ hamburgerActive, setHamburgerActive }) => {
     );
 };
 
-const Option = ({ text, setIsDropdownOpen, setSelected, setHamburgerActive }) => {
+const Option = ({ text, setIsDropdownOpen, setSelected, setHamburgerActive, selected }) => {
     const handleClick = () => {
         setHamburgerActive(false)
         setIsDropdownOpen(false)
@@ -144,14 +139,14 @@ const Option = ({ text, setIsDropdownOpen, setSelected, setHamburgerActive }) =>
     return (
         <motion.li
         variants={itemVariants}
-        className="flex items-center w-full gap-3 p-2 text-xs font-medium transition-colors rounded-md cursor-pointer whitespace-nowrap hover:bg-indigo-600 text-cyan-100 hover:text-indigo-100"
+        className={`flex items-center w-full gap-3 p-2 text-xs font-medium transition-colors rounded-md cursor-pointer whitespace-nowrap hover:bg-indigo-600 text-cyan-100 hover:text-indigo-100 ${selected === text ? ' bg-slate-700' : ''}`}
         onClick={handleClick}>
             <span className='text-[1rem] font-robotoMono'>{text}</span>
         </motion.li>
     );
 };
 
-const HamburgerMenu = ({ tabs, setSelected }) => {
+const HamburgerMenu = ({ tabs, setSelected, selected }) => {
     const [hamburgerActive, setHamburgerActive] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -176,6 +171,7 @@ const HamburgerMenu = ({ tabs, setSelected }) => {
                                 key={tab.val+indx}
                                 setIsDropdownOpen={setIsDropdownOpen}
                                 text={tab.name}
+                                selected={selected}
                                 setSelected={setSelected}
                                 setHamburgerActive={setHamburgerActive}
                             />
