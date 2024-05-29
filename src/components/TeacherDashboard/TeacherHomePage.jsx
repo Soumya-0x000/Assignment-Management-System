@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
@@ -19,6 +19,8 @@ import {
 } from '@nextui-org/react';
 import FileUploader from './FileUploader';
 import GivenAssignments from './GivenAssignments';
+import { useDispatch } from 'react-redux';
+import { setDeptSemClasses } from '../../reduxStore/reducers/TeacherAuthSLice';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -53,6 +55,7 @@ const TeacherHomePage = () => {
         subject: '',
         dept: ''
     });
+    const dispatch = useDispatch();
 
     useEffect(() => {
         toast.promise(
@@ -111,7 +114,39 @@ const TeacherHomePage = () => {
                 }
             }
         )
-    }, []); 
+    }, []);
+
+    useMemo(() => {
+        (async () => {
+            try {
+                const { data: subjectData, error: subjectError } = await supabase
+                    .from('subjects')
+                    .select('MCA, MSc');
+                
+                if (subjectError) {
+                    toast.error('Error in fetching subjects', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+                    console.error('Error in fetching subjects', subjectError);
+                } else {
+                    dispatch(setDeptSemClasses(subjectData[0]))
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Error in fetching subjects', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         setAssignments(assignments)

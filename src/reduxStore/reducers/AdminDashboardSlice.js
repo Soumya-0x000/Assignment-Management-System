@@ -8,29 +8,6 @@ const initialState = {
     teacherAssignClassDetails: {
         dept: ['MCA', 'MSc'],
         sem: ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'],
-        subjects: [
-            { name: 'DSA', fName: 'DataStructuresAndAlgorithms' },
-            { name: 'DBMS', fName: 'DatabaseManagementSystems' },
-            { name: 'OS', fName: 'OperatingSystems' },
-            { name: 'Computer Networks', fName: 'ComputerNetworks' },
-            { name: 'IOT', fName: 'InternetOfThings' },
-            { name: 'Software Engineering', fName: 'SoftwareEngineering' },
-            { name: 'Computer Architecture', fName: 'ComputerArchitecture' },
-            { name: 'AI', fName: 'ArtificialIntelligence' },
-            { name: 'ML', fName: 'MachineLearning' },
-            { name: 'Cybersecurity', fName: 'Cybersecurity' },
-            { name: 'Cloud Computing', fName: 'CloudComputing' },
-            { name: 'Human-Computer Interaction', fName: 'HumanComputerInteraction' },
-            { name: 'Blockchain', fName: 'Blockchain' },
-            { name: 'Quantum Computing', fName: 'QuantumComputing' },
-            { name: 'Robotics', fName: 'Robotics' },
-            { name: 'Data Science', fName: 'DataScience' },
-            { name: 'Big Data', fName: 'BigData' },
-            { name: 'Bioinformatics', fName: 'Bioinformatics' },
-            { name: 'Game Development', fName: 'GameDevelopment' },
-            { name: 'Embedded Systems', fName: 'EmbeddedSystems' },
-            { name: 'Information Retrieval', fName: 'InformationRetrieval' }
-        ]
     }
 };
 

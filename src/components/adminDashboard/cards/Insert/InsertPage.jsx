@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import SlidingTabs from '../../../../common/SlidingTabs'
 import { motion } from 'framer-motion';
 import { InsertAdmin } from './InsertAdmin';
-import { InsertTeacher } from './InsertTeacher';
+import { InsertTeacher } from './TeacherInsert/InsertTeacher';
 import { InsertStudent } from './InsertStudent';
 
 const tabs = ['Admin', 'Teacher', 'Student'];
 
-const InsertCard = () => {
+const InsertPage = () => {
     const [selected, setSelected] = useState(tabs[0]);
 
     const renderInsertionForm = () => {
@@ -41,11 +41,11 @@ const InsertCard = () => {
                 />
             </motion.div>
 
-            <div className=' w-full md:w-[80%] max-w-[80rem] h-full flex flex-col items-center justify-center'>
+            <div className=' w-full md:w-[80%] max-w-[80rem] h-full flex flex-col items-center justify-center mt-24'>
                 {renderInsertionForm()}
             </div>
         </div>
     )
 }
 
-export default InsertCard;
+export default InsertPage;

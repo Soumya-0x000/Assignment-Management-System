@@ -2,9 +2,8 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import TeacherCard from './cards/TeacherCard';
 import StudentCard from './cards/StudentCard';
-import InsertCard from './cards/Insert/InsertCard';
+import InsertPage from './cards/Insert/InsertPage';
 import SearchCard from './cards/search/SearchCard';
-import AdminHome from './pages/AdminHome';
 import HomePage from './HomePage';
 
 const Canvas = () => {
@@ -19,7 +18,7 @@ const Canvas = () => {
             case 'student':
                 return dataForCanvas && dataForCanvas.length > 0 ? <StudentCard/> : [];
             case 'insert':
-                return <InsertCard/>;
+                return <InsertPage/>;
             case 'search':
                 return <SearchCard/>;
             case 'home':

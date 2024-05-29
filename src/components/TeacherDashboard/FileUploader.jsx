@@ -17,8 +17,10 @@ import { supabase } from '../../CreateClient';
 
 const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assignments }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    const { deptSemClasses } = useSelector(state => state.teacherAuth);
     const [filePath, setFilePath] = useState('');
-    const [fileToUpload, setFileToUpload] = useState(assignments)
+    const [subjects, setSubjects] = useState([]);
+    console.log(deptSemClasses)
 
     const uppy = new Uppy({
         restrictions: {
@@ -40,6 +42,9 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
         const semName = currentValue.sem.split(' ').join('');
         const pathName = `${currentValue.dept}/${semName}/`;
         setFilePath(pathName);
+
+        const fullFileName = deptSemClasses[currentValue.dept][semName]
+        console.log(fullFileName)
     }, [currentValue]);
 
     const handleRenameUpload = async () => {
@@ -108,7 +113,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
 
                     const tempAssignments = [...assignments, [newAssignment]]
                     setAssignments(tempAssignments)
-                    fileToUpload.push([newAssignment])
     
                     // Update teacher data with new assignments
                     const { data: updateData, error: updateError } = await supabase
