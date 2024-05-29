@@ -16,10 +16,9 @@ import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
 
 const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assignments }) => {
-    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const { deptSemClasses } = useSelector(state => state.teacherAuth);
     const [filePath, setFilePath] = useState('');
-    const [subjects, setSubjects] = useState([]);
+    const [subExistingArray, setSubExistingArray] = useState([]);
     console.log(deptSemClasses)
 
     const uppy = new Uppy({
@@ -43,8 +42,8 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
         const pathName = `${currentValue.dept}/${semName}/`;
         setFilePath(pathName);
 
-        const fullFileName = deptSemClasses[currentValue.dept][semName]
-        console.log(fullFileName)
+        const subArr = deptSemClasses[currentValue.dept][semName]
+        setSubExistingArray(subArr)
     }, [currentValue]);
 
     const handleRenameUpload = async () => {
@@ -52,7 +51,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
     
         for (const [index, file] of files.entries()) {
             const semName = currentValue.sem.split(' ').join('');
-            const subName = teacherAssignClassDetails.subjects.find(val => (val.name === currentValue.subject))?.fName;
+            const subName = subExistingArray.find(val => (val.name === currentValue.subject))?.fName;
             const newFileName = `${currentValue.dept}_${semName}_${subName}_${index}_${file.name}`;
             const fileBlob = file.data;
             const fullPath = `${filePath}${newFileName}`;
@@ -61,10 +60,10 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
                 const { data, error } = await supabase
                     .storage
                     .from('assignments')
-                    .upload(fullPath, fileBlob, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
+                    // .upload(fullPath, fileBlob, {
+                    //     cacheControl: '3600',
+                    //     upsert: false
+                    // });
     
                 if (error) {
                     console.error(`Error uploading file ${newFileName}:`, error);
@@ -113,13 +112,14 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments, assign
 
                     const tempAssignments = [...assignments, [newAssignment]]
                     setAssignments(tempAssignments)
+                    console.log(columnName, updatedAssignments)
     
                     // Update teacher data with new assignments
                     const { data: updateData, error: updateError } = await supabase
                         .from('teachers')
-                        .update({
-                            [columnName]: updatedAssignments
-                        })
+                        // .update({
+                        //     [columnName]: updatedAssignments
+                        // })
                         .eq('uniqId', teacherId);
     
                     if (updateError) {

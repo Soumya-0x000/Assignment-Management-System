@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
-import { MdOutlinePortrait } from "react-icons/md";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { MailIcon } from "../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
-import { TbListNumbers } from "react-icons/tb";
-import { SiGoogleclassroom } from "react-icons/si";
-import { useSelector } from "react-redux";
 import ClassManagement from '../adminDashboard/cards/Insert/TeacherInsert/ClassManagement';
 
 export const EditOwnData = ({
@@ -135,19 +131,17 @@ export const EditOwnData = ({
         commonAttributes.email.includes('@') &&
         commonAttributes.password.trim().length >= 6;
         
-        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)
-            && (saveInstance.MCA || saveInstance.MSc)) {
+        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)) {
             if (checkCondition) {
                 toast.promise(handleSubmit(e), {
                     loading: 'Updating process started...',
                     success: 'Successfully updated!',
-                    error: 'Failed to update.',
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
-                })
+                    error: 'Failed to update.'
+                }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }})
             } else toast('Fill up all required fields...', {
                 icon: '⚠️',
                 style: {
@@ -245,176 +239,4 @@ export const EditOwnData = ({
             </div>
         </form>
     );
-};
-
-
-
-const Dropdowns = ({
-    commonAttributes,
-    setCommonAttributes, 
-    isResetting,
-    setIsResetting,
-    setMCAData,
-    setMScData,
-}) => {
-    const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
-    const [semSelectedKeys, setSemSelectedKeys] = useState(new Set());
-    const [subjectSelectedKeys, setSubjectSelectedKeys] = useState(new Set());
-
-    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
-
-    const subjectsList = useMemo(() => {
-        return teacherAssignClassDetails.subjects.map(val => val.name);
-    }, [teacherAssignClassDetails.subjects])
-
-    const deptSelectedValue = useMemo(
-        () => Array.from(deptSelectedKeys).join(", ").replaceAll("_", " "),
-        [deptSelectedKeys]
-    );
-
-    const semSelectedValue = useMemo(
-        () => Array.from(semSelectedKeys).join(", ").replaceAll("_", " "),
-        [semSelectedKeys]
-    );
-
-    const subjectSelectedValue = useMemo(
-        () => Array.from(subjectSelectedKeys).join(", ").replaceAll("_", " "),
-        [subjectSelectedKeys]
-    );
-
-    const dropdowns = [
-        {
-            label: 'Department',
-            stateKey: 'dept',
-            icon: <SiGoogleclassroom className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: teacherAssignClassDetails.dept,
-            selectedKeys: deptSelectedKeys,
-            setSelectedKeys: setDeptSelectedKeys,
-            selectedValue: deptSelectedValue
-        },
-        {
-            label: 'Semester',
-            stateKey: 'sem',
-            icon: <TbListNumbers className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />,
-            items: teacherAssignClassDetails.sem,
-            selectedKeys: semSelectedKeys,
-            setSelectedKeys: setSemSelectedKeys,
-            selectedValue: semSelectedValue
-        },
-        {
-            label: 'Subject',
-            stateKey: 'subject',
-            icon: <MdOutlinePortrait className="text-[1.25rem] text-default-400 pointer-events-none flex-shrink-0" />,
-            items: subjectsList,
-            selectedKeys: subjectSelectedKeys,
-            setSelectedKeys: setSubjectSelectedKeys,
-            selectedValue: subjectSelectedValue
-        },
-    ];
-
-    const mapIndexesToValues = (indexes, items) => {
-        return indexes.map(index => items[index]);
-    };
-
-    const saveInstance = (dept, sem, subject, e) => {
-        e.preventDefault();
-        const formattedCourses = formatCourses(sem, subject);
-
-        if (dept === 'MCA') {
-            setMCAData(formattedCourses);
-            toast.success(`${dept} instance created`, {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            });
-            resetSelections();
-        } else if (dept === 'MSc') {
-            setMScData(formattedCourses);
-            toast.success(`${dept} instance created`, {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            });
-            resetSelections();
-        }
-    };
-
-    const resetSelections = () => {
-        setDeptSelectedKeys(new Set());
-        setSemSelectedKeys(new Set());
-        setSubjectSelectedKeys(new Set());
-    };
-
-    useEffect(() => {
-        if (isResetting) {
-            resetSelections();
-            setIsResetting(false);
-        } else {
-            const dept = mapIndexesToValues(Array.from(deptSelectedKeys), teacherAssignClassDetails.dept).join(', ');
-            const sem = mapIndexesToValues(Array.from(semSelectedKeys), teacherAssignClassDetails.sem).join(', ');
-            const subjectValues = mapIndexesToValues(Array.from(subjectSelectedKeys), subjectsList).join(', ');
-            setCommonAttributes(prevState => ({
-                ...prevState, dept, sem, subject: subjectValues
-            }));
-        }
-    }, [isResetting, deptSelectedKeys, semSelectedKeys, subjectSelectedKeys]);
-
-    return (
-        <div className="grid grid-cols-4 gap-x-4 gap-y-8 w-full">
-            {dropdowns.map((dropdown, index) => (
-                <div 
-                key={index} 
-                className={`w-full ${
-                dropdown.stateKey === 'dept' ? 'col-span-4 preLg:col-span-1' :
-                dropdown.stateKey === 'subject' ? 'col-span-4' :
-                dropdown.stateKey === 'sem' && 'col-span-4 preLg:col-span-3' }`}>
-                    <Dropdown className={`w-full`}>
-                        <DropdownTrigger className="w-full">
-                            <Button 
-                            endContent={dropdown.icon}
-                            className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
-                            variant="bordered">
-                                {dropdown.selectedKeys.size > 0
-                                    ? Array.from(dropdown.selectedKeys).map((key) => dropdown.items[key]).join(', ')
-                                    : dropdown.label}
-                            </Button>
-                        </DropdownTrigger>
-
-                        <DropdownMenu 
-                        aria-label={`Multiple selection example`}
-                        closeOnSelect={false}
-                        disallowEmptySelection
-                        className="w-full bg-slate-900 text-green-500 rounded-xl" 
-                        selectionMode= {dropdown.stateKey !== 'dept' ? "multiple" : 'single'}
-                        selectedKeys={dropdown.selectedKeys}
-                        onSelectionChange={dropdown.setSelectedKeys}>
-                            {index !== 0 
-                                ? [...dropdown.items, 'Nothing'].map((item, itemIndex) => (
-                                    <DropdownItem key={itemIndex}>{item}</DropdownItem>
-                                ))
-                                : dropdown.items.map((item, itemIndex) => (
-                                    <DropdownItem key={itemIndex}>{item}</DropdownItem>
-                                ))
-                            }
-                        </DropdownMenu>
-                    </Dropdown>
-                </div>
-            ))}
-
-            <div className="col-span-4">
-                <button className="bg-[#fdd833] text-yellow-800 font-onest font-bold rounded-xl px-4 py-2 absolute right-[6.5rem] bottom-0"
-                onClick={(e) => saveInstance(commonAttributes.dept, commonAttributes.sem, commonAttributes.subject, e)}>
-                    Save Instance
-                </button>
-            </div>
-        </div>
-    );
-};
-
-const formatCourses = (sem, subject) => {
-    return sem.split(', ').map((semester, index) => ({ [`${semester}`]: subject.split(', ')[index] }));
 };

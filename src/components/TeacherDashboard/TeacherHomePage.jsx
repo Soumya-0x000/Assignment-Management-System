@@ -55,6 +55,7 @@ const TeacherHomePage = () => {
         subject: '',
         dept: ''
     });
+    const [assignmentSubject, setAssignmentSubject] = useState('')
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -84,6 +85,7 @@ const TeacherHomePage = () => {
                     teacherData.MSc = sortDept(teacherData.MSc);
                     setTeacherData(teacherData);
 
+                    console.log(teacherData)
                     if (teacherData.MCAassignments || teacherData.MScassignments) {
                         const totalAssignments = [
                             ...(teacherData.MCAassignments !== null ? teacherData.MCAassignments : []),
@@ -195,8 +197,15 @@ const TeacherHomePage = () => {
 
     const handleUploadingModal = (e, sem, subject, dept) => {
         e.preventDefault();
-        onOpen();
-        setCurrentSemSub({ sem, subject, dept })
+
+        const isolateSubjects = subject.split(',').map(key => key.trim())
+        if(isolateSubjects.length > 1) {
+            console.log(isolateSubjects)
+            setAssignmentSubject(isolateSubjects)
+        } else {
+            onOpen();
+            setCurrentSemSub({ sem, subject, dept })
+        }
     };
 
     return (
@@ -268,6 +277,30 @@ const TeacherHomePage = () => {
                 mcaSub={teacherData.MCA}
                 mscSub={teacherData.MSc}
             />
+
+            {assignmentSubject.length > 1 && (
+                <Modal 
+                backdrop={'blur'} 
+                className=' bg-slate-700 text-slate-200 relative' 
+                isOpen={isOpen} 
+                onClose={onClose}>
+                    <ModalContent>
+                    {(onClose) => (<>
+                        <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
+
+                        <ModalBody>
+                            Whose assignment you want to upload?
+                        </ModalBody>
+
+                        <ModalFooter>
+                            <Button color="danger" className=' text-md' onPress={onClose}>
+                                Close
+                            </Button>
+                        </ModalFooter>
+                    </>)}
+                    </ModalContent>
+                </Modal>
+            )}
 
             {/* Upload assignments modal */}
             <Modal 
