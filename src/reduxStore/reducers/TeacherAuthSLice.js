@@ -4,7 +4,8 @@ const initialState = {
     session: {},
     teacherIsAuthenticated: true,
     selectedTeacherId: '',
-    deptSemClasses: []
+    deptSemClasses: [],
+    teacherData: []
 };
 
 export const TeacherAuthSlice = createSlice({
@@ -16,11 +17,15 @@ export const TeacherAuthSlice = createSlice({
         },
         setDeptSemClasses: function(state, action) {
             state.deptSemClasses = action.payload;
+        },
+        setTeacherInfo: function(state, action) {
+            state.teacherData = action.payload;
         }
     }
 });
 
 export const {
     setTeacherAuthentication,
-    setDeptSemClasses
+    setDeptSemClasses,
+    setTeacherInfo
 } = TeacherAuthSlice.actions;

@@ -10,8 +10,8 @@ const ClassManagement = ({
     commonAttributes, 
     setCommonAttributes, 
     isResetting,
-    setSaveInstance,
     setIsResetting,
+    setSaveInstance,
     setMCAData,
     setMScData
 }) => {
@@ -221,9 +221,7 @@ const ClassManagement = ({
                         className="w-full bg-slate-900 text-green-500 rounded-xl" 
                         selectionMode= {dropdown.stateKey === 'dept' ? "single" : "multiple"}
                         selectedKeys={dropdown.selectedKeys}
-                        onSelectionChange={dropdown.setSelectedKeys}>
-                            {console.log(dropdown.stateKey)}
-                            {dropdown?.items?.map((item, itemIndex) => (
+                        onSelectionChange={dropdown.setSelectedKeys}>                            {dropdown?.items?.map((item, itemIndex) => (
                                 <DropdownItem key={itemIndex}>{item}</DropdownItem>
                             ))}
                         </DropdownMenu>

@@ -28,7 +28,7 @@ import { RenderDeptClass } from '../RenderDeptClass';
 
 const SearchAdminTeacher = ({mode, selected}) => {
     const [searchBy, setSearchBy] = useState('name');
-    const [searchTerm, setSearchTerm] = useState('SS Das');
+    const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [visibility, setVisibility] = useState({
         pswd: new Array(searchResults.length).fill(false),
@@ -80,6 +80,12 @@ const SearchAdminTeacher = ({mode, selected}) => {
             loading: `Searching...`,
             success: `Successfully searched!`,
             error: "Failed to search.",
+        }, {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
         });
     };
 

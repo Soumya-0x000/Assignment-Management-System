@@ -9,6 +9,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { useSelector } from "react-redux";
+import ClassManagement from '../adminDashboard/cards/Insert/TeacherInsert/ClassManagement';
 
 export const EditOwnData = ({
     title,
@@ -37,6 +38,10 @@ export const EditOwnData = ({
     const [isResetting, setIsResetting] = useState(false);
     const [MCAData, setMCAData] = useState(mcaSub || [{}]);
     const [MScData, setMScData] = useState(mscSub || [{}]);
+    const [saveInstance, setSaveInstance] = useState({
+        MCA: false,
+        MSc: false
+    })
 
     useEffect(() => {
         setCommonAttributes({
@@ -76,6 +81,10 @@ export const EditOwnData = ({
         });
         setMCAData(mcaSub);
         setMScData(mscSub);
+        setSaveInstance({
+            MCA: false,
+            MSc: false
+        });
     };
 
     const handleSubmit = async(e) => {
@@ -126,7 +135,8 @@ export const EditOwnData = ({
         commonAttributes.email.includes('@') &&
         commonAttributes.password.trim().length >= 6;
         
-        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)) {
+        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)
+            && (saveInstance.MCA || saveInstance.MSc)) {
             if (checkCondition) {
                 toast.promise(handleSubmit(e), {
                     loading: 'Updating process started...',
@@ -206,14 +216,15 @@ export const EditOwnData = ({
                     </div>
                 ))}
 
-                <Dropdowns 
+                <ClassManagement 
                     commonAttributes={commonAttributes}
+                    setCommonAttributes={setCommonAttributes}
                     isResetting={isResetting}
                     setIsResetting={setIsResetting}
-                    setCommonAttributes={setCommonAttributes}
                     setMCAData={setMCAData}
                     setMScData={setMScData}
                     handleReset={handleReset}
+                    setSaveInstance={setSaveInstance}
                 />
             </div>
 

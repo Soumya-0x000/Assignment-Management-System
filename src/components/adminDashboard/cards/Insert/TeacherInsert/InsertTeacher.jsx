@@ -107,10 +107,8 @@ export const InsertTeacher = () => {
 
     const handleSubmitToast = (e) => {
         e.preventDefault();
-        if (
-            (Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0) 
-            && (saveInstance.MCA || saveInstance.MSc)
-        ) {
+        if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0) 
+            && (saveInstance.MCA || saveInstance.MSc)) {
             if (
                 commonAttributes.name.trim().length > 4 &&
                 commonAttributes.email.trim().length > 6 &&

@@ -58,7 +58,7 @@ const Sidebar = () => {
                     setName(adminData.name);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
         fetchInitialData();

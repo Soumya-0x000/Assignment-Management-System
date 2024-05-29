@@ -16,7 +16,7 @@ import { tableList } from '../../../../common/customHooks';
 
 const SearchStudent = () => {
     const [searchBy, setSearchBy] = useState('name');
-    const [searchTerm, setSearchTerm] = useState('Kishor das');
+    const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const dispatch = useDispatch();
 

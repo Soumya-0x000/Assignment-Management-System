@@ -115,6 +115,12 @@ const SelectStudent = ({sidebarHold}) => {
             loading: `Loading ${studentData.dept} ${formatSemester(studentData.sem)} students...`,
             success: `Successfully loaded ${studentData.dept} ${formatSemester(studentData.sem)} student data!`,
             error: "Failed to load student data."
+        }, {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff'
+            }
         })
     };
 

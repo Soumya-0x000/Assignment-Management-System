@@ -31,6 +31,12 @@ const SelectTeachers = ({sidebarHold}) => {
             loading: `Loading all teachers...`,
             success: "Successfully loaded all teachers!",
             error: "Failed to load teachers."
+        }, {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
         })
     };
 
