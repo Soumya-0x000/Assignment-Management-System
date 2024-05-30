@@ -241,7 +241,7 @@ const TeacherHomePage = () => {
                                                 <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
                                                 onClick={(e) => handleUploadingModal(e, key, val, dept)}>
                                                     <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
-                                                    <span className=' font-bold font-onest tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
+                                                    <span className=' font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
                                                 </div>
                                             )} 
                                         </>))}

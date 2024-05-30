@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
 import { BsPersonLinesFill } from "react-icons/bs";
@@ -219,6 +219,8 @@ export const EditOwnData = ({
                     setMScData={setMScData}
                     handleReset={handleReset}
                     setSaveInstance={setSaveInstance}
+                    MCAData={MCAData}
+                    MScData={MScData}
                 />
             </div>
 

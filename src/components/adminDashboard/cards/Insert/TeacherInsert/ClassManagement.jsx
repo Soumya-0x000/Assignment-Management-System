@@ -13,7 +13,9 @@ const ClassManagement = ({
     setIsResetting,
     setSaveInstance,
     setMCAData,
-    setMScData
+    setMScData,
+    MCAData,
+    MScData,
 }) => {
     const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
     const [sem1SelectedKeys, setSem1SelectedKeys] = useState(new Set());
@@ -28,6 +30,36 @@ const ClassManagement = ({
         sem4: [] 
     });
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    console.log(MCAData, MScData)
+    console.log(deptSelectedKeys)
+    
+    useEffect(() => {
+        if (MCAData.length > 0 || MScData.length > 0) {
+            const initialDept = MCAData.length > 0 ? 'MCA' : 'MSc';
+            // setCommonAttributes(prev => ({
+            //     ...prev, dept: initialDept
+            // }))
+            
+            console.log(deptSelectedKeys)
+            // setDeptSelectedKeys(new Set([initialDept]));
+    
+            // const initialData = MCAData.length > 0 ? MCAData : MScData;
+    
+            // const mapSubjects = (semData) => semData.split(', ').map((item, index) => ({ key: index, name: item }));
+    
+            // setSem1SelectedKeys(new Set(initialData[0]['1stSem'].split(', ')));
+            // setSem2SelectedKeys(new Set(initialData[1]['2ndSem'].split(', ')));
+            // setSem3SelectedKeys(new Set(initialData[2]['3rdSem'].split(', ')));
+            // setSem4SelectedKeys(new Set(initialData[3]['4thSem'].split(', ')));
+    
+            // setIndividualSemSubjects({
+            //     sem1: mapSubjects(initialData[0]['1stSem']),
+            //     sem2: mapSubjects(initialData[1]['2ndSem']),
+            //     sem3: mapSubjects(initialData[2]['3rdSem']),
+            //     sem4: mapSubjects(initialData[3]['4thSem']),
+            // });
+        }
+    }, [MCAData, MScData]);    
 
     useEffect(() => {
         (async () => {
@@ -221,7 +253,8 @@ const ClassManagement = ({
                         className="w-full bg-slate-900 text-green-500 rounded-xl" 
                         selectionMode= {dropdown.stateKey === 'dept' ? "single" : "multiple"}
                         selectedKeys={dropdown.selectedKeys}
-                        onSelectionChange={dropdown.setSelectedKeys}>                            {dropdown?.items?.map((item, itemIndex) => (
+                        onSelectionChange={dropdown.setSelectedKeys}>
+                            {dropdown?.items?.map((item, itemIndex) => (
                                 <DropdownItem key={itemIndex}>{item}</DropdownItem>
                             ))}
                         </DropdownMenu>
