@@ -7,6 +7,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, M
 import { RxCross2 } from "react-icons/rx";
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../common/Animation';
+import { useSelector } from 'react-redux';
 
 const searchModeArr = [
     {key: 'orgName', name: 'Name'},
@@ -25,6 +26,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         name: searchModeArr[0].name,
         value: searchModeArr[0].key
     });
+    const { assignmentToRender } = useSelector(state => state.teacherAuth)
+    console.log(assignmentToRender)
 
     useEffect(() => {
         if (searchedItem.length > 0) {
@@ -249,31 +252,29 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     </div>
 
                     {/* category */}
-                    <div>
-                        <Dropdown>
-                            <DropdownTrigger>
-                                <Button 
-                                variant="bordered" 
-                                className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[6.8rem] md:w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-sm md:text-md`}>
-                                    {searchMode.name}
-                                </Button>
-                            </DropdownTrigger>
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button 
+                            variant="bordered" 
+                            className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[6.8rem] md:w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-sm md:text-md`}>
+                                {searchMode.name}
+                            </Button>
+                        </DropdownTrigger>
 
-                            <DropdownMenu 
-                            closeOnSelect={false}
-                            disallowEmptySelection
-                            className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
-                            selectionMode="single"
-                            selectedKeys={searchMode.key}
-                            onSelectionChange={(e) => handleSelectionChange(e)}>
-                                {searchModeArr?.map((item, indx) => (
-                                    <DropdownItem key={item.key}>
-                                        {item.name}
-                                    </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                        </Dropdown>
-                    </div>
+                        <DropdownMenu 
+                        closeOnSelect={false}
+                        disallowEmptySelection
+                        className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
+                        selectionMode="single"
+                        selectedKeys={searchMode.key}
+                        onSelectionChange={(e) => handleSelectionChange(e)}>
+                            {searchModeArr?.map((item, indx) => (
+                                <DropdownItem key={item.key}>
+                                    {item.name}
+                                </DropdownItem>
+                            ))}
+                        </DropdownMenu>
+                    </Dropdown>
                 </div>
             </div>
 

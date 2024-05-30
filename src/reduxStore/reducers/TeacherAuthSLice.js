@@ -5,7 +5,8 @@ const initialState = {
     teacherIsAuthenticated: true,
     selectedTeacherId: '',
     deptSemClasses: [],
-    teacherData: []
+    teacherData: [],
+    assignmentToRender: []
 };
 
 export const TeacherAuthSlice = createSlice({
@@ -20,6 +21,9 @@ export const TeacherAuthSlice = createSlice({
         },
         setTeacherInfo: function(state, action) {
             state.teacherData = action.payload;
+        },
+        setAssignmentToRender: function(state, action) {
+            state.assignmentToRender = action.payload;
         }
     }
 });
@@ -27,5 +31,6 @@ export const TeacherAuthSlice = createSlice({
 export const {
     setTeacherAuthentication,
     setDeptSemClasses,
-    setTeacherInfo
+    setTeacherInfo,
+    setAssignmentToRender
 } = TeacherAuthSlice.actions;

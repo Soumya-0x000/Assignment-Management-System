@@ -10,17 +10,14 @@ import { NavigationActions } from '../../common/Animation';
 import { EditOwnData } from './EditOwnData';
 import { 
     Button, 
-    Modal, 
-    ModalBody, 
-    ModalContent, 
-    ModalFooter, 
-    ModalHeader, 
-    useDisclosure 
+    Modal, ModalBody, ModalContent, 
+    ModalHeader, ModalFooter, useDisclosure, 
+    RadioGroup, Radio, cn
 } from '@nextui-org/react';
 import FileUploader from './FileUploader';
 import GivenAssignments from './GivenAssignments';
 import { useDispatch } from 'react-redux';
-import { setDeptSemClasses } from '../../reduxStore/reducers/TeacherAuthSLice';
+import { setAssignmentToRender, setDeptSemClasses } from '../../reduxStore/reducers/TeacherAuthSLice';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -55,7 +52,8 @@ const TeacherHomePage = () => {
         subject: '',
         dept: ''
     });
-    const [assignmentSubject, setAssignmentSubject] = useState('')
+    const [assignmentSubject, setAssignmentSubject] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState('');
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -85,7 +83,6 @@ const TeacherHomePage = () => {
                     teacherData.MSc = sortDept(teacherData.MSc);
                     setTeacherData(teacherData);
 
-                    console.log(teacherData)
                     if (teacherData.MCAassignments || teacherData.MScassignments) {
                         const totalAssignments = [
                             ...(teacherData.MCAassignments !== null ? teacherData.MCAassignments : []),
@@ -93,6 +90,7 @@ const TeacherHomePage = () => {
                         ];
     
                         setAssignments(totalAssignments);
+                        dispatch(setAssignmentToRender(totalAssignments))
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error.message);
@@ -150,10 +148,6 @@ const TeacherHomePage = () => {
         })();
     }, []);
 
-    useEffect(() => {
-        setAssignments(assignments)
-    }, [assignments])
-
     const switchValues = (selected) => {
         switch (selected) {
             case 'Id':
@@ -199,14 +193,17 @@ const TeacherHomePage = () => {
         e.preventDefault();
 
         const isolateSubjects = subject.split(',').map(key => key.trim())
-        if(isolateSubjects.length > 1) {
-            console.log(isolateSubjects)
-            setAssignmentSubject(isolateSubjects)
-        } else {
-            onOpen();
-            setCurrentSemSub({ sem, subject, dept })
-        }
+        setAssignmentSubject(isolateSubjects)
+        setSelectedSubject(isolateSubjects[0])
+        setCurrentSemSub({ sem, subject: selectedSubject, dept })
+        onOpen();
     };
+
+    useEffect(() => {
+        setCurrentSemSub(prev => ({ 
+            ...prev, subject: selectedSubject
+        }))
+    }, [selectedSubject])
 
     return (
         <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
@@ -239,17 +236,15 @@ const TeacherHomePage = () => {
                             <div className=' cursor-pointer grid grid-cols-2  gap-x-4 gap-y-2 mt-3'>
                                 {teacherData?.[dept].map((val, index) => (
                                     <React.Fragment key={index}>
-                                        {Object.entries(val).map(([key, val], indx) => (
-                                            <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
-                                            onClick={(e) => handleUploadingModal(e, key, val, dept)}>
-                                                {val !== '' && (
-                                                    <div>
-                                                        <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
-                                                        <span className=' font-bold font-onest tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
-                                                    </div>
-                                                )} 
-                                            </div>
-                                        ))}
+                                        {Object.entries(val).map(([key, val], indx) => ( <>
+                                            {val !== '' && (
+                                                <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
+                                                onClick={(e) => handleUploadingModal(e, key, val, dept)}>
+                                                    <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
+                                                    <span className=' font-bold font-onest tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
+                                                </div>
+                                            )} 
+                                        </>))}
                                     </React.Fragment>
                                 ))}
                             </div>
@@ -278,30 +273,6 @@ const TeacherHomePage = () => {
                 mscSub={teacherData.MSc}
             />
 
-            {assignmentSubject.length > 1 && (
-                <Modal 
-                backdrop={'blur'} 
-                className=' bg-slate-700 text-slate-200 relative' 
-                isOpen={isOpen} 
-                onClose={onClose}>
-                    <ModalContent>
-                    {(onClose) => (<>
-                        <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
-
-                        <ModalBody>
-                            Whose assignment you want to upload?
-                        </ModalBody>
-
-                        <ModalFooter>
-                            <Button color="danger" className=' text-md' onPress={onClose}>
-                                Close
-                            </Button>
-                        </ModalFooter>
-                    </>)}
-                    </ModalContent>
-                </Modal>
-            )}
-
             {/* Upload assignments modal */}
             <Modal 
             backdrop={'blur'} 
@@ -310,7 +281,7 @@ const TeacherHomePage = () => {
             onClose={onClose}>
                 <ModalContent>
                 {(onClose) => (<>
-                    <ModalHeader className="flex flex-col gap-1">Upload Assignments</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1 font-robotoMono">Upload Assignments</ModalHeader>
 
                     <ModalBody>
                         <FileUploader 
@@ -320,6 +291,22 @@ const TeacherHomePage = () => {
                             setAssignments={setAssignments}
                             assignments={assignments}
                         />
+
+                        {assignmentSubject.length > 1 && ( <>
+                            <span className=' mt-4 font-mavenPro'>Subjects</span>
+                            <RadioGroup 
+                            className=' text-gray-300'
+                            value={selectedSubject} 
+                            onValueChange={setSelectedSubject}>
+                                <div className=' flex flex-wrap gap-3 items-center'>
+                                    {assignmentSubject.map((subject, index) => (
+                                        <CustomRadio key={index} value={subject}>
+                                            {subject}
+                                        </CustomRadio>
+                                    ))}
+                                </div>
+                            </RadioGroup>
+                        </>)} 
                     </ModalBody>
 
                     <ModalFooter>
@@ -336,7 +323,25 @@ const TeacherHomePage = () => {
 
 export default TeacherHomePage;
 
-
+export const CustomRadio = (props) => {
+    const {children, ...otherProps} = props;
+  
+    return (
+        <Radio
+        {...otherProps}
+        classNames={{
+            base: cn(
+                "inline-flex m-0 bg-slate-900 hover:bg-gray-950 items-center justify-between",
+                "flex-row-reverse w-fit cursor-pointer rounded-lg gap-4 p-2 border-2 border-transparent",
+                "data-[selected=true]:border-primary"
+            ),
+        }}>
+            <span className=' text-blue-200 font-montserrat'>
+                {children}
+            </span>
+        </Radio>
+    );
+};
 
 const sortDept = (dept) => {
     if (!Array.isArray(dept)) return [];
