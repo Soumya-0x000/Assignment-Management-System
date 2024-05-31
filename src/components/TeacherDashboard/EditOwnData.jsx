@@ -5,7 +5,7 @@ import { BsPersonLinesFill } from "react-icons/bs";
 import { MailIcon } from "../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
-import ClassManagement from '../adminDashboard/cards/Insert/TeacherInsert/ClassManagement';
+import DeptSemClassManagement from './DeptSemClassManagement';
 
 export const EditOwnData = ({
     title,
@@ -210,7 +210,7 @@ export const EditOwnData = ({
                     </div>
                 ))}
 
-                <ClassManagement 
+                <DeptSemClassManagement 
                     commonAttributes={commonAttributes}
                     setCommonAttributes={setCommonAttributes}
                     isResetting={isResetting}

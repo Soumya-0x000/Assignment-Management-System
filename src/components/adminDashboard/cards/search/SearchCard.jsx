@@ -9,7 +9,7 @@ const tabs = ['Admin', 'Teacher', 'Student'];
 const SearchCard = () => {
     const [selected, setSelected] = useState(tabs[0]);
 
-    const renderInsertionForm = () => {
+    const searchResult = () => {
         switch (selected) {
             case 'Admin':
                 return <SearchAdminTeacher selected={selected} mode={'admin'}/>;
@@ -41,7 +41,7 @@ const SearchCard = () => {
             </motion.div>
 
             <div className=' w-full md:w-[80%] max-w-[80rem] h-full flex flex-col items-center justify- center overflow-y-auto mt-10'>
-                {renderInsertionForm()}
+                {searchResult()}
             </div>
         </div>
     )

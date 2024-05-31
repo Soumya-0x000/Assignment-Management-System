@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../../../../CreateClient";
+import { supabase } from "../../CreateClient";
 import toast from "react-hot-toast";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@nextui-org/react";
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { useSelector } from "react-redux";
 
-const ClassManagement = ({
+const DeptSemClassManagement = ({
     commonAttributes, 
     setCommonAttributes, 
     isResetting,
@@ -245,4 +245,4 @@ const ClassManagement = ({
     );
 };
 
-export default ClassManagement;
+export default DeptSemClassManagement;
