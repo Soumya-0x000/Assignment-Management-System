@@ -4,7 +4,7 @@ const initialState = {
     session: {},
     teacherIsAuthenticated: true,
     selectedTeacherId: '',
-    deptSemClasses: [],
+    deptSemClasses: {},
     teacherData: [],
     assignmentToRender: []
 };

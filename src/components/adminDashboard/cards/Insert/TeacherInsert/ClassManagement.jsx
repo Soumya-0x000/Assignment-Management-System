@@ -14,6 +14,8 @@ const ClassManagement = ({
     setSaveInstance,
     setMCAData,
     setMScData,
+    MScData,
+    MCAData,
 }) => {
     const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
     const [sem1SelectedKeys, setSem1SelectedKeys] = useState(new Set());
@@ -28,6 +30,13 @@ const ClassManagement = ({
         sem4: [] 
     });
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+
+    console.log(deptSelectedKeys,
+        sem1SelectedKeys,
+        sem2SelectedKeys,
+        sem3SelectedKeys,
+        sem4SelectedKeys,
+        subjectsData)
 
     useEffect(() => {
         (async () => {
@@ -59,6 +68,20 @@ const ClassManagement = ({
                 });
             }
         })();
+    }, []);
+
+    useEffect(() => {
+        if (MCAData?.length > 0) {
+            console.log(MCAData?.length, MScData)
+            const separatedVal = MCAData.map(val => Object.entries(val).map(([key, innerVal]) => innerVal))
+            console.log(separatedVal)
+
+            console.log(teacherAssignClassDetails.sem.find(val => 'MCA'))
+        } else if (MScData?.length > 0) {
+            console.log(MScData?.length, MScData)
+            const separatedVal = MScData.map(val => Object.entries(val).map(([key, innerVal]) => innerVal))
+            console.log(separatedVal)
+        }
     }, []);
 
     useEffect(() => {
@@ -208,6 +231,7 @@ const ClassManagement = ({
                                 className={`border-2 rounded-xl px-4 focus:border-b-2 transition-colors focus:outline-none bg-slate-950 w-full h-[3.8rem] font-onest text-green-500 ${commonAttributes[dropdown.stateKey] ? 'border-green-500' : ''} focus:border-green-500 flex items-center justify-between text-md`}
                                 variant="bordered"
                                 onClick={() => handleCheckDeptValue(dropdown)}>
+                                {console.log(Array.from(dropdown.selectedKeys))}
                                 {dropdown.selectedKeys.size > 0
                                     ? Array.from(dropdown.selectedKeys).map((key) => dropdown.items[key]).join(', ')
                                     : dropdown.label}
