@@ -292,12 +292,13 @@ const TeacherHomePage = () => {
 
                     <ModalBody>
                         {assignmentSubject.length > 1 && ( <>
-                            <span className=' mt-4 font-mavenPro'>Subjects</span>
+                            <span className=' font-mavenPro'>Subjects</span>
+
                             <RadioGroup 
                             className=' text-gray-300'
                             value={selectedSubject} 
                             onValueChange={setSelectedSubject}>
-                                <div className=' flex flex-wrap gap-3 items-center'>
+                                <div className=' flex flex-wrap gap-2 items-center'>
                                     {assignmentSubject.map((subject, index) => (
                                         <CustomRadio key={index} value={subject}>
                                             {subject}
@@ -339,7 +340,7 @@ export const CustomRadio = (props) => {
         classNames={{
             base: cn(
                 "inline-flex m-0 bg-slate-900 hover:bg-gray-950 items-center justify-between",
-                "flex-row-reverse w-fit cursor-pointer rounded-lg gap-4 p-1 pr-2 border-2 border-transparent",
+                "flex-row-reverse w-fit cursor-pointer rounded-lg gap-4 pl-1 py-1.5 pr-2 border-2 border-transparent",
                 "data-[selected=true]:border-primary"
             ),
         }}>

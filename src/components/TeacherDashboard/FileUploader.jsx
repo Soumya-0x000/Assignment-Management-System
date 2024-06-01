@@ -1,72 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import Uppy from '@uppy/core';
-import { Dashboard } from '@uppy/react';
-import GoogleDrive from '@uppy/google-drive';
-import ImageEditor from '@uppy/image-editor';
-import Tus from '@uppy/tus';
-import ProgressBar from '@uppy/progress-bar';
-import '@uppy/core/dist/style.css';
-import '@uppy/dashboard/dist/style.css';
-import '@uppy/drag-drop/dist/style.css';
-import '@uppy/file-input/dist/style.css';
-import '@uppy/progress-bar/dist/style.css';
-import '@uppy/status-bar/dist/style.css';
-import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
+import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 
-const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
+const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     const { deptSemClasses } = useSelector(state => state.teacherAuth);
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const [filePath, setFilePath] = useState('');
     const [subExistingArray, setSubExistingArray] = useState([]);
     const [fileNameStarter, setFileNameStarter] = useState('');
-
-    const uppy = new Uppy({
-        restrictions: {
-            maxNumberOfFiles: 5,
-            maxFileSize: 5 * 1024 * 1024,
-            allowedFileTypes: ['.pdf', '.docx', '.jpg', '.jpeg', '.png']
-        },
-        autoProceed: false
-    })
-    .use(GoogleDrive, {
-        companionUrl: 'https://companion.uppy.io',
-        id: 'GoogleDrive'
-    })
-    .use(ImageEditor, { id: 'ImageEditor' })
-    .use(Tus, { endpoint: 'https://tusd.tusdemo.net/files/', id: 'Tus' })
-    .use(ProgressBar, { id: 'ProgressBar', hideAfterFinish: true });
 
     useEffect(() => {
         const semName = currentValue.sem.split(' ').join('');
         const pathName = `${currentValue.dept}/${semName}/`;
         setFilePath(pathName);
 
-        const subArr = deptSemClasses[currentValue.dept][semName]
-        setSubExistingArray(subArr)
+        const subArr = deptSemClasses[currentValue.dept][semName];
+        setSubExistingArray(subArr);
 
         const subName = subExistingArray.find(val => (val.name === currentValue.subject))?.fName;
         const newFileName = `${currentValue.dept}_${semName}_${subName}`;
-        setFileNameStarter(newFileName)
-    }, [currentValue]);
-    
-    const handleRenameUpload = async () => {
-        const files = uppy.getFiles();
-        
-        for (const [index, file] of files.entries()) {
+        setFileNameStarter(newFileName);
+    }, [currentValue, subExistingArray, deptSemClasses]);
+
+    const handleFileChange = (event) => {
+        setSelectedFiles([...selectedFiles, ...Array.from(event.target.files)]);
+    };
+
+    const handleUpload = async () => {
+        if (selectedFiles.length === 0) {
+            toast.error('No files selected', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+
+        for (const [index, file] of Array.from(selectedFiles).entries()) {
             const newFileName = `${fileNameStarter}_${index}_${file.name}`;
-            const fileBlob = file.data;
             const fullPath = `${filePath}${newFileName}`;
-    
+
             try {
                 const { data, error } = await supabase
                     .storage
                     .from('assignments')
-                    .upload(fullPath, fileBlob, {
+                    .upload(fullPath, file, {
                         cacheControl: '3600',
                         upsert: false
                     });
-    
+
                 if (error) {
                     console.error(`Error uploading file ${newFileName}:`, error);
                     if (error.error === 'Duplicate') {
@@ -76,9 +61,9 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                                 background: '#333',
                                 color: '#fff',
                             }
-                        })
+                        });
                     }
-                    return
+                    return;
                 } else {
                     toast.success('Successfully uploaded', {
                         style: {
@@ -86,8 +71,8 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             background: '#333',
                             color: '#fff',
                         }
-                    })
-    
+                    });
+
                     const columnName = `${currentValue.dept}assignments`;
                     const newAssignment = {
                         sem: currentValue.sem,
@@ -103,20 +88,18 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         .select(columnName)
                         .eq('uniqId', teacherId)
                         .single();
-    
+
                     if (teacherError) {
                         console.error('Error fetching teacher data:', teacherError.message);
                         toast.error('An error occurred while fetching teacher data');
                         return;
                     }
-    
-                    setAssignments(prev => [
-                        ...prev, [newAssignment]
-                    ])
+
+                    setAssignments(prev => [ ...prev, [newAssignment] ]);
 
                     let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
                     updatedAssignments.push([newAssignment]);
-    
+
                     // Update teacher data with new assignments
                     const { data: updateData, error: updateError } = await supabase
                         .from('teachers')
@@ -124,7 +107,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             [columnName]: updatedAssignments
                         })
                         .eq('uniqId', teacherId);
-    
+
                     if (updateError) {
                         console.error('Error updating teacher data:', updateError.message);
                         toast.error('An error occurred while updating teacher data', {
@@ -147,51 +130,39 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         background: '#333',
                         color: '#fff',
                     }
-                })
+                });
             }
         }
     };
 
-    const handleRenameUploadToast = () => {
-        const files = uppy.getFiles();
-        if (files.length === 0) {
-            toast.error('No files selected', {
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            })
-        } else {    
-            toast.promise(handleRenameUpload(), {
-                loading: 'Uploading files...',
-                success: 'Files uploaded successfully',
-                error: 'Failed to upload files'
-            }, {style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            })
-        }
-    };
-
     return (
-        <div className='mt-6'>
-            <Dashboard
-                uppy={uppy}
-                plugins={['GoogleDrive', 'ProgressBar', 'StatusBar']}
-                theme='dark'
-                hideProgressAfterFinish={true}
-            />
+        <div className='mt-4 rounded-lg h-full relative'>
+            <div className=" h-full bg-slate-800 px-2 rounded-lg overflow-y-auto">
+                <input type="file" multiple onChange={handleFileChange} />
+                {selectedFiles.length > 0 && (
+                    <ul>
+                        {selectedFiles.map((file, index) => (
+                            <li key={index} className="flex justify-between items-center bg-gray-900 p-2 my-2 rounded ">
+                                <span className=' line-clamp-1'>{file.name}</span>
+                                <button 
+                                    className="bg-red-500 text-white px-2 py-1 rounded" 
+                                    onClick={() => handleRemoveFile(index)}
+                                >
+                                    Remove
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
 
             <button 
-                className='bg-violet-600 rounded-xl px-3 py-2.5 mt-5 absolute -bottom-'
-                onClick={handleRenameUploadToast}>
+                className='bg-violet-600 rounded-xl px-3 py-2.5 absolute -bottom-[65px]'
+                onClick={handleUpload}>
                 Upload Files
             </button>
         </div>
     );
-}
+};
 
-export default FileUploader;
+export default ClassicFileUploader;
