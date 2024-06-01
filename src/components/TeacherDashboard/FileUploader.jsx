@@ -177,16 +177,16 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     };
 
     return (
-        <div>
+        <div className='mt-6'>
             <Dashboard
                 uppy={uppy}
-                plugins={['GoogleDrive', 'ImageEditor', 'ProgressBar', 'StatusBar']}
+                plugins={['GoogleDrive', 'ProgressBar', 'StatusBar']}
                 theme='dark'
                 hideProgressAfterFinish={true}
             />
 
             <button 
-                className='bg-violet-600 rounded-xl px-3 py-2 absolute bottom-4'
+                className='bg-violet-600 rounded-xl px-3 py-2.5 mt-5 absolute -bottom-'
                 onClick={handleRenameUploadToast}>
                 Upload Files
             </button>

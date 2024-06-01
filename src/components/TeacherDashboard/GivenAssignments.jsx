@@ -27,7 +27,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         value: searchModeArr[0].key
     });
     const { assignmentToRender } = useSelector(state => state.teacherAuth)
-    console.log(assignmentToRender)
+    // console.log(assignmentToRender)
 
     useEffect(() => {
         if (searchedItem.length > 0) {

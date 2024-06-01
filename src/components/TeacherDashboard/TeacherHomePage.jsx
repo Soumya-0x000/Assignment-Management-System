@@ -206,7 +206,7 @@ const TeacherHomePage = () => {
     }, [selectedSubject])
 
     return (
-        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
+        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 px-1.5 xmd:px-3 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
                 <NavigationActions
@@ -224,32 +224,39 @@ const TeacherHomePage = () => {
             </div>
 
             {/* department */}
-            <div className=' w-full flex flex-col md:flex-row items-center justify-between gap-x-4 gap-y-3'>
+            <div className='w-full flex flex-col md:flex-row items-center justify-between gap-x-4 gap-y-3'>
                 {department.map((dept, i) => (
-                    <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'
+                    <div className='bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full md:w-1/2 h-full'
                     key={dept + i}>
-                        <div className=' text-xl border-b-2 pb-1 font-onest'>
+                        <div className='text-xl border-b-2 pb-1 font-onest'>
                             {dept}
                         </div>
 
-                        {Object.entries(teacherData?.[dept]).length !== 0 ? (
-                            <div className=' cursor-pointer grid grid-cols-2  gap-x-4 gap-y-2 mt-3'>
-                                {teacherData?.[dept].map((val, index) => (
-                                    <React.Fragment key={index}>
-                                        {Object.entries(val).map(([key, val], indx) => ( <>
-                                            {val !== '' && (
-                                                <div className=' bg-slate-800 rounded-lg px-3 py-2' key={indx}
+                        {teacherData?.[dept] && Object.entries(teacherData[dept]).length !== 0 ? (
+                            <div className='cursor-pointer grid grid-cols-2 gap-x-4 gap-y-2 mt-3'>
+                                {teacherData[dept].map((val, index) => (
+                                    <React.Fragment key={`${dept}-${index}`}>
+                                        {Object.entries(val).map(([key, val], indx) => (
+                                            val !== '' && (
+                                                <div className='bg-slate-800 rounded-lg px-3 py-2'
+                                                key={`${dept}-${index}-${key}-${indx}`}
                                                 onClick={(e) => handleUploadingModal(e, key, val, dept)}>
-                                                    <span className=' font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{key}: </span> 
-                                                    <span className=' font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>{val}</span>
+                                                    <span className='font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>
+                                                        {key}:
+                                                    </span>
+                                                    <span className='font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>
+                                                        {val}
+                                                    </span>
                                                 </div>
-                                            )} 
-                                        </>))}
+                                            )
+                                        ))}
                                     </React.Fragment>
                                 ))}
                             </div>
-                        ) : (    
-                            <div className=' font-bold font-robotoMono tracking-wider bg-slate-800 w-full mt-3 py-2 px-3 rounded-lg text-gray-300'>No classes for {dept}</div> 
+                        ) : (
+                            <div className='font-bold font-robotoMono tracking-wider bg-slate-800 w-full mt-3 py-2 px-3 rounded-lg text-gray-300'>
+                                No classes for {dept}
+                            </div>
                         )}
                     </div>
                 ))}
@@ -276,7 +283,7 @@ const TeacherHomePage = () => {
             {/* Upload assignments modal */}
             <Modal 
             backdrop={'blur'} 
-            className=' bg-slate-700 text-slate-200 relative' 
+            className=' bg-slate-700 text-slate-200 relative overflow-y-auto h-[35rem]' 
             isOpen={isOpen} 
             onClose={onClose}>
                 <ModalContent>
@@ -284,14 +291,6 @@ const TeacherHomePage = () => {
                     <ModalHeader className="flex flex-col gap-1 font-robotoMono">Upload Assignments</ModalHeader>
 
                     <ModalBody>
-                        <FileUploader 
-                            currentValue={currentSemSub} 
-                            teacherId={teacherId}
-                            onClose={onClose}
-                            setAssignments={setAssignments}
-                            assignments={assignments}
-                        />
-
                         {assignmentSubject.length > 1 && ( <>
                             <span className=' mt-4 font-mavenPro'>Subjects</span>
                             <RadioGroup 
@@ -306,7 +305,15 @@ const TeacherHomePage = () => {
                                     ))}
                                 </div>
                             </RadioGroup>
-                        </>)} 
+                        </>)}
+
+                        <FileUploader 
+                            currentValue={currentSemSub} 
+                            teacherId={teacherId}
+                            onClose={onClose}
+                            setAssignments={setAssignments}
+                            assignments={assignments}
+                        />
                     </ModalBody>
 
                     <ModalFooter>
@@ -332,11 +339,11 @@ export const CustomRadio = (props) => {
         classNames={{
             base: cn(
                 "inline-flex m-0 bg-slate-900 hover:bg-gray-950 items-center justify-between",
-                "flex-row-reverse w-fit cursor-pointer rounded-lg gap-4 p-2 border-2 border-transparent",
+                "flex-row-reverse w-fit cursor-pointer rounded-lg gap-4 p-1 pr-2 border-2 border-transparent",
                 "data-[selected=true]:border-primary"
             ),
         }}>
-            <span className=' text-blue-200 font-montserrat'>
+            <span className=' text-blue-200 font-montserrat text-[14px]'>
                 {children}
             </span>
         </Radio>
