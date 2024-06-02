@@ -2,13 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
+import { FilePond, registerPlugin } from 'react-filepond';
+import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+
+registerPlugin(
+    FilePondPluginImagePreview,
+    FilePondPluginImageExifOrientation,
+    FilePondPluginFileValidateSize,
+    FilePondPluginFileEncode
+);
+
 
 const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     const { deptSemClasses } = useSelector(state => state.teacherAuth);
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [filePath, setFilePath] = useState('');
     const [subExistingArray, setSubExistingArray] = useState([]);
+    const [filePath, setFilePath] = useState('');
     const [fileNameStarter, setFileNameStarter] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     useEffect(() => {
         const semName = currentValue.sem.split(' ').join('');
@@ -23,10 +38,6 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
         setFileNameStarter(newFileName);
     }, [currentValue, subExistingArray, deptSemClasses]);
 
-    const handleFileChange = (event) => {
-        setSelectedFiles([...selectedFiles, ...Array.from(event.target.files)]);
-    };
-
     const handleUpload = async () => {
         if (selectedFiles.length === 0) {
             toast.error('No files selected', {
@@ -40,9 +51,9 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
         }
 
         for (const [index, file] of Array.from(selectedFiles).entries()) {
-            const newFileName = `${fileNameStarter}_${index}_${file.name}`;
+            const newFileName = `${fileNameStarter}_${index}_${file.filename}`;
             const fullPath = `${filePath}${newFileName}`;
-
+            
             try {
                 const { data, error } = await supabase
                     .storage
@@ -79,7 +90,7 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
                         department: currentValue.dept,
                         subject: currentValue.subject,
                         name: newFileName,
-                        orgName: file.name
+                        orgName: file.filename
                     };
 
                     // Fetch existing assignments
@@ -137,23 +148,20 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
 
     return (
         <div className='mt-4 rounded-lg h-full relative'>
-            <div className=" h-full bg-slate-800 px-2 rounded-lg overflow-y-auto">
-                <input type="file" multiple onChange={handleFileChange} />
-                {selectedFiles.length > 0 && (
-                    <ul>
-                        {selectedFiles.map((file, index) => (
-                            <li key={index} className="flex justify-between items-center bg-gray-900 p-2 my-2 rounded ">
-                                <span className=' line-clamp-1'>{file.name}</span>
-                                <button 
-                                    className="bg-red-500 text-white px-2 py-1 rounded" 
-                                    onClick={() => handleRemoveFile(index)}
-                                >
-                                    Remove
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+            <div className=" h-full bg-slate-800 px-2 rounded-lg overflow-y-auto pt-2">
+                <FilePond 
+                    files={selectedFiles}
+                    allowMultiple={true}
+                    maxFiles={5}
+                    allowReorder={true}
+                    allowFileTypeValidation={true}
+                    maxFileSize='5MB'
+                    allowImageCrop={true}
+                    imageCropAspectRatio='1:1'
+                    onupdatefiles={setSelectedFiles}
+                    name="filepond"
+                    labelIdle=' <span class="filepond--label-action no-underline font-robotoMono text-violet-300 font-bold">Drag & Drop your files or Browse</span>'
+                />
             </div>
 
             <button 

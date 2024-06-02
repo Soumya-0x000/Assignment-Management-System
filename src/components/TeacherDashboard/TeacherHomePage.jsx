@@ -233,7 +233,7 @@ const TeacherHomePage = () => {
                         </div>
 
                         {teacherData?.[dept] && Object.entries(teacherData[dept]).length !== 0 ? (
-                            <div className='cursor-pointer grid grid-cols-2 gap-x-4 gap-y-2 mt-3'>
+                            <div className='cursor-pointer grid grid-cols-2 gap-3 mt-3'>
                                 {teacherData[dept].map((val, index) => (
                                     <React.Fragment key={`${dept}-${index}`}>
                                         {Object.entries(val).map(([key, val], indx) => (
@@ -244,7 +244,7 @@ const TeacherHomePage = () => {
                                                     <span className='font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>
                                                         {key}:
                                                     </span>
-                                                    <span className='font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>
+                                                    <span className='font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem] inline-flex'>
                                                         {val}
                                                     </span>
                                                 </div>

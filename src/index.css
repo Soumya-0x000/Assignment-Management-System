@@ -27,7 +27,16 @@ input[type="date"]::-webkit-calendar-picker-indicator{
     right:  11px;
     opacity: 0;
 }
+ 
 
-.uppy-StatusBar-actionBtn--upload {
+.filepond--panel-root {
+	background-color: #080f17;
+}
+
+.filepond--item-panel {
+	background-color: #035648;
+}
+
+.filepond--credits {
     display: none;
 }
