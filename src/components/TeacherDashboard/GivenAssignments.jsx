@@ -3,39 +3,40 @@ import toast from 'react-hot-toast';
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, ModalFooter, ModalHeader, Tooltip, useDisclosure } from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../common/Animation';
 import { useSelector } from 'react-redux';
 
-const searchModeArr = [
-    {key: 'orgName', name: 'Name'},
-    {key: 'sem', name: 'Semester'},
-    {key: 'department', name: 'Department'},
-    {key: 'subject', name: 'Subject'}
-];
-
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
+    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    const { assignmentToRender } = useSelector(state => state.teacherAuth);
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
-    const [populatingKey, setPopulatingKey] = useState([...assignments])
+    const [populatingKey, setPopulatingKey] = useState([...assignmentToRender]);
     const [searchKeyword, setSearchKeyword] = useState('');
-    const [searchedItem, setSearchedItem] = useState([]);
-    const [searchMode, setSearchMode] = useState({
-        name: searchModeArr[0].name,
-        value: searchModeArr[0].key
-    });
-    const { assignmentToRender } = useSelector(state => state.teacherAuth)
-    // console.log(assignmentToRender)
+    const searchModeArr = [
+        { 'Department': teacherAssignClassDetails.dept },
+        { 'Semester': teacherAssignClassDetails.sem }, 
+        { 'Search by': ['Name', 'Subject'] }
+    ];
+    const initialSearchMode = {
+        'Department': '',
+        'Semester': '',
+        'Search by': 'Name',
+    };
+    const [searchMode, setSearchMode] = useState(initialSearchMode);
+    const [searchCategoryName, setSearchCategoryName] = useState('orgName');
+    const [searchingEnabled, setSearchingEnabled] = useState(false);
 
     useEffect(() => {
-        if (searchedItem.length > 0) {
-            setPopulatingKey(searchedItem)
-        } else {
-            setPopulatingKey([...assignments])
-        }
-    }, [searchedItem, assignments]);
+        setPopulatingKey([...assignmentToRender])
+    }, [assignmentToRender]);
+
+    useEffect(() => {
+        searchKeyword.length === 0 && setPopulatingKey([...assignmentToRender])
+    }, [searchKeyword])
 
     const handleFileDelete = async(item) => {
         try {
@@ -193,9 +194,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         e.preventDefault();
 
         if (searchKeyword) {
-            const filteredAssignments = assignments.filter(val => val[0][searchMode.value].toLowerCase().includes(searchKeyword.toLowerCase()))
-            setSearchedItem(filteredAssignments)
-
+            const filteredAssignments = populatingKey.filter(val => val[0][searchCategoryName].toLowerCase().includes(searchKeyword.toLowerCase()))
             if (filteredAssignments.length === 0) {
                 toast.error(`No search result found for ${searchKeyword}`, {
                     style: {
@@ -205,113 +204,179 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     }
                 })
             }
+            
+            setPopulatingKey(filteredAssignments)
         }
     };
+
+    useEffect(() => {
+        if (searchingEnabled) {
+            let sortedAssignments = [];
+            
+            if (searchMode.Department !== '') {
+                const sortOnDept = teacherAssignClassDetails.dept[searchMode.Department]
+                const sortedDeptAssignments = assignmentToRender.filter(val => val[0].department === sortOnDept)
+                sortedAssignments.push(...sortedDeptAssignments)
+                setPopulatingKey(sortedDeptAssignments)
+            }
+
+            if (searchMode.Semester !== '') {
+                const sortOnSem = teacherAssignClassDetails.sem[searchMode.Semester].split(' ').join('');
+                const sortedSemAssignments = sortedAssignments.filter(val => val[0].sem === sortOnSem)
+                sortedAssignments.pop()
+                sortedAssignments.push(...sortedSemAssignments)
+                setPopulatingKey(sortedSemAssignments)
+            }
+
+            if (searchMode['Search by'] !== '') {
+                const sortOnSub = Object.values(searchModeArr.filter(val => Object.keys(val)[0] === 'Search by')[0])[0]
+                const categoryName = sortOnSub[searchMode['Search by']];
+                categoryName === 'Name' ? setSearchCategoryName('orgName') : setSearchCategoryName('subject')
+            }
+
+            setSearchKeyword('')
+        }
+    }, [searchMode])
 
     const handelCancelSearch = (e) => {
         e.preventDefault();
 
         setSearchKeyword('');
-        setSearchedItem([]);
-        setSearchMode({
-            name: searchModeArr[0].name,
-            value: searchModeArr[0].key
-        })
+        setSearchingEnabled(false);
+        setPopulatingKey([...assignmentToRender])
+        setSearchMode(initialSearchMode)
     };
 
-    const handleSelectionChange = (e) => {
-        const changedName = searchModeArr.find(val => val.key === e.currentKey)
-        setSearchMode(prev => ({
-            name: changedName.name, value: changedName.key
-        }))
+    const handleSelectionChange = (e, indx) => {
+        const currentKey = Object.keys(searchModeArr[indx])[0];
+        const changedName = Array.from(e)[0];
+        
+        (searchMode.Department === '' && searchMode.Semester !== '') && toast('Select a department first', {
+            icon: '⚠️',
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
+
+        setSearchMode(prev => {
+            const updatedSearchMode = {
+                ...prev,
+                [currentKey]: changedName
+            };
+            return updatedSearchMode;
+        });
     };
 
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
-            <div className='  border-b-2 pb-2 flex flex-col md:flex-row md:items-center justify-between gap-4'>
-                <div className='text-[1rem] lg:text-xl font-onest'>
-                    Given Assignments ({assignments.length})
-                </div>
-
-                <div className=' flex gap-x-2  h-[2.7rem]'>
-                    {/* input */}
-                    <div className=' relative rounded-lg overflow-hidden w-full'>
-                        <input 
-                            type="text" 
-                            placeholder="Search"
-                            className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider h-full pl-3 pr-9 md:pr-11 text-[14px] w-full md:w-[23rem] lg:w-[30rem] xl:w-[35rem] outline-none border-none'
-                            onChange={(e) => setSearchKeyword(e.target.value)}
-                            value={searchKeyword}
-                            onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
-                        />
-
-                        <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1 lg:px-2'
-                        onClick={(e) => handelCancelSearch(e)}>
-                            <RxCross2 className=' text-gray-300 text-xl' />
-                        </button>
+            <div className=' border-b-2 pb-2'>
+                <div className=' flex flex-col sm:flex-row items-center justify-between gap-4'>
+                    <div className='md:text-[1rem] lg:text-xl font-onest w-full flex items-center'>
+                        Given Assignments ({populatingKey.length})
                     </div>
 
                     {/* category */}
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button 
-                            variant="bordered" 
-                            className={` rounded-lg px-4 transition-colors outline-none border-none bg-slate-950 w-[6.8rem] md:w-[7.6rem] h-full font-onest text-green-500 flex items-center justify-between text-sm md:text-md`}>
-                                {searchMode.name}
-                            </Button>
-                        </DropdownTrigger>
+                    <div className='w-full flex items-center justify-between sm:justify-end gap-3 md:gap-4 h-[3rem]'>
+                        {searchModeArr.map((items, index) => {
+                            const key = Object.keys(items)[0];
+                            return (
+                                <Dropdown key={index}>
+                                    <DropdownTrigger>
+                                        <Button className={`rounded-lg pl-4 transition-colors outline-none border-none bg-slate-950 w-full sm:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
+                                        variant="bordered"
+                                        onClick={() => setSearchingEnabled(true)}>
+                                            {searchModeArr[index][key][searchMode[key]]  === undefined
+                                                ? key
+                                                : searchModeArr[index][key][searchMode[key]]
+                                            }
+                                        </Button>
+                                    </DropdownTrigger>
 
-                        <DropdownMenu 
-                        closeOnSelect={false}
-                        disallowEmptySelection
-                        className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
-                        selectionMode="single"
-                        selectedKeys={searchMode.key}
-                        onSelectionChange={(e) => handleSelectionChange(e)}>
-                            {searchModeArr?.map((item, indx) => (
-                                <DropdownItem key={item.key}>
-                                    {item.name}
-                                </DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
+                                    <DropdownMenu 
+                                    closeOnSelect={false}
+                                    aria-label="Static Actions"
+                                    disallowEmptySelection
+                                    className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
+                                    selectionMode="single"
+                                    selectedKeys={new Set([searchMode[key]])}
+                                    onSelectionChange={(e) => handleSelectionChange(e, index)}>
+                                        {items[key].map((innerItem, indx) => (
+                                            <DropdownItem key={indx}>
+                                                {innerItem}
+                                            </DropdownItem>
+                                        ))}
+                                    </DropdownMenu>
+                                </Dropdown>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* input */}
+                <div className=' relative rounded-lg overflow-hidden mt-2 max-w-[50rem]'>
+                    <input 
+                        type="text" 
+                        placeholder="Search"
+                        className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        value={searchKeyword}
+                        onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                    />
+
+                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
+                    onClick={(e) => handelCancelSearch(e)}>
+                        <RxCross2 className=' text-gray-300 text-xl' />
+                    </button>
                 </div>
             </div>
 
-            {assignments.length ? (
+            {assignmentToRender.length ? (
                 <motion.div className='mt-4 flex flex-wrap items-center gap-3'
                 variants={staggerVariants}
                 initial="initial"
                 animate="animate">
-                    {populatingKey?.map((assignment, indx) => (
-                        <motion.div 
-                        variants={childVariants}
-                        className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group  w-full sm:w-fit' 
-                        key={indx}>
-                            <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2'>
-                                {assignment[0].orgName}
-                            </div>
+                    {populatingKey.length > 0 ? (<>
+                        {populatingKey?.map((assignment, indx) => (
+                            <motion.div 
+                            variants={childVariants}
+                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden' 
+                            key={indx}>
+                                <Tooltip color='secondary'
+                                content={assignment[0].orgName}
+                                className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
+                                placement='top'>
+                                    <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit'>
+                                        {assignment[0].orgName}
+                                    </div>
+                                </Tooltip>
 
-                            <div className='text-gray-300 font-onest tracking-wider flex gap-x-1.5 xl:gap-x-2.5'>
-                                <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
-                                <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
-                                <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
-                            </div>
+                                <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5'>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
+                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
+                                </div>
 
-                            <div className=' flex items-center justify-between mt-3'>
-                                <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all'
-                                onClick={() => handleDeleteModal(assignment[0])}>
-                                    <FaRegTrashAlt />
-                                    Remove
-                                </button>
+                                <div className=' flex items-center justify-between mt-3'>
+                                    <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all'
+                                    onClick={() => handleDeleteModal(assignment[0])}>
+                                        <FaRegTrashAlt />
+                                        Remove
+                                    </button>
 
-                                <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all'
-                                onClick={() => handleDownloadToast(assignment[0])}>
-                                    <FaDownload/>
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
+                                    <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all'
+                                    onClick={() => handleDownloadToast(assignment[0])}>
+                                        <FaDownload/>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </>) : (
+                        <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg w-full'>
+                            No assignment found
+                        </div>
+                    )}
                 </motion.div>
             ) : (
                 <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>

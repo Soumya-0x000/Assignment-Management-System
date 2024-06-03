@@ -242,7 +242,7 @@ const TeacherHomePage = () => {
                                                 key={`${dept}-${index}-${key}-${indx}`}
                                                 onClick={(e) => handleUploadingModal(e, key, val, dept)}>
                                                     <span className='font-bold font-robotoMono tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem]'>
-                                                        {key}:
+                                                        {key}: 
                                                     </span>
                                                     <span className='font-bold font-mavenPro tracking-wider text-gray-300 text-sm lg:text-md xl:text-[1rem] inline-flex'>
                                                         {val}

@@ -6,7 +6,7 @@ const SlidingTabs = ({
     setSelected,
 }) => {
     return (
-        <div className=" py-2 sm:py-3 bg-slate-900 rounded-md flex items-center justify-between px-2 sm:justify-evenly flex-wrap gap-2">
+        <div className=" py-1 xsm:py-2 sm:py-3 bg-slate-900 rounded-md flex items-center justify-between px-1 xsm:px-2 sm:justify-evenly flex-wrap gap-2">
             {tabs.map((tab, indx) => (
                 <Chip
                     text={tab}

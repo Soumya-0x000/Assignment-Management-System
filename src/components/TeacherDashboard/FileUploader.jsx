@@ -158,9 +158,9 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
                     maxFileSize='5MB'
                     allowImageCrop={true}
                     imageCropAspectRatio='1:1'
+                    labelIdle=' <span class="filepond--label-action no-underline font-montserrat text-violet-300">Drag & Drop your files or Browse</span>'
                     onupdatefiles={setSelectedFiles}
                     name="filepond"
-                    labelIdle=' <span class="filepond--label-action no-underline font-robotoMono text-violet-300 font-bold">Drag & Drop your files or Browse</span>'
                 />
             </div>
 
