@@ -11,10 +11,9 @@ import { useSelector } from 'react-redux';
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
-    const { assignmentToRender } = useSelector(state => state.teacherAuth);
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
-    const [populatingKey, setPopulatingKey] = useState([...assignmentToRender]);
+    const [populatingKey, setPopulatingKey] = useState([...assignments]);
     const [searchKeyword, setSearchKeyword] = useState('');
     const searchModeArr = [
         { 'Department': teacherAssignClassDetails.dept },
@@ -31,11 +30,14 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [searchingEnabled, setSearchingEnabled] = useState(false);
 
     useEffect(() => {
-        setPopulatingKey([...assignmentToRender])
-    }, [assignmentToRender]);
+        setPopulatingKey([...assignments])
+    }, [assignments]);
 
     useEffect(() => {
-        searchKeyword.length === 0 && setPopulatingKey([...assignmentToRender])
+        if(searchMode.Department === '' 
+            && searchMode.Semester === '' 
+            && searchKeyword.length === 0
+        )setPopulatingKey([...assignments])
     }, [searchKeyword])
 
     const handleFileDelete = async(item) => {
@@ -215,9 +217,10 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             
             if (searchMode.Department !== '') {
                 const sortOnDept = teacherAssignClassDetails.dept[searchMode.Department]
-                const sortedDeptAssignments = assignmentToRender.filter(val => val[0].department === sortOnDept)
+                const sortedDeptAssignments = assignments.filter(val => val[0].department === sortOnDept)
                 sortedAssignments.push(...sortedDeptAssignments)
                 setPopulatingKey(sortedDeptAssignments)
+                setSearchResult(sortedDeptAssignments)
             }
 
             if (searchMode.Semester !== '') {
@@ -226,6 +229,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 sortedAssignments.pop()
                 sortedAssignments.push(...sortedSemAssignments)
                 setPopulatingKey(sortedSemAssignments)
+                setSearchResult(sortedSemAssignments)
             }
 
             if (searchMode['Search by'] !== '') {
@@ -243,22 +247,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
         setSearchKeyword('');
         setSearchingEnabled(false);
-        setPopulatingKey([...assignmentToRender])
+        setPopulatingKey([...assignments])
         setSearchMode(initialSearchMode)
     };
 
     const handleSelectionChange = (e, indx) => {
         const currentKey = Object.keys(searchModeArr[indx])[0];
         const changedName = Array.from(e)[0];
-        
-        (searchMode.Department === '' && searchMode.Semester !== '') && toast('Select a department first', {
-            icon: '⚠️',
-            style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            }
-        })
 
         setSearchMode(prev => {
             const updatedSearchMode = {
@@ -332,7 +327,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 </div>
             </div>
 
-            {assignmentToRender.length ? (
+            {assignments.length ? (
                 <motion.div className='mt-4 flex flex-wrap items-center gap-3'
                 variants={staggerVariants}
                 initial="initial"

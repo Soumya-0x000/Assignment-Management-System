@@ -9,6 +9,9 @@ import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import { DatePicker } from '@nextui-org/react';
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { useDateFormatter } from "@react-aria/i18n";
 
 registerPlugin(
     FilePondPluginImagePreview,
@@ -17,14 +20,17 @@ registerPlugin(
     FilePondPluginFileEncode
 );
 
-
-const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
+const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     const { deptSemClasses } = useSelector(state => state.teacherAuth);
     const [subExistingArray, setSubExistingArray] = useState([]);
     const [filePath, setFilePath] = useState('');
     const [fileNameStarter, setFileNameStarter] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [deadline, setDeadline] = useState('');
+    console.log(Object.entries(deadline))
 
+    let formatter = useDateFormatter({dateStyle: "full"});
+    
     useEffect(() => {
         const semName = currentValue.sem.split(' ').join('');
         const pathName = `${currentValue.dept}/${semName}/`;
@@ -50,10 +56,22 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
             return;
         }
 
+        if (!deadline) {
+            toast('Please select a deadline', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+
         for (const [index, file] of Array.from(selectedFiles).entries()) {
             const newFileName = `${fileNameStarter}_${index}_${file.filename}`;
             const fullPath = `${filePath}${newFileName}`;
-            
+
             try {
                 const { data, error } = await supabase
                     .storage
@@ -90,7 +108,8 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
                         department: currentValue.dept,
                         subject: currentValue.subject,
                         name: newFileName,
-                        orgName: file.filename
+                        orgName: file.filename,
+                        submitDeadline: deadline
                     };
 
                     // Fetch existing assignments
@@ -106,7 +125,7 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
                         return;
                     }
 
-                    setAssignments(prev => [ ...prev, [newAssignment] ]);
+                    setAssignments(prev => [...prev, [newAssignment]]);
 
                     let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
                     updatedAssignments.push([newAssignment]);
@@ -146,10 +165,23 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
         }
     };
 
+    const handleUploadToast = () => {
+        toast.promise(handleUpload(), {
+            loading: 'Uploading...',
+            success: 'File uploaded successfully',
+            error: 'Error in uploading file'
+        },{style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
+    };
+
     return (
         <div className='mt-4 rounded-lg h-full relative'>
-            <div className=" h-full bg-slate-800 px-2 rounded-lg overflow-y-auto pt-2">
-                <FilePond 
+            <div className="h-full bg-slate-800 px-2 rounded-lg overflow-y-auto py-2">
+                <FilePond
                     files={selectedFiles}
                     allowMultiple={true}
                     maxFiles={5}
@@ -162,15 +194,30 @@ const ClassicFileUploader = ({ currentValue, teacherId, onClose, setAssignments 
                     onupdatefiles={setSelectedFiles}
                     name="filepond"
                 />
+
+                <div className="w-full flex flex-col gap-y-2">
+                    <p className="text-white font-robotoMono text-sm">
+                        Deadline: {deadline && formatter.format(deadline.toDate(getLocalTimeZone()))}
+                    </p>
+
+                    <DatePicker 
+                        hideTimeZone
+                        showMonthAndYearPickers
+                        className=" w-full" 
+                        isInvalid
+                        minValue={today(getLocalTimeZone())}
+                        onChange={setDeadline} 
+                    />
+                </div>
             </div>
 
-            <button 
+            <button
                 className='bg-violet-600 rounded-xl px-3 py-2.5 absolute -bottom-[65px]'
-                onClick={handleUpload}>
+                onClick={handleUploadToast}>
                 Upload Files
             </button>
         </div>
     );
 };
 
-export default ClassicFileUploader;
+export default FileUploader;
