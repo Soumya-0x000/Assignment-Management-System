@@ -233,7 +233,7 @@ const HomePage = () => {
                 />
             </div>
 
-            <div className=' mt-8 pb-5'>
+            <div className=' mt-8 w-full pb-5 flex justify-center'>
                 <AllSubjects/>
             </div>
         </div>
