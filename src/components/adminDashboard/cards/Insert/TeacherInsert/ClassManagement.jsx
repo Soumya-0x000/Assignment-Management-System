@@ -22,46 +22,18 @@ const ClassManagement = ({
     const [sem2SelectedKeys, setSem2SelectedKeys] = useState(new Set());
     const [sem3SelectedKeys, setSem3SelectedKeys] = useState(new Set());
     const [sem4SelectedKeys, setSem4SelectedKeys] = useState(new Set());
-    const [subjectsData, setSubjectsData] = useState({});
     const [individualSemSubjects, setIndividualSemSubjects] = useState({ 
         sem1: [], 
         sem2: [], 
         sem3: [], 
         sem4: [] 
     });
-    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
+    const { teacherAssignClassDetails, deptSemSubjects } = useSelector(state => state.adminDashboard);
+    const [subjectsData, setSubjectsData] = useState(deptSemSubjects);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const { data: subjectData, error: subjectError } = await supabase
-                    .from('subjects')
-                    .select('MCA, MSc');
-                
-                if (subjectError) {
-                    toast.error('Error in fetching subjects', {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#333',
-                            color: '#fff',
-                        }
-                    });
-                    console.error('Error in fetching subjects', subjectError);
-                } else {
-                    setSubjectsData(subjectData[0]);
-                }
-            } catch (error) {
-                console.error(error);
-                toast.error('Error in fetching subjects', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                });
-            }
-        })();
-    }, []);
+        setSubjectsData(deptSemSubjects)
+    }, [deptSemSubjects]);
 
     // useEffect(() => {
     //     if (MCAData?.length > 0) {

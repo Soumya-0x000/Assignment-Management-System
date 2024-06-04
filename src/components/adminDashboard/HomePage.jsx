@@ -12,6 +12,7 @@ import { MailIcon } from '../landingPage/icons/MailIcon';
 import { BsPersonLinesFill } from 'react-icons/bs';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 import { NavigationActions } from '../../common/Animation';
+import AllSubjects from './pages/AllSubjects';
 
 const navArr = [
     { name: 'Id', val: 'uniqId' },
@@ -230,6 +231,10 @@ const HomePage = () => {
                     email={adminDetails.emailId}
                     password={adminDetails.password}
                 />
+            </div>
+
+            <div className=' mt-8 pb-5'>
+                <AllSubjects/>
             </div>
         </div>
     );

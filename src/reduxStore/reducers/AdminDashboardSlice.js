@@ -8,7 +8,8 @@ const initialState = {
     teacherAssignClassDetails: {
         dept: ['MCA', 'MSc'],
         sem: ['1st Sem', '2nd Sem', '3rd Sem', '4th Sem'],
-    }
+    },
+    deptSemSubjects: {}
 };
 
 export const AdminDashboardSlice = createSlice({
@@ -26,13 +27,17 @@ export const AdminDashboardSlice = createSlice({
             state.students = action.payload;
             state.dataForCanvas = setDataForCanvas(state)
         },
+        setDeptSemSubjects: function(state, action) {
+            state.deptSemSubjects = action.payload;
+        }
     }
 });
 
 export const {
     setMode,
     setTeachers,
-    setStudents
+    setStudents,
+    setDeptSemSubjects
 } = AdminDashboardSlice.actions;
 
 const setDataForCanvas = (state) => {
