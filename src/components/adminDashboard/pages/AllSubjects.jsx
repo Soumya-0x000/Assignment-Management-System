@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { setDeptSemSubjects } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import toast from 'react-hot-toast';
 import { supabase } from '../../../CreateClient';
@@ -6,8 +6,9 @@ import { useDispatch } from 'react-redux';
 
 const AllSubjects = () => {
     const dispatch = useDispatch();
-    
-    useEffect(() => {
+    const [subjectsInfo, setSubjectsInfo] = useState({});
+
+    useMemo(() => {
         (async () => {
             try {
                 const { data: subjectData, error: subjectError } = await supabase
@@ -24,7 +25,7 @@ const AllSubjects = () => {
                     });
                     console.error('Error in fetching subjects', subjectError);
                 } else {
-                    console.log(subjectData)
+                    setSubjectsInfo(subjectData)
                     dispatch(setDeptSemSubjects(subjectData[0]))
                 }
             } catch (error) {

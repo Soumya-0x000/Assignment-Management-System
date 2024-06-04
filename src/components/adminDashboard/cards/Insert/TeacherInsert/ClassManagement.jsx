@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../../CreateClient";
 import toast from "react-hot-toast";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@nextui-org/react";
@@ -31,9 +31,9 @@ const ClassManagement = ({
     const { teacherAssignClassDetails, deptSemSubjects } = useSelector(state => state.adminDashboard);
     const [subjectsData, setSubjectsData] = useState(deptSemSubjects);
 
-    useEffect(() => {
+    useMemo(() => {
         setSubjectsData(deptSemSubjects)
-    }, [deptSemSubjects]);
+    }, [deptSemSubjects])
 
     // useEffect(() => {
     //     if (MCAData?.length > 0) {
