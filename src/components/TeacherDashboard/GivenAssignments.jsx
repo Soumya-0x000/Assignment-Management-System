@@ -3,11 +3,18 @@ import toast from 'react-hot-toast';
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, ModalFooter, ModalHeader, Tooltip, useDisclosure } from '@nextui-org/react';
+import { 
+    Button, 
+    Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
+    Modal, ModalContent, ModalFooter, ModalHeader, 
+    Tooltip, useDisclosure 
+} from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../common/Animation';
 import { useSelector } from 'react-redux';
+import { useDateFormatter } from "@react-aria/i18n";
+import { downloadFile, parseDate } from '../../common/customHooks';
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
@@ -28,6 +35,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [searchMode, setSearchMode] = useState(initialSearchMode);
     const [searchCategoryName, setSearchCategoryName] = useState('orgName');
     const [searchingEnabled, setSearchingEnabled] = useState(false);
+
+    let formatter = useDateFormatter({dateStyle: "full"});  
 
     useEffect(() => {
         setPopulatingKey([...assignments])
@@ -134,7 +143,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 .download(path)
 
             if (downloadError) {
-                console.error('Error in downloading file');
+                console.log('Error in downloading file');
                 toast.error('Error in downloading file', {
                     style: {
                         borderRadius: '10px',
@@ -142,25 +151,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         color: '#fff',
                     }
                 })
-            } else {
-                const url = URL.createObjectURL(downloadData);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = item.orgName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                URL.revokeObjectURL(url);
-
-                toast.success(`${item.orgName} downloaded successfully`, {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                });
             }
+                
+            await downloadFile(downloadData, item);
         } catch (error) {
             console.error('Error in downloading file');
             toast.error('Error in downloading file', {
@@ -196,6 +189,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         e.preventDefault();
 
         if (searchKeyword) {
+            console.log(searchCategoryName,populatingKey)
             const filteredAssignments = populatingKey.filter(val => val[0][searchCategoryName].toLowerCase().includes(searchKeyword.toLowerCase()))
             if (filteredAssignments.length === 0) {
                 toast.error(`No search result found for ${searchKeyword}`, {
@@ -220,7 +214,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 const sortedDeptAssignments = assignments.filter(val => val[0].department === sortOnDept)
                 sortedAssignments.push(...sortedDeptAssignments)
                 setPopulatingKey(sortedDeptAssignments)
-                setSearchResult(sortedDeptAssignments)
             }
 
             if (searchMode.Semester !== '') {
@@ -229,7 +222,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 sortedAssignments.pop()
                 sortedAssignments.push(...sortedSemAssignments)
                 setPopulatingKey(sortedSemAssignments)
-                setSearchResult(sortedSemAssignments)
             }
 
             if (searchMode['Search by'] !== '') {
@@ -336,31 +328,35 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         {populatingKey?.map((assignment, indx) => (
                             <motion.div 
                             variants={childVariants}
-                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden' 
+                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
                             key={indx}>
                                 <Tooltip color='secondary'
                                 content={assignment[0].orgName}
                                 className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
                                 placement='top'>
-                                    <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit'>
+                                    <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
                                         {assignment[0].orgName}
                                     </div>
                                 </Tooltip>
 
-                                <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5'>
+                                <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
                                     <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
                                     <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
                                     <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
                                 </div>
 
+                                <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
+                                    {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
+                                </div>
+
                                 <div className=' flex items-center justify-between mt-3'>
-                                    <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all'
+                                    <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
                                     onClick={() => handleDeleteModal(assignment[0])}>
                                         <FaRegTrashAlt />
                                         Remove
                                     </button>
 
-                                    <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all'
+                                    <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
                                     onClick={() => handleDownloadToast(assignment[0])}>
                                         <FaDownload/>
                                     </button>
@@ -389,12 +385,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     <ModalHeader className="flex flex-col gap-1">Delete {assignmentDetails.orgName} ?</ModalHeader>
 
                     <ModalFooter>
-                        <Button color="danger" className=' text-md' onPress={onClose}>
+                        <Button color="danger" className=' text-md font-robotoMono' onPress={onClose}>
                             Close
                         </Button>
 
                         <Button 
                         color="primary" 
+                        className=' text-md font-robotoMono'
                         onClick={() => handleFileDeleteToast(assignmentDetails)}
                         onPress={onClose}>
                             Delete

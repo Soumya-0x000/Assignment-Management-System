@@ -318,7 +318,7 @@ const TeacherHomePage = () => {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button color="danger" className=' text-md' onPress={onClose}>
+                        <Button color="danger" className=' text-md font-robotoMono' onPress={onClose}>
                             Close
                         </Button>
                     </ModalFooter>
@@ -344,7 +344,7 @@ export const CustomRadio = (props) => {
                 "data-[selected=true]:border-primary"
             ),
         }}>
-            <span className=' text-blue-200 font-montserrat text-[14px]'>
+            <span className=' text-blue-200 font-montserrat text-[13px]'>
                 {children}
             </span>
         </Radio>

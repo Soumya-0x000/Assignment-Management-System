@@ -10,7 +10,7 @@ import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import { DatePicker } from '@nextui-org/react';
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, today, now } from "@internationalized/date";
 import { useDateFormatter } from "@react-aria/i18n";
 
 registerPlugin(
@@ -26,8 +26,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     const [filePath, setFilePath] = useState('');
     const [fileNameStarter, setFileNameStarter] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [deadline, setDeadline] = useState('');
-    console.log(Object.entries(deadline))
+    const [deadline, setDeadline] = useState(now(getLocalTimeZone()));
 
     let formatter = useDateFormatter({dateStyle: "full"});
     
@@ -55,7 +54,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             });
             return;
         }
-
+    
         if (!deadline) {
             toast('Please select a deadline', {
                 icon: '⚠️',
@@ -67,11 +66,12 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             });
             return;
         }
-
-        for (const [index, file] of Array.from(selectedFiles).entries()) {
-            const newFileName = `${fileNameStarter}_${index}_${file.filename}`;
+    
+        for (const [index, fileItem] of selectedFiles.entries()) {
+            const file = fileItem.file;
+            const newFileName = `${fileNameStarter}_${index}_${fileItem.filename}`;
             const fullPath = `${filePath}${newFileName}`;
-
+    
             try {
                 const { data, error } = await supabase
                     .storage
@@ -80,18 +80,16 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         cacheControl: '3600',
                         upsert: false
                     });
-
+    
                 if (error) {
                     console.error(`Error uploading file ${newFileName}:`, error);
-                    if (error.error === 'Duplicate') {
-                        toast.error(`File already exists`, {
-                            style: {
-                                borderRadius: '10px',
-                                background: '#333',
-                                color: '#fff',
-                            }
-                        });
-                    }
+                    toast.error(`File already exists or other upload error`, {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
                     return;
                 } else {
                     toast.success('Successfully uploaded', {
@@ -101,35 +99,35 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             color: '#fff',
                         }
                     });
-
+    
                     const columnName = `${currentValue.dept}assignments`;
-                    const newAssignment = {
+                    const newAssignment = [{
                         sem: currentValue.sem,
                         department: currentValue.dept,
                         subject: currentValue.subject,
                         name: newFileName,
-                        orgName: file.filename,
+                        orgName: fileItem.filename,
                         submitDeadline: deadline
-                    };
-
+                    }];
+    
                     // Fetch existing assignments
                     const { data: teacherData, error: teacherError } = await supabase
                         .from('teachers')
                         .select(columnName)
                         .eq('uniqId', teacherId)
                         .single();
-
+    
                     if (teacherError) {
                         console.error('Error fetching teacher data:', teacherError.message);
                         toast.error('An error occurred while fetching teacher data');
                         return;
                     }
-
-                    setAssignments(prev => [...prev, [newAssignment]]);
-
+    
+                    setAssignments(prev => [...prev, newAssignment]);
+    
                     let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
-                    updatedAssignments.push([newAssignment]);
-
+                    updatedAssignments.push(newAssignment);
+    
                     // Update teacher data with new assignments
                     const { data: updateData, error: updateError } = await supabase
                         .from('teachers')
@@ -137,7 +135,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             [columnName]: updatedAssignments
                         })
                         .eq('uniqId', teacherId);
-
+    
                     if (updateError) {
                         console.error('Error updating teacher data:', updateError.message);
                         toast.error('An error occurred while updating teacher data', {
@@ -164,20 +162,21 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             }
         }
     };
-
+    
     const handleUploadToast = () => {
         toast.promise(handleUpload(), {
             loading: 'Uploading...',
             success: 'File uploaded successfully',
             error: 'Error in uploading file'
-        },{style: {
+        }, {
+            style: {
                 borderRadius: '10px',
                 background: '#333',
                 color: '#fff',
             }
-        })
+        });
     };
-
+    
     return (
         <div className='mt-4 rounded-lg h-full relative'>
             <div className="h-full bg-slate-800 px-2 rounded-lg overflow-y-auto py-2">
@@ -186,13 +185,46 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     allowMultiple={true}
                     maxFiles={5}
                     allowReorder={true}
-                    allowFileTypeValidation={true}
+                    allowPaste
                     maxFileSize='5MB'
-                    allowImageCrop={true}
-                    imageCropAspectRatio='1:1'
                     labelIdle=' <span class="filepond--label-action no-underline font-montserrat text-violet-300">Drag & Drop your files or Browse</span>'
                     onupdatefiles={setSelectedFiles}
                     name="filepond"
+                    onaddfilestart={(fileItem) => {
+                        const file = fileItem.file;
+                        const acceptedTypes = [
+                            'application/pdf', 
+                            'application/msword', 
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+                            'text/plain'
+                        ];
+
+                        // Check file size
+                        if (file.size > 5 * 1024 * 1024) {
+                            toast.error('File size exceeds 5MB', {
+                                style: {
+                                    borderRadius: '10px',
+                                    background: '#333',
+                                    color: '#fff',
+                                }
+                            });
+                            fileItem.abortLoad();
+                            return;
+                        }
+
+                        // Check file type
+                        if (!acceptedTypes.includes(file.type)) {
+                            toast.error('File type not accepted', {
+                                style: {
+                                    borderRadius: '10px',
+                                    background: '#333',
+                                    color: '#fff',
+                                }
+                            });
+                            fileItem.abortLoad();
+                            return;
+                        }
+                    }}
                 />
 
                 <div className="w-full flex flex-col gap-y-2">
@@ -203,16 +235,18 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     <DatePicker 
                         hideTimeZone
                         showMonthAndYearPickers
+                        isRequired
                         className=" w-full" 
                         isInvalid
                         minValue={today(getLocalTimeZone())}
+                        defaultValue={now(getLocalTimeZone())}
                         onChange={setDeadline} 
                     />
                 </div>
             </div>
 
             <button
-                className='bg-violet-600 rounded-xl px-3 py-2.5 absolute -bottom-[65px]'
+                className='bg-violet-600 rounded-xl px-3 py-2.5 absolute -bottom-[65px] font-robotoMono'
                 onClick={handleUploadToast}>
                 Upload Files
             </button>
