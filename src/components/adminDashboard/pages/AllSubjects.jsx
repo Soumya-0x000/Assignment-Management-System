@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { IoIosAdd } from "react-icons/io";
 import { CiEdit } from "react-icons/ci";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { MdDeleteOutline } from "react-icons/md";
 
 const AllSubjects = () => {
     const dispatch = useDispatch();
@@ -20,13 +21,14 @@ const AllSubjects = () => {
         name: '',
         fName: ''
     });
+    const maxSubLength = 5;
 
     useEffect(() => {
         (async () => {
             try {
                 const { data: subjectData, error: subjectError } = await supabase
                     .from('subjects')
-                    .select('MCA, MSc');
+                    .select('*');
                 
                 if (subjectError) {
                     toast.error('Error in fetching subjects', {
@@ -74,17 +76,47 @@ const AllSubjects = () => {
 
     const handleInsert = async () => {
         try {
-            const extractSubArr = subjectsInfo[0][subToInsertInfo.dept][subToInsertInfo.sem];
-            const newSubArr = [...extractSubArr, insertingValue];
-    
-            const newSubjectsInfo = [...subjectsInfo];
-            newSubjectsInfo[0] = { ...newSubjectsInfo[0], [subToInsertInfo.dept]: { ...newSubjectsInfo[0][subToInsertInfo.dept], [subToInsertInfo.sem]: newSubArr } };
-    
-            console.log(newSubjectsInfo);
+            const extractSubObj = subjectsInfo[0][subToInsertInfo.dept][subToInsertInfo.sem];
+            const newSubArr = [...extractSubObj, insertingValue];
+            
+            const newSemValue = {
+                ...subjectsInfo[0][subToInsertInfo.dept],
+                [subToInsertInfo.sem]: newSubArr
+            }
 
-            const { data, error } = await supabase
+            const newSubjectsInfo = subjectsInfo.map(item => 
+                item.id === subjectsInfo[0].id 
+                    ? { ...item, [subToInsertInfo.dept]: newSemValue } 
+                    : item
+            );
+            
+            const { data: insertData, error: insertError } = await supabase
                 .from('subjects')
-                .update({[subToInsertInfo.dept]: newSubjectsInfo })
+                .update({[subToInsertInfo.dept]: newSemValue })
+                .eq('id', subjectsInfo[0].id)
+
+            if (insertError) {
+                console.error('Error occurred', insertError);
+                toast.error('Error occurred in insertion', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                return;
+            } else {
+                toast.success('Subject inserted successfully', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                setSubjectsInfo(newSubjectsInfo);
+                dispatch(setDeptSemSubjects(newSubjectsInfo));
+                onClose();
+            }
         } catch (error) {
             console.error('Error occurred', error);
             toast.error('Error occurred in insertion', {
@@ -125,7 +157,9 @@ const AllSubjects = () => {
             </div>
 
             <div className=' w-full flex gap-y-3 mt-3'>
-                {subjectsInfo.map((value, indx) => (
+                {[...subjectsInfo]
+                .map(({id, ...rest}) => rest)
+                .map((value, indx) => (
                     <div className=' w-full text-slate-300 flex flex-col md:flex-row items-start gap-4'
                     key={indx}>
                         {Object.entries(value).map(([dept, innerValue], innerIndx) => (
@@ -153,25 +187,35 @@ const AllSubjects = () => {
                                                                 {innerSubIndex+1}) {sub.fName}
                                                             </span>
                                                             
-                                                            <span className='  sm:hidden block line-clamp-1'>
+                                                            <span className=' sm:hidden block line-clamp-1'>
                                                                 {sub.name}
                                                             </span>
 
-                                                            <button className=' w-fit rounded-lg md:p-[1px] bg-yellow-800 text-yellow-200 transition-all md:hover:scale-110'>
-                                                                <CiEdit
-                                                                    className=' text-[1.3rem]'
-                                                                />
-                                                            </button>
+                                                            <div className=' space-x-2'>
+                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-red-500 transition-all md:hover:scale-110'>
+                                                                    <MdDeleteOutline
+                                                                        className=' text-[1.3rem]'
+                                                                    />
+                                                                </button>
+
+                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-yellow-300 transition-all md:hover:scale-110'>
+                                                                    <CiEdit
+                                                                        className=' text-[1.2rem]'
+                                                                    />
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
                                                     
-                                                <button className=' w-fit rounded-full bg-blue-400 text-blue-800 hover:rotate-90 transition-all active:scale-125'
-                                                onClick={() => insertModal(dept, sem)}>
-                                                    <IoIosAdd
-                                                        className=' text-[1.5rem]'
-                                                    />
-                                                </button>
+                                                {sub.length < maxSubLength ? (
+                                                    <button className=' w-fit rounded-full bg-blue-400 text-blue-800 hover:rotate-90 transition-all active:scale-125'
+                                                    onClick={() => insertModal(dept, sem)}>
+                                                        <IoIosAdd
+                                                            className=' text-[1.5rem]'
+                                                        />
+                                                    </button>
+                                                ) : ''}
                                             </div>
                                         </div>
                                     ))}
@@ -194,6 +238,7 @@ const AllSubjects = () => {
                             className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.name !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
                             value={insertingValue.name}
                             onChange={(e) => handleChange('name', e)}
+                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
                             autoFocus
                             required
                         />
@@ -202,6 +247,7 @@ const AllSubjects = () => {
                             type="text" 
                             placeholder='Full name'
                             className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.fName !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
+                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
                             value={insertingValue.fName}
                             onChange={(e) => handleChange('fName', e)}
                         />
