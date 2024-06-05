@@ -29,10 +29,11 @@ const ClassManagement = ({
         sem4: [] 
     });
     const { teacherAssignClassDetails, deptSemSubjects } = useSelector(state => state.adminDashboard);
-    const [subjectsData, setSubjectsData] = useState(deptSemSubjects);
+    const [subjectsData, setSubjectsData] = useState({});
 
-    useMemo(() => {
-        setSubjectsData(deptSemSubjects)
+    useEffect(() => {
+        const [tempArr] = deptSemSubjects.map(({id, ...rest}) => rest)
+        setSubjectsData(tempArr)
     }, [deptSemSubjects])
 
     // useEffect(() => {

@@ -5,12 +5,11 @@ import { supabase } from '../../../CreateClient';
 import { useDispatch, useSelector } from 'react-redux';
 import { IoIosAdd } from "react-icons/io";
 import { CiEdit } from "react-icons/ci";
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import { MdDeleteOutline } from "react-icons/md";
 
 const AllSubjects = () => {
     const dispatch = useDispatch();
-    const { onClose } = useDisclosure();
     const [subjectsInfo, setSubjectsInfo] = useState([]);
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [subToInsertInfo, setSubToInsertInfo] = useState({
@@ -66,8 +65,12 @@ const AllSubjects = () => {
         })();
     }, []);
 
-    const openModal = (mode) => {setIsModalOpen(prev => ({ ...prev, [mode]: true }))}
-    const closeModal = (mode) => {setIsModalOpen(prev => ({ ...prev, [mode]: false }))}
+    const toggleModalVisibility = (mode, toggleValue) => {
+        setIsModalOpen(prev => ({ 
+            ...prev, 
+            [mode]: toggleValue 
+        }))
+    }
 
     const handleChange = (name, e) => {
         const { value } = e.target;
@@ -84,7 +87,7 @@ const AllSubjects = () => {
     const insertModal = (dept, sem) => {
         setInsertingValue({ name: '', fName: ''})
         setSubToInsertInfo({dept, sem});
-        openModal('insert')
+        toggleModalVisibility('insert', true)
     };
 
     const handleInsert = async () => {
@@ -121,7 +124,8 @@ const AllSubjects = () => {
             } else {
                 setSubjectsInfo(newSubjectsInfo);
                 dispatch(setDeptSemSubjects(newSubjectsInfo));
-                onClose();
+                toggleModalVisibility('insert', false);
+                
                 toast.success('Subject inserted successfully', {
                     style: {
                         borderRadius: '10px',
@@ -143,10 +147,10 @@ const AllSubjects = () => {
     };
     
     const handleInsertToast = () => {
-        if (insertingValue.name !== '') {
-            if (insertingValue.fName === '') {
+        if (insertingValue.fName !== '') {
+            if (insertingValue.name === '') {
                 const updatedValue = insertingValue
-                updatedValue.fName = insertingValue.name
+                updatedValue.name = insertingValue.fName
                 setInsertingValue(updatedValue)
             }
 
@@ -160,22 +164,60 @@ const AllSubjects = () => {
                     color: '#fff',
                 }
             })
+        } else {
+            toast.error('Insert a subject first!', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
         }
     };
 
     const deleteModal = (dept, sem, sub) => {
         setSubToDelInfo({dept, sem, sub})
-        openModal('delete')
+        toggleModalVisibility('delete', true)
     };
 
-    const handleDel = async () => {
+    const handleDelete = async () => {
         try {
-            console.log(subjectsInfo[0].id)
-            console.log(subToDelInfo)
-            // const { data: delData, error: delError } = await supabase
-            //     .from('subjects')
-            //     .delete()
-            //     .eq('id', subjectsInfo[0].id);
+            const newSubjectsInfo = JSON.parse(JSON.stringify(subjectsInfo));
+        
+            const selectedSubArr = newSubjectsInfo[0][subToDelInfo.dept][subToDelInfo.sem];
+            const filteredSubArr = selectedSubArr.filter(item => item.fName !== subToDelInfo.sub.fName);
+            
+            newSubjectsInfo[0][subToDelInfo.dept][subToDelInfo.sem] = filteredSubArr;
+
+            const { data: delData, error: delError } = await supabase
+                .from('subjects')
+                .update({ [subToDelInfo.dept]: newSubjectsInfo[0][subToDelInfo.dept] })
+                .eq('id', subjectsInfo[0].id);
+
+            if (delError) {
+                console.error('Error occurred during deletion', delError);
+                toast.error('Error occurred during deletion', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                return;
+            }
+
+            setSubjectsInfo(newSubjectsInfo);
+            dispatch(setDeptSemSubjects(newSubjectsInfo));
+            toggleModalVisibility('delete', false);
+
+            toast.success('Subject deleted successfully', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
         } catch (error) {
             console.error('Error occurred during deletion', error);
             toast.error('Error occurred during deletion', {
@@ -188,12 +230,12 @@ const AllSubjects = () => {
         }
     };
 
-    const handleDelToast = () => {
-        toast.promise(handleDel(), {
+    const handleDeleteToast = () => {
+        toast.promise(handleDelete(), {
             loading: 'Deleting subject...',
             success: 'Subject deleted successfully!',
             error: 'Failed to delete subject!'
-        },{ style: {
+        }, {style: {
                 borderRadius: '10px',
                 background: '#333',
                 color: '#fff',
@@ -245,15 +287,11 @@ const AllSubjects = () => {
                                                             <div className=' flex gap-x-2 lg:gap-x-1 xl:gap-x-2'>
                                                                 <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-red-500 transition-all md:hover:scale-110'
                                                                 onClick={() => deleteModal(dept, sem, sub)}>
-                                                                    <MdDeleteOutline
-                                                                        className=' text-[1.3rem]'
-                                                                    />
+                                                                    <MdDeleteOutline className=' text-[1.3rem]'/>
                                                                 </button>
 
                                                                 <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-yellow-300 transition-all md:hover:scale-110'>
-                                                                    <CiEdit
-                                                                        className=' text-[1.2rem]'
-                                                                    />
+                                                                    <CiEdit className=' text-[1.2rem]'/>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -278,12 +316,23 @@ const AllSubjects = () => {
                 ))}
             </div>
 
-            <Modal backdrop={'blur'} isOpen={isModalOpen.insert} onClose={() => closeModal('insert')} className=' bg-slate-700'>
+            <Modal backdrop={'blur'} isOpen={isModalOpen.insert} onClose={() => toggleModalVisibility('insert', false)} className=' bg-slate-700'>
                 <ModalContent>
-                {(onClose) => (<>
+                {() => (<>
                     <ModalHeader className=" font-robotoMono text-white">Insert new subject in {subToInsertInfo.dept} {actualSemName(...subToInsertInfo.sem[0])}</ModalHeader>
 
                     <ModalBody>
+                        <input 
+                            type="text" 
+                            placeholder='Full name'
+                            autoFocus
+                            required
+                            className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.fName !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
+                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
+                            value={insertingValue.fName}
+                            onChange={(e) => handleChange('fName', e)}
+                        />
+                        
                         <input 
                             type="text" 
                             placeholder='Subject name (acronym)'
@@ -291,22 +340,11 @@ const AllSubjects = () => {
                             value={insertingValue.name}
                             onChange={(e) => handleChange('name', e)}
                             onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
-                            autoFocus
-                            required
-                        />
-                        
-                        <input 
-                            type="text" 
-                            placeholder='Full name'
-                            className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.fName !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
-                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
-                            value={insertingValue.fName}
-                            onChange={(e) => handleChange('fName', e)}
                         />
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => closeModal('insert')}>
+                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => toggleModalVisibility('insert', false)}>
                             Close
                         </Button>
 
@@ -319,18 +357,18 @@ const AllSubjects = () => {
                 </ModalContent>
             </Modal>
             
-            <Modal backdrop={'blur'} isOpen={isModalOpen.delete} onClose={() => closeModal('delete')} className=' bg-slate-700'>
+            <Modal backdrop={'blur'} isOpen={isModalOpen.delete} onClose={() => toggleModalVisibility('delete', false)} className=' bg-slate-700'>
                 <ModalContent>
-                {(onClose) => (<>
+                {() => (<>
                     <ModalHeader className=" font-robotoMono text-white tracking-wide leading-8">You want to remove {subToDelInfo.sub.fName} from {subToDelInfo.dept} {actualSemName(...subToDelInfo.sem[0])} ?</ModalHeader>
 
                     <ModalFooter>
-                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => closeModal('delete')}>
+                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => toggleModalVisibility('delete', false)}>
                             Close
                         </Button>
 
                         <Button className=' font-robotoMono' color="primary" variant="shadow"
-                        onClick={handleDelToast}>
+                        onClick={handleDeleteToast}>
                             Delete
                         </Button>
                     </ModalFooter>
