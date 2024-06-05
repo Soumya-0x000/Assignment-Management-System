@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { setDeptSemSubjects } from '../../../reduxStore/reducers/AdminDashboardSlice';
 import toast from 'react-hot-toast';
 import { supabase } from '../../../CreateClient';
@@ -16,12 +16,21 @@ const AllSubjects = () => {
         dept: '',
         sem: ''
     });
+    const [subToEditInfo, setSubToEditInfo] = useState({
+        dept: '',
+        sem: '',
+        sub: ''
+    });
     const [subToDelInfo, setSubToDelInfo] = useState({
         dept: '',
         sem: '',
         sub: ''
     });
     const [insertingValue, setInsertingValue] = useState({
+        name: '',
+        fName: ''
+    });
+    const [editingValue, setEditingValue] = useState({
         name: '',
         fName: ''
     });
@@ -72,12 +81,20 @@ const AllSubjects = () => {
         }))
     }
 
-    const handleChange = (name, e) => {
+    const handleChange = (name, e, mode) => {
         const { value } = e.target;
-        setInsertingValue({
-            ...insertingValue,
-            [name]: value
-        });
+
+        if (mode === 'insert') {
+            setInsertingValue({
+                ...insertingValue,
+                [name]: value
+            });
+        } else if (mode === 'edit') {
+            setEditingValue(prev => ({
+                ...prev,
+                [name]: value
+            }))
+        }
     };
 
     const actualSemName = (semester) => {
@@ -166,6 +183,97 @@ const AllSubjects = () => {
             })
         } else {
             toast.error('Insert a subject first!', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
+
+    const editModal = (dept, sem, sub) => {
+        setEditingValue({ 
+            name: sub.name, 
+            fName: sub.fName
+        })
+        setSubToEditInfo({dept, sem, sub});
+        toggleModalVisibility('edit', true)
+    };
+
+    const handleEdit = async () => {
+        try {
+            const newSubjectsInfo = JSON.parse(JSON.stringify(subjectsInfo));
+            
+            const selectedSubArr = newSubjectsInfo[0][subToEditInfo.dept][subToEditInfo.sem];
+            const filteredSubArr = selectedSubArr.filter(item => item.fName !== subToEditInfo.sub.fName);
+            filteredSubArr.push(editingValue)
+            
+            newSubjectsInfo[0][subToEditInfo.dept][subToEditInfo.sem] = filteredSubArr;
+
+            const { data: editData, error: editError } = await supabase
+                .from('subjects')
+                .update({ [subToEditInfo.dept]: newSubjectsInfo[0][subToEditInfo.dept] })
+                .eq('id', subjectsInfo[0].id);
+
+            if (editError) {
+                console.error('Error occurred during editing', editError);
+                toast.error('Error occurred during editing', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                return;
+            } else {
+                setSubjectsInfo(newSubjectsInfo);
+                dispatch(setDeptSemSubjects(newSubjectsInfo));
+                toggleModalVisibility('edit', false);
+
+                toast.success('Subject edited successfully', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error occurred', error);
+            toast.error('Error occurred during editing', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+        }
+    };
+
+    const handleEditToast = () => {
+        const isChanged = (editingValue.fName !== subToEditInfo.sub.fName) || (editingValue.name !== subToEditInfo.sub.name)
+       
+        if (isChanged && editingValue.fName !== '') {
+            if (editingValue.name === '') {
+                const updatedValue = editingValue
+                updatedValue.name = editingValue.fName
+                setEditingValue(updatedValue)
+            }
+
+            toast.promise(handleEdit(), {
+                loading: 'Editing subject...',
+                success: 'Subject edited successfully!',
+                error: 'Failed to edit subject!'
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        } else {
+            toast.error(`Full name can't be empty!`, {
                 icon: '⚠️',
                 style: {
                     borderRadius: '10px',
@@ -271,6 +379,7 @@ const AllSubjects = () => {
                                                 {actualSemName(...sem[0])}
                                             </div>
 
+                                            {/* subjects according to departments */}
                                             <div className=' pl-5 lg:pl-3 xl:pl-5 pr-1 py-2 space-y-5'>
                                                 <div className=' font-montserrat space-y-3'>
                                                     {sub.map((sub, innerSubIndex) => (
@@ -284,20 +393,23 @@ const AllSubjects = () => {
                                                                 {sub.name}
                                                             </span>
 
+                                                            {/* del and edit */}
                                                             <div className=' flex gap-x-2 lg:gap-x-1 xl:gap-x-2'>
                                                                 <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-red-500 transition-all md:hover:scale-110'
                                                                 onClick={() => deleteModal(dept, sem, sub)}>
                                                                     <MdDeleteOutline className=' text-[1.3rem]'/>
                                                                 </button>
 
-                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-yellow-300 transition-all md:hover:scale-110'>
+                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-yellow-300 transition-all md:hover:scale-110'
+                                                                onClick={() => editModal(dept, sem, sub)}>
                                                                     <CiEdit className=' text-[1.2rem]'/>
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     ))}
                                                 </div>
-                                                    
+                                                
+                                                {/* insert */}
                                                 {(sub.length < maxSubLength) && (
                                                     <button className=' w-fit rounded-full bg-blue-400 text-blue-800 hover:rotate-90 transition-all active:scale-125'
                                                     onClick={() => insertModal(dept, sem)}>
@@ -330,7 +442,7 @@ const AllSubjects = () => {
                             className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.fName !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
                             onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
                             value={insertingValue.fName}
-                            onChange={(e) => handleChange('fName', e)}
+                            onChange={(e) => handleChange('fName', e, 'insert')}
                         />
                         
                         <input 
@@ -338,8 +450,8 @@ const AllSubjects = () => {
                             placeholder='Subject name (acronym)'
                             className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.name !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
                             value={insertingValue.name}
-                            onChange={(e) => handleChange('name', e)}
                             onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
+                            onChange={(e) => handleChange('name', e, 'insert')}
                         />
                     </ModalBody>
 
@@ -351,6 +463,47 @@ const AllSubjects = () => {
                         <Button className=' font-robotoMono' color="primary" variant="shadow"
                         onClick={handleInsertToast}>
                             Insert
+                        </Button>
+                    </ModalFooter>
+                </>)}
+                </ModalContent>
+            </Modal>
+            
+            <Modal backdrop={'blur'} isOpen={isModalOpen.edit} onClose={() => toggleModalVisibility('edit', false)} className=' bg-slate-700'>
+                <ModalContent>
+                {() => (<>
+                    <ModalHeader className=" font-robotoMono text-white">Edit {subToEditInfo.sub.fName} in {subToEditInfo.dept} {actualSemName(...subToEditInfo.sem[0])}</ModalHeader>
+
+                    <ModalBody>
+                        <input 
+                            type="text" 
+                            placeholder='Full name'
+                            autoFocus
+                            required
+                            className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.fName !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
+                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
+                            value={editingValue.fName}
+                            onChange={(e) => handleChange('fName', e, 'edit')}
+                        />
+                        
+                        <input 
+                            type="text" 
+                            placeholder='Subject name (acronym)'
+                            className={` w-full bg-slate-800 px-4 py-3 font-robotoMono text-green-400 rounded-lg outline-none ${insertingValue.name !== '' && 'border-2 border-green-500'} focus:border-2 focus:border-green-500`}
+                            value={editingValue.name}
+                            onChange={(e) => handleChange('name', e, 'edit')}
+                            onKeyDown={(e) => {e.key === 'Enter' && handleInsertToast()}}
+                        />
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => toggleModalVisibility('edit', false)}>
+                            Close
+                        </Button>
+
+                        <Button className=' font-robotoMono' color="primary" variant="shadow"
+                        onClick={handleEditToast}>
+                            Save
                         </Button>
                     </ModalFooter>
                 </>)}
