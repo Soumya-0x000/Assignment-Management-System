@@ -10,17 +10,27 @@ import { MdDeleteOutline } from "react-icons/md";
 
 const AllSubjects = () => {
     const dispatch = useDispatch();
-    const {isOpen, onOpen, onClose} = useDisclosure();
+    const { onClose } = useDisclosure();
     const [subjectsInfo, setSubjectsInfo] = useState([]);
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [subToInsertInfo, setSubToInsertInfo] = useState({
         dept: '',
         sem: ''
     });
+    const [subToDelInfo, setSubToDelInfo] = useState({
+        dept: '',
+        sem: '',
+        sub: ''
+    });
     const [insertingValue, setInsertingValue] = useState({
         name: '',
         fName: ''
     });
+    const [isModalOpen, setIsModalOpen] = useState({
+        insert: false,
+        delete: false,
+        edit: false
+    })
     const maxSubLength = 5;
 
     useEffect(() => {
@@ -56,11 +66,8 @@ const AllSubjects = () => {
         })();
     }, []);
 
-    const insertModal = (dept, sem) => {
-        setInsertingValue({ name: '', fName: ''})
-        setSubToInsertInfo({dept, sem})
-        onOpen();
-    };
+    const openModal = (mode) => {setIsModalOpen(prev => ({ ...prev, [mode]: true }))}
+    const closeModal = (mode) => {setIsModalOpen(prev => ({ ...prev, [mode]: false }))}
 
     const handleChange = (name, e) => {
         const { value } = e.target;
@@ -72,6 +79,12 @@ const AllSubjects = () => {
 
     const actualSemName = (semester) => {
         return teacherAssignClassDetails.sem.find(val => val.startsWith(...semester))
+    };
+
+    const insertModal = (dept, sem) => {
+        setInsertingValue({ name: '', fName: ''})
+        setSubToInsertInfo({dept, sem});
+        openModal('insert')
     };
 
     const handleInsert = async () => {
@@ -106,6 +119,9 @@ const AllSubjects = () => {
                 });
                 return;
             } else {
+                setSubjectsInfo(newSubjectsInfo);
+                dispatch(setDeptSemSubjects(newSubjectsInfo));
+                onClose();
                 toast.success('Subject inserted successfully', {
                     style: {
                         borderRadius: '10px',
@@ -113,9 +129,6 @@ const AllSubjects = () => {
                         color: '#fff',
                     }
                 });
-                setSubjectsInfo(newSubjectsInfo);
-                dispatch(setDeptSemSubjects(newSubjectsInfo));
-                onClose();
             }
         } catch (error) {
             console.error('Error occurred', error);
@@ -150,6 +163,44 @@ const AllSubjects = () => {
         }
     };
 
+    const deleteModal = (dept, sem, sub) => {
+        setSubToDelInfo({dept, sem, sub})
+        openModal('delete')
+    };
+
+    const handleDel = async () => {
+        try {
+            console.log(subjectsInfo[0].id)
+            console.log(subToDelInfo)
+            // const { data: delData, error: delError } = await supabase
+            //     .from('subjects')
+            //     .delete()
+            //     .eq('id', subjectsInfo[0].id);
+        } catch (error) {
+            console.error('Error occurred during deletion', error);
+            toast.error('Error occurred during deletion', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+        }
+    };
+
+    const handleDelToast = () => {
+        toast.promise(handleDel(), {
+            loading: 'Deleting subject...',
+            success: 'Subject deleted successfully!',
+            error: 'Failed to delete subject!'
+        },{ style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
+    };
+
     return (
         <div className=' bg-slate-800 w-full px-2 sm:px-5 py-3 rounded-lg'>
             <div className=' text-white font-mavenPro md:text-[1.1rem] lg:text-[1.2rem] xl:text-[1.4rem] w-full font-bold tracking-wider text-lg'>
@@ -160,7 +211,7 @@ const AllSubjects = () => {
                 {[...subjectsInfo]
                 .map(({id, ...rest}) => rest)
                 .map((value, indx) => (
-                    <div className=' w-full text-slate-300 flex flex-col md:flex-row items-start gap-4'
+                    <div className=' w-full text-slate-300 flex flex-col-reverse md:flex-row items-start gap-4'
                     key={indx}>
                         {Object.entries(value).map(([dept, innerValue], innerIndx) => (
                             <div className=' w-full bg-slate-900 rounded-lg p-3 text-slate-300 space-y-8'
@@ -169,7 +220,7 @@ const AllSubjects = () => {
                                     {dept} Subjects
                                 </div>
 
-                                <div className=' w-full grid grid-cols-1 xl:grid-cols-2 gap-6'>
+                                <div className=' w-full grid grid-cols-1 xl:grid-cols-2 gap-4'>
                                     {Object.entries(innerValue).map(([sem, sub], subIndx) => (
                                         <div 
                                         className=' bg-slate-800 rounded-lg overflow-hidden w-full'
@@ -178,21 +229,22 @@ const AllSubjects = () => {
                                                 {actualSemName(...sem[0])}
                                             </div>
 
-                                            <div className=' pl-5 pr-3 py-2 space-y-5'>
+                                            <div className=' pl-5 lg:pl-3 xl:pl-5 pr-1 py-2 space-y-5'>
                                                 <div className=' font-montserrat space-y-3'>
                                                     {sub.map((sub, innerSubIndex) => (
-                                                        <div className=' text-[14px] xl:text-[15px] tracking-wide line-clamp-1 w-full flex items-center justify-between py-1 pr-1'
+                                                        <div className=' text-[14px] xl:text-[15px] tracking-wide line-clamp-1 w-full flex  items-center justify-between py-1 pr-1'
                                                         key={innerSubIndex}>
-                                                            <span className=' hidden sm:block line-clamp-1'>
+                                                            <span className=' xl:hidden 2xl:block line-clamp-1 xl:text-[14px] 2xl:text-[15px]'>
                                                                 {innerSubIndex+1}) {sub.fName}
                                                             </span>
                                                             
-                                                            <span className=' sm:hidden block line-clamp-1'>
+                                                            <span className=' hidden xl:block 2xl:hidden line-clamp-1'>
                                                                 {sub.name}
                                                             </span>
 
-                                                            <div className=' space-x-2'>
-                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-red-500 transition-all md:hover:scale-110'>
+                                                            <div className=' flex gap-x-2 lg:gap-x-1 xl:gap-x-2'>
+                                                                <button className=' w-fit rounded-lg md:p-[1px] hover:scale-125 text-red-500 transition-all md:hover:scale-110'
+                                                                onClick={() => deleteModal(dept, sem, sub)}>
                                                                     <MdDeleteOutline
                                                                         className=' text-[1.3rem]'
                                                                     />
@@ -208,14 +260,14 @@ const AllSubjects = () => {
                                                     ))}
                                                 </div>
                                                     
-                                                {sub.length < maxSubLength ? (
+                                                {(sub.length < maxSubLength) && (
                                                     <button className=' w-fit rounded-full bg-blue-400 text-blue-800 hover:rotate-90 transition-all active:scale-125'
                                                     onClick={() => insertModal(dept, sem)}>
                                                         <IoIosAdd
                                                             className=' text-[1.5rem]'
                                                         />
                                                     </button>
-                                                ) : ''}
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -226,7 +278,7 @@ const AllSubjects = () => {
                 ))}
             </div>
 
-            <Modal backdrop={'blur'} isOpen={isOpen} onClose={onClose} className=' bg-slate-700'>
+            <Modal backdrop={'blur'} isOpen={isModalOpen.insert} onClose={() => closeModal('insert')} className=' bg-slate-700'>
                 <ModalContent>
                 {(onClose) => (<>
                     <ModalHeader className=" font-robotoMono text-white">Insert new subject in {subToInsertInfo.dept} {actualSemName(...subToInsertInfo.sem[0])}</ModalHeader>
@@ -254,13 +306,32 @@ const AllSubjects = () => {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={onClose}>
+                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => closeModal('insert')}>
                             Close
                         </Button>
 
                         <Button className=' font-robotoMono' color="primary" variant="shadow"
                         onClick={handleInsertToast}>
                             Insert
+                        </Button>
+                    </ModalFooter>
+                </>)}
+                </ModalContent>
+            </Modal>
+            
+            <Modal backdrop={'blur'} isOpen={isModalOpen.delete} onClose={() => closeModal('delete')} className=' bg-slate-700'>
+                <ModalContent>
+                {(onClose) => (<>
+                    <ModalHeader className=" font-robotoMono text-white tracking-wide leading-8">You want to remove {subToDelInfo.sub.fName} from {subToDelInfo.dept} {actualSemName(...subToDelInfo.sem[0])} ?</ModalHeader>
+
+                    <ModalFooter>
+                        <Button className=' font-robotoMono' color="danger" variant="shadow" onPress={() => closeModal('delete')}>
+                            Close
+                        </Button>
+
+                        <Button className=' font-robotoMono' color="primary" variant="shadow"
+                        onClick={handleDelToast}>
+                            Delete
                         </Button>
                     </ModalFooter>
                 </>)}
