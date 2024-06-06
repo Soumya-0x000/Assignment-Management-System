@@ -22,12 +22,12 @@ registerPlugin(
 
 const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     const { deptSemClasses, teacherData } = useSelector(state => state.teacherAuth);
+
     const [subExistingArray, setSubExistingArray] = useState([]);
     const [filePath, setFilePath] = useState('');
     const [fileNameStarter, setFileNameStarter] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [deadline, setDeadline] = useState(now(getLocalTimeZone()));
-    console.log(teacherData)
 
     let formatter = useDateFormatter({dateStyle: "full"});
     
@@ -104,7 +104,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     }];
     
                     // Fetch existing assignments
-                    const { data: teacherData, error: teacherError } = await supabase
+                    const { data: teacherAssignmentData, error: teacherError } = await supabase
                         .from('teachers')
                         .select(columnName)
                         .eq('uniqId', teacherId)
@@ -118,7 +118,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     
                     setAssignments(prev => [...prev, newAssignment]);
     
-                    let updatedAssignments = teacherData ? teacherData[columnName] || [] : [];
+                    let updatedAssignments = teacherAssignmentData ? teacherAssignmentData[columnName] || [] : [];
                     updatedAssignments.push(newAssignment);
     
                     // Update teacher data with new assignments
@@ -129,12 +129,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         })
                         .eq('uniqId', teacherId);
                     
-                    const {data: assignmentTableData, error: assignmentTableError} = await supabase
-                        .from(columnName)
-                        .select(currentValue.sem)
-                        .update(newAssignment)
-                        .eq('uniqId', teacherId);
-    
                     if (updateError) {
                         console.error('Error updating teacher data:', updateError.message);
                         toast.error('An error occurred while updating teacher data', {
@@ -145,16 +139,9 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             }
                         });
                         return;
-                    } else {
-                        onClose();
-                        toast.success('Successfully uploaded', {
-                            style: {
-                                borderRadius: '10px',
-                                background: '#333',
-                                color: '#fff',
-                            }
-                        });
                     }
+
+                   insertOnAssignmentTable(newAssignment, columnName);
                 }
             } catch (err) {
                 console.error(`Error uploading file ${newFileName}:`, err);
@@ -168,7 +155,76 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             }
         }
     };
+
+    const insertOnAssignmentTable = async (newAssignment, tableName) => {
+        const assignmentTableContent = {
+            [currentValue.subject]: newAssignment[0]
+        };
+        const GivenBy = `${teacherData.title} ${teacherData.name}`;
     
+        // Fetch the existing record for the teacher
+        const { data: existingData, error: fetchError } = await supabase
+            .from(tableName)
+            .select('*')
+            .eq('uniqId', teacherId)
+            .single();
+    
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116: no rows found
+            console.error('Error fetching existing assignments:', fetchError.message);
+            toast.error('Error occurred while fetching existing assignments', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+        
+        let updatedAssignments = existingData ? existingData[currentValue.sem] || {} : {};
+        
+        // Merge new assignment with existing assignments
+        console.log(updatedAssignments)
+        updatedAssignments = {
+            ...updatedAssignments,
+            ...assignmentTableContent
+        };
+    
+        // Upsert the updated assignments
+        const { data: assignmentTableData, error: assignmentTableError } = await supabase
+            .from(tableName)
+            .upsert({
+                uniqId: teacherId,
+                [currentValue.sem]: updatedAssignments,
+                GivenBy
+            }, {
+                onConflict: ['uniqId']
+            });
+    
+        if (assignmentTableError) {
+            console.error('Error updating assignments:', assignmentTableError.message);
+            toast.error('Error occurred on assignment uploading', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            console.log(assignmentTableData);
+            console.log(assignmentTableError);
+            return;
+        }
+    
+        onClose();
+        toast.success('Successfully uploaded', {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        });
+    };
+     
     const handleUploadToast = () => {
         toast.promise(handleUpload(), {
             loading: 'Uploading...',
