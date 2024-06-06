@@ -32,7 +32,7 @@ const ClassManagement = ({
     const [subjectsData, setSubjectsData] = useState({});
 
     useEffect(() => {
-        const [tempArr] = deptSemSubjects.map(({id, ...rest}) => rest)
+        const [tempArr] = [deptSemSubjects].map(({id, ...rest}) => rest)
         setSubjectsData(tempArr)
     }, [deptSemSubjects])
 
@@ -55,7 +55,6 @@ const ClassManagement = ({
             const updatedSubjects = { sem1: [], sem2: [], sem3: [], sem4: [] };
             const deptKey = Array.from(deptSelectedKeys).join(', ');
             const deptSubjects = subjectsData[teacherAssignClassDetails.dept[deptKey]];
-
             if (deptSubjects) {
                 updatedSubjects.sem1 = deptSubjects['1stSem']?.map(item => item.name) || [];
                 updatedSubjects.sem2 = deptSubjects['2ndSem']?.map(item => item.name) || [];

@@ -140,7 +140,7 @@ const AllSubjects = () => {
                 return;
             } else {
                 setSubjectsInfo(newSubjectsInfo);
-                dispatch(setDeptSemSubjects(newSubjectsInfo));
+                dispatch(setDeptSemSubjects(newSubjectsInfo[0]));
                 toggleModalVisibility('insert', false);
                 
                 toast.success('Subject inserted successfully', {
@@ -229,7 +229,7 @@ const AllSubjects = () => {
                 return;
             } else {
                 setSubjectsInfo(newSubjectsInfo);
-                dispatch(setDeptSemSubjects(newSubjectsInfo));
+                dispatch(setDeptSemSubjects(newSubjectsInfo[0]));
                 toggleModalVisibility('edit', false);
 
                 toast.success('Subject edited successfully', {
@@ -255,25 +255,36 @@ const AllSubjects = () => {
     const handleEditToast = () => {
         const isChanged = (editingValue.fName !== subToEditInfo.sub.fName) || (editingValue.name !== subToEditInfo.sub.name)
        
-        if (isChanged && editingValue.fName !== '') {
-            if (editingValue.name === '') {
-                const updatedValue = editingValue
-                updatedValue.name = editingValue.fName
-                setEditingValue(updatedValue)
-            }
-
-            toast.promise(handleEdit(), {
-                loading: 'Editing subject...',
-                success: 'Subject edited successfully!',
-                error: 'Failed to edit subject!'
-            }, {style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
+        if (isChanged) {
+            if (editingValue.fName !== '') {
+                if (editingValue.name === '') {
+                    const updatedValue = editingValue
+                    updatedValue.name = editingValue.fName
+                    setEditingValue(updatedValue)
                 }
-            })
+
+                toast.promise(handleEdit(), {
+                    loading: 'Editing subject...',
+                    success: 'Subject edited successfully!',
+                    error: 'Failed to edit subject!'
+                }, {style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            } else {
+                toast.error(`Full name can't be empty!`, {
+                    icon: '⚠️',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            }
         } else {
-            toast.error(`Full name can't be empty!`, {
+            toast.error(`Nothing to edit!`, {
                 icon: '⚠️',
                 style: {
                     borderRadius: '10px',
@@ -316,7 +327,7 @@ const AllSubjects = () => {
             }
 
             setSubjectsInfo(newSubjectsInfo);
-            dispatch(setDeptSemSubjects(newSubjectsInfo));
+            dispatch(setDeptSemSubjects(newSubjectsInfo[0]));
             toggleModalVisibility('delete', false);
 
             toast.success('Subject deleted successfully', {

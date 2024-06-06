@@ -92,14 +92,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     });
                     return;
                 } else {
-                    toast.success('Successfully uploaded', {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#333',
-                            color: '#fff',
-                        }
-                    });
-    
                     const columnName = `${currentValue.dept}assignments`;
                     const newAssignment = [{
                         sem: currentValue.sem,
@@ -148,6 +140,13 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         return;
                     } else {
                         onClose();
+                        toast.success('Successfully uploaded', {
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                            }
+                        });
                     }
                 }
             } catch (err) {
@@ -192,6 +191,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     name="filepond"
                     onaddfilestart={(fileItem) => {
                         const file = fileItem.file;
+
                         const acceptedTypes = [
                             'application/pdf', 
                             'application/msword', 
@@ -201,7 +201,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
 
                         // Check file size
                         if (file.size > 5 * 1024 * 1024) {
-                            toast.error('File size exceeds 5MB', {
+                            toast.error(`${file.name} size exceeds 5MB`, {
                                 style: {
                                     borderRadius: '10px',
                                     background: '#333',
@@ -214,7 +214,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
 
                         // Check file type
                         if (!acceptedTypes.includes(file.type)) {
-                            toast.error('File type not accepted', {
+                            toast.error(`${file.type.split('/')[0]} not accepted`, {
                                 style: {
                                     borderRadius: '10px',
                                     background: '#333',
