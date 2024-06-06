@@ -157,9 +157,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     };
 
     const insertOnAssignmentTable = async (newAssignment, tableName) => {
-        const assignmentTableContent = {
-            [currentValue.subject]: newAssignment[0]
-        };
+        const assignmentTableContent = newAssignment[0];
         const GivenBy = `${teacherData.title} ${teacherData.name}`;
     
         // Fetch the existing record for the teacher
@@ -180,15 +178,16 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             });
             return;
         }
-        
+    
         let updatedAssignments = existingData ? existingData[currentValue.sem] || {} : {};
         
-        // Merge new assignment with existing assignments
-        console.log(updatedAssignments)
-        updatedAssignments = {
-            ...updatedAssignments,
-            ...assignmentTableContent
-        };
+        // Ensure the subject key exists in the updatedAssignments
+        if (!updatedAssignments[assignmentTableContent.subject]) {
+            updatedAssignments[assignmentTableContent.subject] = [];
+        }
+    
+        // Append the new assignment to the subject array
+        updatedAssignments[assignmentTableContent.subject].push(assignmentTableContent);
     
         // Upsert the updated assignments
         const { data: assignmentTableData, error: assignmentTableError } = await supabase
@@ -210,8 +209,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     color: '#fff',
                 }
             });
-            console.log(assignmentTableData);
-            console.log(assignmentTableError);
             return;
         }
     
@@ -224,7 +221,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             }
         });
     };
-     
+    
     const handleUploadToast = () => {
         toast.promise(handleUpload(), {
             loading: 'Uploading...',
