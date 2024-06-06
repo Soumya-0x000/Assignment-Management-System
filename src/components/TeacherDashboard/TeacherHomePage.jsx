@@ -17,7 +17,7 @@ import {
 import FileUploader from './FileUploader';
 import GivenAssignments from './GivenAssignments';
 import { useDispatch } from 'react-redux';
-import { setAssignmentToRender, setDeptSemClasses } from '../../reduxStore/reducers/TeacherAuthSLice';
+import { setAssignmentToRender, setDeptSemClasses, setTeacherInfo } from '../../reduxStore/reducers/TeacherAuthSLice';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -82,6 +82,7 @@ const TeacherHomePage = () => {
                     teacherData.MCA = sortDept(teacherData.MCA);
                     teacherData.MSc = sortDept(teacherData.MSc);
                     setTeacherData(teacherData);
+                    dispatch(setTeacherInfo(teacherData))
 
                     if (teacherData.MCAassignments || teacherData.MScassignments) {
                         const totalAssignments = [

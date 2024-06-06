@@ -21,12 +21,13 @@ registerPlugin(
 );
 
 const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
-    const { deptSemClasses } = useSelector(state => state.teacherAuth);
+    const { deptSemClasses, teacherData } = useSelector(state => state.teacherAuth);
     const [subExistingArray, setSubExistingArray] = useState([]);
     const [filePath, setFilePath] = useState('');
     const [fileNameStarter, setFileNameStarter] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [deadline, setDeadline] = useState(now(getLocalTimeZone()));
+    console.log(teacherData)
 
     let formatter = useDateFormatter({dateStyle: "full"});
     
@@ -126,6 +127,12 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         .update({
                             [columnName]: updatedAssignments
                         })
+                        .eq('uniqId', teacherId);
+                    
+                    const {data: assignmentTableData, error: assignmentTableError} = await supabase
+                        .from(columnName)
+                        .select(currentValue.sem)
+                        .update(newAssignment)
                         .eq('uniqId', teacherId);
     
                     if (updateError) {
