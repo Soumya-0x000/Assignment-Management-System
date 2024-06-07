@@ -15,8 +15,8 @@ import { NavigationActions } from '../../common/Animation';
 import AllSubjects from './pages/AllSubjects';
 
 const navArr = [
-    { name: 'Id', val: 'uniqId' },
     { name: 'Name', val: 'name', title: '' },
+    { name: 'Id', val: 'uniqId' },
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
 ];
@@ -168,6 +168,8 @@ const HomePage = () => {
                     selected={selected} 
                     setSelected={setSelected}
                     personName={adminDetails.name}
+                    userMode={'admin'}
+                    userId={adminId}
                 />
 
                 <div className='bg-slate-800 rounded-lg py-3 mt-3 px-2 lg:px-5 '>

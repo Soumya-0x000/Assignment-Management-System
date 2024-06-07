@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { formatDate, nameLogo } from "./customHooks";
 import { CiLogout } from 'react-icons/ci';
 import SlidingTabs from './SlidingTabs'
+import { CgUserRemove } from "react-icons/cg";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
+import toast from "react-hot-toast";
 
 export const staggerVariants = {
     initial: {},
@@ -54,7 +57,7 @@ const itemVariants = {
     },
 };
 
-export const FlyoutLink = ({ children, FlyoutContent, array }) => {
+export const FlyoutLink = ({ children, FlyoutContent, array, userMode, userId }) => {
     const [open, setOpen] = useState(false);
 
     const showFlyout = FlyoutContent && open;
@@ -68,39 +71,158 @@ export const FlyoutLink = ({ children, FlyoutContent, array }) => {
                 {children}
             </span>
 
-            <AnimatePresence>
-                {showFlyout && (
-                    <motion.div
-                    className="absolute -right-[6rem] lg:-right-[8rem] top-[4.2rem] z-30"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 15 }}
-                    style={{ translateX: "-50%" }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}>
-                        <FlyoutContent selectedArray={array} />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div className=" absolute right-0 lg:-right-[8rem] ">
+                <AnimatePresence>
+                    {showFlyout && (
+                        <motion.div
+                        className=" z-30 pt-4"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 15 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}>
+                            <FlyoutContent selectedArray={array} userMode={userMode} userId={userId}/>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 };
 
-export const userActions = ({selectedArray}) => {
+export const userActions = ({selectedArray, userMode, userId}) => {
     const navigate = useNavigate();
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
     const handleAction = async(text) => {
-        if (text === 'LogOut') {
-            const { error } = await supabase.auth.signOut();
-            navigate(`/`)
+        switch (text) {
+            case 'LogOut':
+                const { error } = await supabase.auth.signOut();
+                navigate(`/`)
+                break;
+            case 'Delete account':
+                onOpen();
+                console.log(text)
+                break;
+            default:
+                break;
+        }
+    };
+
+    const handelAccDel = () => {
+        switch (userMode) {
+            case 'admin':
+                toast.promise(adminDelete(), {
+                    loading: 'Removing admin...',
+                    success: 'Admin deleted successfully!',
+                    error: 'Error deleting admin!',
+                }, {style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                break;
+
+            case 'teachers':
+                toast.promise(teacherDelete(), {
+                    loading: 'Removing teacher...',
+                    success: 'Teacher deleted successfully!',
+                    error: 'Error deleting teacher!',
+                }, {style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                break;
+                
+            default:
+                break;
+        }
+    };
+
+    const adminDelete = async() => {
+        try {
+            const {data: adminDelData, error: adminDelError} = await supabase
+                .from('admin')
+                .delete()
+                .eq('uniqId', userId);
+            
+            if (adminDelError) {
+                console.log('Admin not deleted!', adminDelError);
+                toast.error('Admin not deleted!', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                return;
+            }
+
+            if (adminDelData) {
+                console.log('Admin deleted successfully!', adminDelData);
+                toast.success('Admin deleted successfully!', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            }
+            
+            navigate('/');
+        } catch (error) {
+            console.log('Error is deleting admin!', error);
+            toast.error('Error occurred during admin deletion!', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+        }
+    };
+
+    const teacherDelete = async() => {
+        try {
+            const {data: teacherDelData, error: teacherDelError} = await supabase
+                .from('teachers')
+                .delete()
+                .eq('uniqId', userId);
+            
+            if (teacherDelError) {
+                console.log('Teacher not deleted!', teacherDelError);
+                toast.error('Teacher not deleted!', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            } else {
+                
+            }
+
+            navigate('/');
+        } catch (error) {
+            console.log('Error is deleting teacher!', error);
+            toast.error('Error occurred during teacher deletion!', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
         }
     };
 
     return (
-        <div className=" bg-gradient-to-b from-violet-600 to-indigo-600 rounded-lg py-2.5 lg:py-4 shadow-xl">
+        <div className=" bg-gradient-to-b from-violet-600 to-indigo-600 rounded-lg overflow-hidden shadow-xl">
             {selectedArray.map((item, index) => (
                 <button 
                 onClick={() => handleAction(item.text)}
-                className='w-[12rem] lg:w-[15rem] pl-4 xl:pl-6 no-underline flex items-center md:py-2 gap-x-3 hover:bg-gradient-to-l hover:from-violet-800 hover:to-indigo-800'
+                className='w-[12rem] lg:w-[15rem] pl-4 xl:pl-6 no-underline flex items-center py-3 gap-x-3 hover:bg-gradient-to-l hover:from-violet-800 hover:to-indigo-800'
                 key={item.text+index}>
                     <span className='text-violet-200 text-[1.2rem] xl:text-[1.3rem]'>
                         {item.icon}
@@ -111,6 +233,35 @@ export const userActions = ({selectedArray}) => {
                     </span>
                 </button>
             ))}
+
+            <Modal backdrop={'blur'} isOpen={isOpen} onClose={onClose} className=" bg-slate-600">
+                <ModalContent>
+                {(onClose) => (<>
+                    <ModalHeader className="flex flex-col gap-1 text-slate-200 font-robotoMono">You want to remove your account?</ModalHeader>
+                    
+                    <ModalBody className=" font-montserrat bg-slate-800 rounded-lg p-3 mx-3 text-sm md:text-md">
+                        <p className="text-slate-200">This action is permanent and cannot be undone.</p>
+
+                        <p className="text-slate-200">All of your details will be removed from everywhere.</p>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button 
+                        color="danger" className=" font-robotoMono text-md text-white"
+                        variant="shadow" onPress={onClose}>
+                            Close
+                        </Button>
+
+                        <Button 
+                        color="success" className=" font-robotoMono text-md text-white bg-green-600"
+                        variant="shadow" onPress={onClose}
+                        onClick={handelAccDel}>
+                            Remove
+                        </Button>
+                    </ModalFooter>
+                </>)}
+                </ModalContent>
+            </Modal>
         </div>
     );
 };
@@ -183,13 +334,21 @@ const HamburgerMenu = ({ tabs, setSelected, selected }) => {
     )
 }
 
-export const NavigationActions = ({ navArr, selected, setSelected, personName }) => {
+export const NavigationActions = ({ 
+    navArr, 
+    selected, 
+    setSelected, 
+    personName, 
+    userMode, 
+    userId 
+}) => {
     const logOutOptions = [
         { text: 'LogOut', icon: <CiLogout /> },
+        { text: 'Delete account', icon: <CgUserRemove /> },
     ];
 
     return (
-        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:h-20 h-16 '>
+        <div className='w-full bg-slate-900 rounded-lg flex items-center justify-between px-2 md:px-4 md:h-20 h-16'>
             <div className=' hidden md:block'>
                 <SlidingTabs 
                     tabs={navArr.map((a) => a.name)} 
@@ -206,8 +365,12 @@ export const NavigationActions = ({ navArr, selected, setSelected, personName })
                 />
             </div>
 
-            <FlyoutLink FlyoutContent={userActions} array={logOutOptions}>
-                <div className='cursor-pointer aspect-square w-11 md:w-14 bg-slate-700 text-green-300 flex items-center justify-center text-md md:text-lg font-robotoMono tracking-wider rounded-full overflow-hidden '>
+            <FlyoutLink 
+            FlyoutContent={userActions} 
+            userMode={userMode} 
+            userId={userId} 
+            array={logOutOptions}>
+                <div className='cursor-pointer aspect-square w-11 md:w-14 bg-slate-700 text-green-300 flex items-center justify-center text-md md:text-lg font-robotoMono tracking-wider rounded-full overflow-hidden'>
                     <div className='flex items-center justify-center gap-x-2'>
                         {nameLogo(personName)}
                     </div>

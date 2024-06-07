@@ -215,6 +215,8 @@ const TeacherHomePage = () => {
                     selected={selected} 
                     setSelected={setSelected}
                     personName={teacherData.name}
+                    userMode={'teachers'}
+                    userId={teacherId}
                 />
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
