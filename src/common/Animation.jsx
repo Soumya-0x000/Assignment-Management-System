@@ -8,6 +8,7 @@ import SlidingTabs from './SlidingTabs'
 import { CgUserRemove } from "react-icons/cg";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 export const staggerVariants = {
     initial: {},
@@ -92,6 +93,7 @@ export const FlyoutLink = ({ children, FlyoutContent, array, userMode, userId })
 export const userActions = ({selectedArray, userMode, userId}) => {
     const navigate = useNavigate();
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard)
 
     const handleAction = async(text) => {
         switch (text) {
@@ -201,7 +203,23 @@ export const userActions = ({selectedArray, userMode, userId}) => {
                     }
                 });
             } else {
-                
+                teacherAssignClassDetails.dept.map(async(department) => {
+                    const { data: assignmentEntryDelData, error: assignmentEntryDelError } = await supabase
+                        .from(`${department}assignments`)
+                        .delete()
+                        .eq('uniqId', userId);
+
+                    if (assignmentEntryDelError) {
+                        console.log('Assignment entry not deleted!', assignmentEntryDelError);
+                        toast.error(`${department} Assignment entry not deleted!`, {
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                            }
+                        });
+                    }
+                })
             }
 
             navigate('/');

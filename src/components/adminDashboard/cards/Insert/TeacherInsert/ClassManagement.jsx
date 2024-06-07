@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../../../../CreateClient";
 import toast from "react-hot-toast";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@nextui-org/react";
@@ -28,28 +28,41 @@ const ClassManagement = ({
         sem3: [], 
         sem4: [] 
     });
-    const { teacherAssignClassDetails, deptSemSubjects } = useSelector(state => state.adminDashboard);
+    const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [subjectsData, setSubjectsData] = useState({});
 
     useEffect(() => {
-        const [tempArr] = [deptSemSubjects].map(({id, ...rest}) => rest)
-        setSubjectsData(tempArr)
-    }, [deptSemSubjects])
-
-    // useEffect(() => {
-    //     if (MCAData?.length > 0) {
-    //         console.log(MCAData?.length, MScData)
-    //         const separatedVal = MCAData.map(val => Object.entries(val).map(([key, innerVal]) => innerVal))
-    //         console.log(separatedVal)
-
-    //         console.log(teacherAssignClassDetails.sem.find(val => 'MCA'))
-    //     } else if (MScData?.length > 0) {
-    //         console.log(MScData?.length, MScData)
-    //         const separatedVal = MScData.map(val => Object.entries(val).map(([key, innerVal]) => innerVal))
-    //         console.log(separatedVal)
-    //     }
-    // }, []);
-
+        (async () => {
+            try {
+                const { data: subjectData, error: subjectError } = await supabase
+                    .from('subjects')
+                    .select('MCA, MSc');
+                
+                if (subjectError) {
+                    toast.error('Error in fetching subjects', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+                    console.error('Error in fetching subjects', subjectError);
+                } else {
+                    setSubjectsData(subjectData[0]);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Error in fetching subjects', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            }
+        })();
+    }, []);
+    
     useEffect(() => {
         if (subjectsData) {
             const updatedSubjects = { sem1: [], sem2: [], sem3: [], sem4: [] };

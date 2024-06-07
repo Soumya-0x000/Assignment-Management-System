@@ -21,6 +21,8 @@ export const TeacherAuthSlice = createSlice({
         },
         setTeacherInfo: function(state, action) {
             state.teacherData = action.payload;
+            console.log(state.teacherData)
+
         },
         setAssignmentToRender: function(state, action) {
             state.assignmentToRender = action.payload;
