@@ -53,11 +53,43 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         try {
             const semName = item.sem.split(' ').join('');
             const path = `${item?.department}/${semName}/${item?.name}`
+            const columnName = `${item?.department}assignments`;
 
-            const { data: storageData, error: storageError } = await supabase
-                .storage
-                .from('assignments')
-                .remove([path]);
+            const { data: assignmentTableDelData, error: assignmentTableDelError } = await supabase
+                .from(columnName)
+                .select(item.sem)
+                .eq('uniqId', teacherId)
+            
+            if (assignmentTableDelError) {
+                console.error('Error fetching updated assignments:', assignmentTableDelError.message);
+                toast.error('An error occurred while fetching updated assignments', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                return;
+            } else {
+                // const updatedAssignmentsOnUI = assignments.filter(val => val[0].name !== item.name)
+                // setAssignments(updatedAssignmentsOnUI);
+                // setAssignmentDetails({});
+                // setSearchKeyword('');
+                // setSearchingEnabled(false);
+                // setSearchMode(initialSearchMode)
+            }
+
+            console.log(assignmentTableDelData)
+            
+            const tempAssignmentArr = assignmentTableDelData[0][item.sem][item.subject];
+            const filteredAssignmentArr = tempAssignmentArr.filter(val => val.name !== item.name);
+            const assignmentToInsert = {[item.subject]: filteredAssignmentArr}
+            console.log(assignmentToInsert)
+
+            // const { data: storageData, error: storageError } = await supabase
+            //     .storage
+            //     .from('assignments')
+            //     .remove([path]);
 
             if (storageError) {
                 console.error('Error in deleting file')
@@ -77,21 +109,18 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     }
                 });
                 
-                const columnName = `${item?.department}assignments`;
                 const updatedAssignments = assignments
                     .filter(val => val[0].department === item.department)
                     .filter(val => val[0].name !== item.name)
                 
                 // Update teacher data with new assignments
-                const { data: updateData, error: updateError } = await supabase
+                const { data: teacherAssignmentDelData, error: teacherAssignmentDelError } = await supabase
                     .from('teachers')
-                    .update({
-                        [columnName]: updatedAssignments
-                    })
+                    .update({ [columnName]: updatedAssignments })
                     .eq('uniqId', teacherId);
 
-                if (updateError) {
-                    console.error('Error updating teacher data:', updateError.message);
+                if (teacherAssignmentDelError) {
+                    console.error('Error updating teacher data:', teacherAssignmentDelError.message);
                     toast.error('An error occurred while updating teacher data', {
                         style: {
                             borderRadius: '10px',
@@ -100,11 +129,14 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         }
                     });
                     return;
-                } else {
-                    const updatedAssignmentsOnUI = assignments.filter(val => val[0].name !== item.name)
-                    setAssignments(updatedAssignmentsOnUI);
-                    setAssignmentDetails({});
                 }
+
+                
+
+                // const { data: assignmentData, error: assignmentError } = await supabase
+                //     .from(columnName)
+                //     .update({ [item.sem]: filteredAssignmentArr })
+                //     .eq('uniqId', teacherId)
             }
         } catch (error) {
             console.error('Error in deleting file')
@@ -132,7 +164,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         })
     }
 
-    const handleDownload = async(item) => {
+    const handleFileDownload = async(item) => {
         try {
             const semName = item.sem.split(' ').join('');
             const path = `${item?.department}/${semName}/${item?.name}`
@@ -166,8 +198,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         }
     };
 
-    const handleDownloadToast = (value) => {
-        toast.promise(handleDownload(value), {
+    const handleFileDownloadToast = (value) => {
+        toast.promise(handleFileDownload(value), {
             loading: 'Downloading...',
             success: 'File downloaded successfully',
             error: 'Error in downloading file'
@@ -357,7 +389,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                     </button>
 
                                     <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                    onClick={() => handleDownloadToast(assignment[0])}>
+                                    onClick={() => handleFileDownloadToast(assignment[0])}>
                                         <FaDownload/>
                                     </button>
                                 </div>
