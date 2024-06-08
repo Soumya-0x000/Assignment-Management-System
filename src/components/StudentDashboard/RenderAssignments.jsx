@@ -3,19 +3,36 @@ import { supabase } from '../../CreateClient';
 import { downloadFile, formatSemester, parseDate } from '../../common/customHooks';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { RadioGroup, Tooltip } from '@nextui-org/react';
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, RadioGroup, Tooltip, useDisclosure } from '@nextui-org/react';
 import { CustomRadio } from '../../common/CustomRadioBtn';
 import { motion } from 'framer-motion';
 import { childVariants, staggerVariants } from '../../common/Animation';
-import { FaDownload } from 'react-icons/fa';
 import { useDateFormatter } from "@react-aria/i18n";
+import { FaDownload, FaUpload } from "react-icons/fa6";
+import { FilePond, registerPlugin } from 'react-filepond';
+import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+
+registerPlugin(
+    FilePondPluginImagePreview,
+    FilePondPluginImageExifOrientation,
+    FilePondPluginFileValidateSize,
+    FilePondPluginFileEncode
+);
 
 const RenderAssignments = () => {
+    const {isOpen, onOpen, onClose} = useDisclosure();
     const { studentData } = useSelector(state => state.studentDashboard);
     const [mySubjects, setMySubjects] = useState([]);
     const [myAssignments, setMyAssignments] = useState([]);
     const [renderedAssignments, setRenderedAssignments] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState('All');
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [questionAssignment, setQuestionAssignment] = useState({});
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -50,7 +67,7 @@ const RenderAssignments = () => {
                                 .filter(([key, val]) => key === semName && val)
                                 .flatMap(([key, val]) => val))
                             .filter(Boolean);
-
+                            
                         setMyAssignments(fetchedAssignments);
                         setSelectedSubject('All');
                     }
@@ -69,17 +86,10 @@ const RenderAssignments = () => {
     }, [studentData]);
 
     useEffect(() => {
-        if (Object.keys(studentData).length > 0) {
-            console.log(Object.keys(studentData).length)
-        }
-    }, [studentData])
-
-    useEffect(() => {
         if (selectedSubject === 'All') {
             const tempSelectedSubjects = myAssignments
                 .map(assignment => Object.values(assignment))
                 .flat().flat()
-
             setRenderedAssignments(tempSelectedSubjects);
         } else {
             const tempSelectedSubjects = myAssignments
@@ -89,7 +99,7 @@ const RenderAssignments = () => {
             
             setRenderedAssignments(tempSelectedSubjects);
         }
-    }, [selectedSubject]);
+    }, [selectedSubject, myAssignments]);
 
     const handleFileDownload = async(item) => {
         try {
@@ -139,6 +149,30 @@ const RenderAssignments = () => {
         })
     }
 
+    const handleFileUpload = async() => {
+        console.log(selectedFiles)
+        console.log(questionAssignment)
+    }
+    
+    const handleFileUploadToast = () => {
+        toast.promise(handleFileUpload(), {
+            loading: 'Uploading...',
+            success: 'File uploaded successfully',
+            error: 'Error in uploading file'
+        }, {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
+    }
+
+    const uploadingModal = (item) => {
+        setQuestionAssignment(item)
+        onOpen();
+    }
+
     return (
         <div>
             <RadioGroup 
@@ -154,7 +188,7 @@ const RenderAssignments = () => {
                 </div>
             </RadioGroup>
 
-            <motion.div className=' flex flex-wrap gap-4 rounded-lg overflow-hidden mt-10'
+            <motion.div className=' flex flex-wrap gap-4 rounded-lg overflow-hidden mt-10 bg-gradient-to-br from-pink-600 to-indigo-600 p-4'
             variants={staggerVariants}
             initial="initial"
             animate="animate">
@@ -188,15 +222,95 @@ const RenderAssignments = () => {
                                 onClick={() => handleFileDownloadToast(item)}>
                                     <FaDownload/>
                                 </button>
+                                
+                                <button className=' text-blue-300 text-[17px] bg-blue-700 p-2 rounded-xl active:scale-110 transition-all group-hover:translate-x-1'
+                                onClick={() => uploadingModal(item)}>
+                                    <FaUpload/>
+                                </button>
                             </div>
                         </motion.div>
                     ))}
                 </>) : (
-                    <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg w-full text-slate-200'>
+                    <div className=' text-lg font-robotoMono font-bold bg-slate-800 py-2 px-3 rounded-lg w-full text-slate-200'>
                         No assignments {selectedSubject === 'All' ? '' : selectedSubject}
                     </div>
                 )}
             </motion.div>
+
+            <Modal 
+            backdrop={'blur'} 
+            className=' bg-slate-700 text-slate-200 relative' 
+            isOpen={isOpen} 
+            onClose={onClose}>
+                <ModalContent>
+                {(onClose) => (<>
+                    <ModalHeader className="flex flex-col gap-1">Upload your assignment</ModalHeader>
+
+                    <ModalBody>
+                        <FilePond
+                            files={selectedFiles}
+                            allowMultiple={true}
+                            maxFiles={1}
+                            allowReorder={true}
+                            allowPaste
+                            maxFileSize='5MB'
+                            labelIdle=' <span class="filepond--label-action no-underline font-montserrat text-violet-300">Drag & Drop your files or Browse</span>'
+                            onupdatefiles={setSelectedFiles}
+                            name="filepond"
+                            onaddfilestart={(fileItem) => {
+                                const file = fileItem.file;
+
+                                const acceptedTypes = [
+                                    'application/pdf', 
+                                    'application/msword', 
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+                                    'text/plain'
+                                ];
+
+                                // Check file size
+                                if (file.size > 5 * 1024 * 1024) {
+                                    toast.error(`${file.name} size exceeds 5MB`, {
+                                        style: {
+                                            borderRadius: '10px',
+                                            background: '#333',
+                                            color: '#fff',
+                                        }
+                                    });
+                                    fileItem.abortLoad();
+                                    return;
+                                }
+
+                                // Check file type
+                                if (!acceptedTypes.includes(file.type)) {
+                                    toast.error(`${file.type.split('/')[0]} not accepted`, {
+                                        style: {
+                                            borderRadius: '10px',
+                                            background: '#333',
+                                            color: '#fff',
+                                        }
+                                    });
+                                    fileItem.abortLoad();
+                                    return;
+                                }
+                            }}
+                        />
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button color="danger" className=' text-md font-robotoMono' onPress={onClose}>
+                            Close
+                        </Button>
+
+                        <Button 
+                        color="primary" 
+                        className=' text-md font-robotoMono'
+                        onClick={handleFileUploadToast}>
+                            Upload
+                        </Button>
+                    </ModalFooter>
+                </>)}
+                </ModalContent>
+            </Modal>
         </div>
     )
 }
