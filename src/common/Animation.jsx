@@ -111,7 +111,10 @@ export const userActions = ({selectedArray, userMode, userId}) => {
     };
 
     const handelAccDel = () => {
-        switch (userMode) {
+        let holder = userMode;
+        Array.isArray(userMode) && `${holder = 'student'}`;
+
+        switch (holder) {
             case 'admin':
                 toast.promise(adminDelete(), {
                     loading: 'Removing admin...',
@@ -136,6 +139,19 @@ export const userActions = ({selectedArray, userMode, userId}) => {
                         color: '#fff',
                     }
                 });
+                break;
+
+            case 'student':
+                toast.promise(studentDelete(userMode[1]), {
+                    loading: 'Removing student...',
+                    success: 'Student deleted successfully!',
+                    error: 'Error deleting student!',
+                }, {style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
                 break;
                 
             default:
@@ -226,6 +242,37 @@ export const userActions = ({selectedArray, userMode, userId}) => {
         } catch (error) {
             console.log('Error is deleting teacher!', error);
             toast.error('Error occurred during teacher deletion!', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+        }
+    };
+
+    const studentDelete = async(tableName) => {
+        try {
+            const {data: studentDelData, error: studentDelError} = await supabase
+                .from(tableName)
+                .delete()
+                .eq('uniqId', userId);
+            
+            if (studentDelError) {
+                console.log('Student not deleted!', studentDelError);
+                toast.error('Student not deleted!', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+            }
+
+            navigate('/');
+        } catch (error) {
+            console.log('Error is deleting student!', error);
+            toast.error('Error occurred during student deletion!', {
                 style: {
                     borderRadius: '10px',
                     background: '#333',
@@ -353,12 +400,8 @@ const HamburgerMenu = ({ tabs, setSelected, selected }) => {
 }
 
 export const NavigationActions = ({ 
-    navArr, 
-    selected, 
-    setSelected, 
-    personName, 
-    userMode, 
-    userId 
+    navArr, selected, setSelected, 
+    personName, userMode, userId 
 }) => {
     const logOutOptions = [
         { text: 'LogOut', icon: <CiLogout /> },

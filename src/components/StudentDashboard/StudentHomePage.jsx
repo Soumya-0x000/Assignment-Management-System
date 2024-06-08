@@ -138,7 +138,7 @@ const StudentHomePage = () => {
     };
 
     return (
-        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 sm:px-5'>
+        <div className=' flex flex-col items-center gap-y-8 h-screen overflow-y-auto bg-slate-700 py-3 xmd:px-3 px-2 sm:px-5'>
             {/* navbar */}
             <div className=' w-full'>
                 <NavigationActions
@@ -146,6 +146,8 @@ const StudentHomePage = () => {
                     selected={selected} 
                     setSelected={setSelected}
                     personName={studentData.name}
+                    userMode={['students', studentData.tableName]}
+                    userId={studentData.uniqId}
                 />
 
                 <div className='bg-slate-800 rounded-lg py-2 mt-3 px-2 lg:px-5 h-12 flex items-center justify-start'>
