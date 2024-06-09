@@ -138,7 +138,9 @@ const RenderAssignments = () => {
         }
     };
 
-    const handleFileDownloadToast = (value) => {
+    const handleFileDownloadToast = (value, event) => {
+        event.stopPropagation();
+
         toast.promise(handleFileDownload(value), {
             loading: 'Downloading...',
             success: 'File downloaded successfully',
@@ -280,7 +282,9 @@ const RenderAssignments = () => {
         }
     };
     
-    const handleFileUploadToast = () => {
+    const handleFileUploadToast = (event) => {
+        event.stopPropagation(); 
+
         if (selectedFiles.length > 0) {
             toast.promise(handleFileUpload(), {
                 loading: 'Uploading...',
@@ -305,7 +309,8 @@ const RenderAssignments = () => {
         }
     }
 
-    const uploadingModal = (item) => {
+    const uploadingModal = (item, event) => {
+        event.stopPropagation();
         setQuestionAssignment(item)
         onOpen();
     }
@@ -362,12 +367,12 @@ const RenderAssignments = () => {
 
                             <div className=' flex items-center justify-between mt-3'>
                                 <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:translate-x-1'
-                                onClick={() => handleFileDownloadToast(item)}>
+                                onClick={(e) => handleFileDownloadToast(item, e)}>
                                     <FaDownload/>
                                 </button>
                                 
                                 <button className=' text-blue-300 text-[17px] bg-blue-700 p-2 rounded-xl active:scale-110 transition-all group-hover:translate-x-1'
-                                onClick={() => uploadingModal(item)}>
+                                onClick={(e) => uploadingModal(item, e)}>
                                     <FaUpload/>
                                 </button>
                             </div>
@@ -447,7 +452,7 @@ const RenderAssignments = () => {
                         <Button 
                         color="primary" 
                         className=' text-md font-robotoMono'
-                        onClick={handleFileUploadToast}>
+                        onClick={(e) => handleFileUploadToast(e)}>
                             Upload
                         </Button>
                     </ModalFooter>
