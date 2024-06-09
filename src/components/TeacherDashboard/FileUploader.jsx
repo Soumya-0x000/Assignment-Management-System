@@ -72,7 +72,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             const file = fileItem.file;
             const newFileName = `${fileNameStarter}_${index}_${fileItem.filename}`;
             const fullPath = `${filePath}${newFileName}`;
-            console.log(fullPath)
     
             try {
                 const { data, error } = await supabase
@@ -92,60 +91,76 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                             color: '#fff',
                         }
                     });
-                    return;
-                } else {
-                    const columnName = `${currentValue.dept}assignments`;
-                    const fullSubName = subExistingArray.filter(val => val.name === currentValue.subject)[0]?.fName;
-                    const newAssignment = [{
-                        sem: currentValue.sem,
-                        department: currentValue.dept,
-                        subject: currentValue.subject,
-                        fullSubName,
-                        name: newFileName,
-                        orgName: fileItem.filename,
-                        submitDeadline: deadline
-                    }];
-    
-                    // Fetch existing assignments
-                    const { data: teacherAssignmentData, error: teacherError } = await supabase
-                        .from('teachers')
-                        .select(columnName)
-                        .eq('uniqId', teacherId)
-                        .single();
-    
-                    if (teacherError) {
-                        console.error('Error fetching teacher data:', teacherError.message);
-                        toast.error('An error occurred while fetching teacher data');
-                        return;
-                    }
-    
-                    setAssignments(prev => [...prev, newAssignment]);
-    
-                    let updatedAssignments = teacherAssignmentData ? teacherAssignmentData[columnName] || [] : [];
-                    updatedAssignments.push(newAssignment);
-    
-                    // Update teacher data with new assignments
-                    const { data: updateData, error: updateError } = await supabase
-                        .from('teachers')
-                        .update({
-                            [columnName]: updatedAssignments
-                        })
-                        .eq('uniqId', teacherId);
-                    
-                    if (updateError) {
-                        console.error('Error updating teacher data:', updateError.message);
-                        toast.error('An error occurred while updating teacher data', {
-                            style: {
-                                borderRadius: '10px',
-                                background: '#333',
-                                color: '#fff',
-                            }
-                        });
-                        return;
-                    }
+                    continue;
+                } 
 
-                   insertOnAssignmentTable(newAssignment, columnName);
+                const columnName = `${currentValue.dept}assignments`;
+                const fullSubName = subExistingArray.filter(val => val.name === currentValue.subject)[0]?.fName;
+                const newAssignment = [{
+                    sem: currentValue.sem,
+                    department: currentValue.dept,
+                    subject: currentValue.subject,
+                    fullSubName,
+                    name: newFileName,
+                    orgName: fileItem.filename,
+                    submitDeadline: deadline
+                }];
+
+                // Fetch existing assignments
+                const { data: teacherAssignmentData, error: teacherError } = await supabase
+                    .from('teachers')
+                    .select(columnName)
+                    .eq('uniqId', teacherId)
+                    .single();
+
+                if (teacherError) {
+                    console.error('Error fetching teacher data:', teacherError.message);
+                    toast.error('An error occurred while fetching teacher data', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+
+                    await supabase
+                        .storage
+                        .from('assignments')
+                        .remove([fullPath]);
+                    continue;
                 }
+
+                setAssignments(prev => [...prev, newAssignment]);
+
+                let updatedAssignments = teacherAssignmentData ? teacherAssignmentData[columnName] || [] : [];
+                updatedAssignments.push(newAssignment);
+
+                // Update teacher data with new assignments
+                const { data: updateData, error: updateError } = await supabase
+                    .from('teachers')
+                    .update({
+                        [columnName]: updatedAssignments
+                    })
+                    .eq('uniqId', teacherId);
+                
+                if (updateError) {
+                    console.error('Error updating teacher data:', updateError.message);
+                    toast.error('An error occurred while updating teacher data', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+
+                    await supabase
+                        .storage
+                        .from('assignments')
+                        .remove([fullPath]);
+                    continue;
+                }
+
+                insertOnAssignmentTable(newAssignment, columnName);
             } catch (err) {
                 console.error(`Error uploading file ${newFileName}:`, err);
                 toast.error(`Can't upload`, {

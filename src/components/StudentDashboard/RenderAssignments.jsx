@@ -151,8 +151,6 @@ const RenderAssignments = () => {
     }
 
     const handleFileUpload = async () => {
-        const assignmentStructure = { [questionAssignment.fullSubName]: [] };
-    
         try {
             for (const [index, fileItem] of selectedFiles.entries()) {
                 const file = fileItem?.file;
@@ -161,7 +159,6 @@ const RenderAssignments = () => {
                 const newFileName = `${studentData.department}_${questionAssignment.sem}_${questionAssignment.fullSubName}_${index}_Roll_${studentData.rollNo}_${file.name}`;
                 const filePath = `${questionAssignment.department}/${questionAssignment.sem}/`;
                 const fullPath = `${filePath}${newFileName}`;
-                console.log(selectedFiles);
     
                 const { data: uploadData, error: uploadError } = await supabase
                     .storage
@@ -180,7 +177,32 @@ const RenderAssignments = () => {
                             color: '#fff',
                         },
                     });
-                    return; // Stop further execution if file upload fails
+
+                    continue;
+                }
+    
+                // Fetch current submitted assignments only if the file upload is successful
+                const { data: currentData, error: fetchError } = await supabase
+                    .from(studentData.tableName)
+                    .select('submittedAssignments')
+                    .eq('uniqId', studentData.uniqId);
+    
+                if (fetchError) {
+                    console.log('Error in fetching current submitted assignments:', fetchError);
+                    toast.error('Error in fetching submitted assignments', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    });
+
+                    await supabase
+                        .storage
+                        .from('submittedAssignments')
+                        .remove([fullPath]);
+
+                    continue;
                 }
     
                 const assignmentObj = {
@@ -197,67 +219,53 @@ const RenderAssignments = () => {
                     submittedDate: now(getLocalTimeZone()),
                 };
     
-                assignmentStructure[questionAssignment.fullSubName].push(assignmentObj);
+                const existingAssignments = currentData[0]?.submittedAssignments || {};
+    
+                // Merge the new assignment with existing ones
+                const updatedAssignments = {
+                    ...existingAssignments,
+                    [questionAssignment.fullSubName]: [
+                        ...(existingAssignments[questionAssignment.fullSubName] || []),
+                        assignmentObj,
+                    ],
+                };
+    
+                // Now upsert the updated assignments
+                const { data: upsertData, error: upsertError } = await supabase
+                    .from(studentData.tableName)
+                    .update({
+                        submittedAssignments: updatedAssignments
+                    })
+                    .eq('uniqId', studentData.uniqId);
+    
+                if (upsertError) {
+                    console.log('Error in updating assignment data:', upsertError);
+                    toast.error('Error in updating assignment data', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    });
+
+                    // Clean up the uploaded file if updating data fails
+                    await supabase
+                        .storage
+                        .from('submittedAssignments')
+                        .remove([fullPath]);
+                } else {
+                    console.log('Assignment data updated successfully:', upsertData);
+                    toast.success('Assignment data updated successfully', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    });
+                }
             }
-    
-            // Fetch current submitted assignments
-            const { data: currentData, error: fetchError } = await supabase
-                .from(studentData.tableName)
-                .select('submittedAssignments')
-                .eq('uniqId', studentData.uniqId);
-    
-            if (fetchError) {
-                console.log('Error in fetching current submitted assignments:', fetchError);
-                toast.error('Error in fetching submitted assignments', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
-                });
-                return;
-            }
-    
-            const existingAssignments = currentData[0]?.submittedAssignments || {};
-    
-            // Merge the new assignments with existing ones
-            const updatedAssignments = {
-                ...existingAssignments,
-                [questionAssignment.fullSubName]: [
-                    ...(existingAssignments[questionAssignment.fullSubName] || []),
-                    ...assignmentStructure[questionAssignment.fullSubName],
-                ],
-            };
-    
-            // Now upsert the updated assignments
-            const { data: upsertData, error: upsertError } = await supabase
-                .from(studentData.tableName)
-                .update({ 
-                    submittedAssignments: updatedAssignments 
-                })
-                .eq('uniqId', studentData.uniqId);
-    
-            if (upsertError) {
-                console.log('Error in updating assignment data:', upsertError);
-                toast.error('Error in updating assignment data', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
-                });
-            } else {
-                console.log('Assignment data updated successfully:', upsertData);
-                toast.success('Assignment data updated successfully', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    },
-                });
-                onClose();
-                setSelectedFiles([]);
-            }
+            onClose();
+            setSelectedFiles([]);
         } catch (error) {
             console.log('Error in uploading file:', error);
             toast.error('Error in uploading file', {
