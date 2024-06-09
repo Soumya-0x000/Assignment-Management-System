@@ -16,6 +16,7 @@ import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import {now, getLocalTimeZone} from "@internationalized/date";
 
 registerPlugin(
     FilePondPluginImagePreview,
@@ -149,23 +150,149 @@ const RenderAssignments = () => {
         })
     }
 
-    const handleFileUpload = async() => {
-        console.log(selectedFiles)
-        console.log(questionAssignment)
-    }
+    const handleFileUpload = async () => {
+        const assignmentStructure = { [questionAssignment.fullSubName]: [] };
+    
+        try {
+            for (const [index, fileItem] of selectedFiles.entries()) {
+                const file = fileItem?.file;
+                if (!file) continue;
+    
+                const newFileName = `${studentData.department}_${questionAssignment.sem}_${questionAssignment.fullSubName}_${index}_Roll_${studentData.rollNo}_${file.name}`;
+                const filePath = `${questionAssignment.department}/${questionAssignment.sem}/`;
+                const fullPath = `${filePath}${newFileName}`;
+                console.log(selectedFiles);
+    
+                const { data: uploadData, error: uploadError } = await supabase
+                    .storage
+                    .from('submittedAssignments')
+                    .upload(fullPath, file, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    });
+    
+                if (uploadError) {
+                    console.log('Error in uploading file:', uploadError);
+                    toast.error('Error in uploading file', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    });
+                    return; // Stop further execution if file upload fails
+                }
+    
+                const assignmentObj = {
+                    name: studentData.name,
+                    sem: questionAssignment.sem,
+                    dept: studentData.department,
+                    assignmentName: questionAssignment.name,
+                    assignmentOrgName: questionAssignment.orgName,
+                    subName: questionAssignment.subject,
+                    fullSubName: questionAssignment.fullSubName,
+                    myFileName: newFileName,
+                    myFileOrgName: file.name,
+                    deadline: questionAssignment.submitDeadline,
+                    submittedDate: now(getLocalTimeZone()),
+                };
+    
+                assignmentStructure[questionAssignment.fullSubName].push(assignmentObj);
+            }
+    
+            // Fetch current submitted assignments
+            const { data: currentData, error: fetchError } = await supabase
+                .from(studentData.tableName)
+                .select('submittedAssignments')
+                .eq('uniqId', studentData.uniqId);
+    
+            if (fetchError) {
+                console.log('Error in fetching current submitted assignments:', fetchError);
+                toast.error('Error in fetching submitted assignments', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
+                return;
+            }
+    
+            const existingAssignments = currentData[0]?.submittedAssignments || {};
+    
+            // Merge the new assignments with existing ones
+            const updatedAssignments = {
+                ...existingAssignments,
+                [questionAssignment.fullSubName]: [
+                    ...(existingAssignments[questionAssignment.fullSubName] || []),
+                    ...assignmentStructure[questionAssignment.fullSubName],
+                ],
+            };
+    
+            // Now upsert the updated assignments
+            const { data: upsertData, error: upsertError } = await supabase
+                .from(studentData.tableName)
+                .update({ 
+                    submittedAssignments: updatedAssignments 
+                })
+                .eq('uniqId', studentData.uniqId);
+    
+            if (upsertError) {
+                console.log('Error in updating assignment data:', upsertError);
+                toast.error('Error in updating assignment data', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
+            } else {
+                console.log('Assignment data updated successfully:', upsertData);
+                toast.success('Assignment data updated successfully', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
+                onClose();
+                setSelectedFiles([]);
+            }
+        } catch (error) {
+            console.log('Error in uploading file:', error);
+            toast.error('Error in uploading file', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                },
+            });
+        }
+    };
     
     const handleFileUploadToast = () => {
-        toast.promise(handleFileUpload(), {
-            loading: 'Uploading...',
-            success: 'File uploaded successfully',
-            error: 'Error in uploading file'
-        }, {
-            style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            }
-        })
+        if (selectedFiles.length > 0) {
+            toast.promise(handleFileUpload(), {
+                loading: 'Uploading...',
+                success: 'File uploaded successfully',
+                error: 'Error in uploading file'
+            }, {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        } else {
+            toast.error('Please select a file', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
     }
 
     const uploadingModal = (item) => {
@@ -196,7 +323,7 @@ const RenderAssignments = () => {
                     {renderedAssignments.map((item, indx) => (
                         <motion.div 
                         variants={childVariants}
-                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
+                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
                         key={indx}>
                             <Tooltip color='secondary'
                             content={item.orgName}
@@ -232,7 +359,7 @@ const RenderAssignments = () => {
                     ))}
                 </>) : (
                     <div className=' text-lg font-robotoMono font-bold bg-slate-800 py-2 px-3 rounded-lg w-full text-slate-200'>
-                        No assignments {selectedSubject === 'All' ? '' : selectedSubject}
+                        No assignments for {selectedSubject === 'All' ? '' : selectedSubject}
                     </div>
                 )}
             </motion.div>
@@ -244,13 +371,13 @@ const RenderAssignments = () => {
             onClose={onClose}>
                 <ModalContent>
                 {(onClose) => (<>
-                    <ModalHeader className="flex flex-col gap-1">Upload your assignment</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1 font-robotoMono">Upload your assignment</ModalHeader>
 
                     <ModalBody>
                         <FilePond
                             files={selectedFiles}
                             allowMultiple={true}
-                            maxFiles={1}
+                            maxFiles={3}
                             allowReorder={true}
                             allowPaste
                             maxFileSize='5MB'

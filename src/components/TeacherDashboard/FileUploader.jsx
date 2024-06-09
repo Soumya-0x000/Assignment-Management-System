@@ -72,6 +72,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             const file = fileItem.file;
             const newFileName = `${fileNameStarter}_${index}_${fileItem.filename}`;
             const fullPath = `${filePath}${newFileName}`;
+            console.log(fullPath)
     
             try {
                 const { data, error } = await supabase
@@ -94,10 +95,12 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     return;
                 } else {
                     const columnName = `${currentValue.dept}assignments`;
+                    const fullSubName = subExistingArray.filter(val => val.name === currentValue.subject)[0]?.fName;
                     const newAssignment = [{
                         sem: currentValue.sem,
                         department: currentValue.dept,
                         subject: currentValue.subject,
+                        fullSubName,
                         name: newFileName,
                         orgName: fileItem.filename,
                         submitDeadline: deadline

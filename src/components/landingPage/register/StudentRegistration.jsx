@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { 
-    Modal, 
-    ModalContent, 
-    ModalHeader, 
-    ModalBody, 
-    ModalFooter, 
-    Button, 
-    Input,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem, 
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, 
+    Button, Input,
+    Dropdown, DropdownTrigger, DropdownMenu, DropdownItem
 } from "@nextui-org/react";
 import { MailIcon } from "../icons/MailIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -34,6 +26,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
         dateOfBirth: "",
         semester: "",
         dept: "",
+        rollNo: ''
     });
     const [tableName, setTableName] = useState('studentsSem');
     const [isVisible, setIsVisible] = useState(false);
@@ -42,6 +35,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
     
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(name)
 
         if (name === 'name' || name === 'email' || name === 'password') {
             setCommonAttributes({
@@ -86,17 +80,16 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
             if (userType === 'Student') {
                 const { data, error } = await supabase
                     .from(tableName)
-                    .insert([
-                        {
-                            name: commonAttributes.name,
-                            emailId: commonAttributes.email,
-                            password: commonAttributes.password,
-                            birthDate: studentRegisterData.dateOfBirth,
-                            semester: studentRegisterData.semester,
-                            usnId: studentRegisterData.usnId,
-                            department: studentRegisterData.dept
-                        }
-                    ]);
+                    .insert([{
+                        name: commonAttributes.name,
+                        emailId: commonAttributes.email,
+                        password: commonAttributes.password,
+                        birthDate: studentRegisterData.dateOfBirth,
+                        semester: studentRegisterData.semester,
+                        usnId: studentRegisterData.usnId,
+                        department: studentRegisterData.dept,
+                        rollNo: studentRegisterData.rollNo
+                    }]);
     
                 if (error) {
                     console.error('Error inserting data into student table:', error.message);
@@ -115,7 +108,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
 
     const handleReset = () => {
         setCommonAttributes({name: "", email:"", password: ""});
-        setStudentRegisterData({usnId: "", dateOfBirth: "", semester: "", dept: ""});
+        setStudentRegisterData({usnId: "", dateOfBirth: "", semester: "", dept: "", 'Roll no': ""});
         setIsVisible(false);
     };
     
@@ -128,6 +121,11 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
             loading: 'Registering...',
             success: 'Successfully Registered',
             error: 'Failed to Register',
+        }, {style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
         })
     };
 
@@ -139,7 +137,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
         className="border-[1px] border-slate-300 absolute top-1/2 -translate-y-1/2"
         placement="top-center">
             <ModalContent>
-                <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
+                <ModalHeader className="flex flex-col gap-1 text-xl mb-5 font-robotoMono">
                     Register as {userType}
                 </ModalHeader>
 
@@ -243,6 +241,18 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
                             <DropdownItem key={'4'}>4th semester</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
+
+                    <Input
+                        endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                        label="Roll no"
+                        type='number'
+                        name="rollNo"
+                        value={studentRegisterData.rollNo}
+                        onChange={handleChange}
+                        maxLength={2}
+                        variant="bordered"
+                        required
+                    />
                 </ModalBody>
 
                 <ModalFooter className="mt-10 flex items-center justify-between">
