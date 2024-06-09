@@ -17,6 +17,7 @@ import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import {now, getLocalTimeZone} from "@internationalized/date";
+import SubmittedAssignments from './SubmittedAssignments';
 
 registerPlugin(
     FilePondPluginImagePreview,
@@ -34,6 +35,7 @@ const RenderAssignments = () => {
     const [selectedSubject, setSelectedSubject] = useState('All');
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [questionAssignment, setQuestionAssignment] = useState({});
+    const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -123,7 +125,7 @@ const RenderAssignments = () => {
                 })
             }
                 
-            await downloadFile(downloadData, item);
+            await downloadFile(downloadData, item.orgName);
         } catch (error) {
             console.error('Error in downloading file');
             toast.error('Error in downloading file', {
@@ -308,6 +310,11 @@ const RenderAssignments = () => {
         onOpen();
     }
 
+    const displaySubmittedAssignments = (item) => {
+        setIsSubmittedAssignmentModalOpen(true)
+        setQuestionAssignment(item)
+    };
+
     return (
         <div>
             <RadioGroup 
@@ -332,7 +339,8 @@ const RenderAssignments = () => {
                         <motion.div 
                         variants={childVariants}
                         className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
-                        key={indx}>
+                        key={indx}
+                        onClick={() => displaySubmittedAssignments(item)}>
                             <Tooltip color='secondary'
                             content={item.orgName}
                             className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
@@ -446,6 +454,13 @@ const RenderAssignments = () => {
                 </>)}
                 </ModalContent>
             </Modal>
+
+            <SubmittedAssignments
+                modalStatus={isSubmittedAssignmentModalOpen}
+                setModalStatus={setIsSubmittedAssignmentModalOpen}
+                assignment={questionAssignment}
+                studentId={studentData.uniqId}
+            />
         </div>
     )
 }

@@ -36,17 +36,17 @@ export const nameLogo = (name) => {
 
 export const tableList = ['studentsSem1', 'studentsSem2', 'studentsSem3', 'studentsSem4'];
 
-export const downloadFile = async (downloadData, item) => {
+export const downloadFile = async (downloadData, orgName) => {
     try {
         if (!downloadData) {
             throw new Error('No data available for download');
         }
 
-        const blob = new Blob([downloadData], { type: item.fileType || 'application/octet-stream' });
+        const blob = new Blob([downloadData], { type: 'application/octet-stream' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = item.orgName || 'downloaded_file';
+        link.download = orgName || 'downloaded_file';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

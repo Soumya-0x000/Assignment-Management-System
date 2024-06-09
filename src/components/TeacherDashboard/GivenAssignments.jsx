@@ -196,8 +196,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     }
                 })
             }
-                
-            await downloadFile(downloadData, item);
+            
+            await downloadFile(downloadData, item.orgName);
         } catch (error) {
             console.error('Error in downloading file');
             toast.error('Error in downloading file', {

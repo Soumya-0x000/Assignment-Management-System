@@ -317,7 +317,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         className=" w-full" 
                         isInvalid
                         minValue={today(getLocalTimeZone())}
-                        defaultValue={now(getLocalTimeZone())}
                         onChange={setDeadline} 
                     />
                 </div>

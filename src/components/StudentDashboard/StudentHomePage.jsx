@@ -16,7 +16,6 @@ const navArr = [
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
     { name: 'USN Id', val: 'usnId' },
-    { name: 'Submitted Assignments', val: 'usnId' },
 ];
 
 const StudentHomePage = () => {
