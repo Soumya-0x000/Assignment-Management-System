@@ -19,7 +19,7 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
 
     useEffect(() => {
         (async() => {
-            if (studentId) {
+            if (studentId && modalStatus) {
                 try {
                     const { data: assignmentData, error: assignmentError } = await supabase
                         .from(tableName)
@@ -36,10 +36,11 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                 }
             }
         })()
-    }, [studentId]);
+    }, [studentId, modalStatus]);
 
     useEffect(() => {
-        setAssignmentToRender(assignmentInfo[assignment.fullSubName])
+        const tempArr = assignmentInfo[assignment?.fullSubName]?.filter(val => val.assignmentOrgName === assignment?.orgName)
+        setAssignmentToRender(tempArr)
     }, [assignment, assignmentInfo]);
 
     const handleDeleteModal = (item) => {
@@ -225,7 +226,9 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                 <ModalContent>
                 {(setModalStatus) => (<>
                     <ModalHeader className=" font-robotoMono text-yellow-200 pb-3 border-b-1 mx-3 border-green-300">
-                        Your submitted assignments ({assignmentToRender?.length})
+                        Your submitted assignments {assignmentToRender?.length > 0 && <>
+                            ({assignmentToRender?.length})
+                        </>}
                     </ModalHeader>
 
                     <ModalBody>
@@ -247,12 +250,14 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                             </div>
                         </div>
 
-                        {assignmentToRender?.length > 0 && (
+                        {assignmentToRender?.length > 0 ? (
                             <div className=' flex flex-wrap items-center gap-4 mt-10'>
                                 {assignmentToRender.map((item, indx) => (
                                     <div 
-                                    className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full sm:w-fit'
+                                    className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full sm:w-fit relative'
                                     key={indx}>
+                                        <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>{indx+1}</span>
+
                                         <div className=' text-slate-200 font-mavenPro text-[1.1rem]'>
                                             {item.myFileOrgName}
                                         </div>
@@ -295,6 +300,10 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        ) : (
+                            <div className=' w-full bg-slate-950 p-3 text-lg font-robotoMono rounded-lg text-white'>
+                                You have not submitted any assignment
                             </div>
                         )}
                     </ModalBody>

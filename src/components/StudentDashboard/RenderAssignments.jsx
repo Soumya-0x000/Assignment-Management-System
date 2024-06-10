@@ -343,10 +343,14 @@ const RenderAssignments = () => {
                     {renderedAssignments.map((item, indx) => (
                         <motion.div 
                         variants={childVariants}
-                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
+                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all relative' 
                         key={indx}
                         onClick={() => displaySubmittedAssignments(item)}>
-                            <Tooltip color='secondary'
+                            <span className=' absolute p-2 bg-slate-900 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>
+                                {indx+1}
+                            </span>
+
+                            <Tooltip color='primary'
                             content={item.orgName}
                             className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
                             placement='top'>
