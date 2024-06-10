@@ -384,8 +384,12 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             <motion.div 
                             variants={childVariants}
                             onClick={() => displaySubmittedAssignments(assignment)}
-                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
+                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all relative' 
                             key={indx}>
+                                <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20'>
+                                    {indx+1}
+                                </span>
+
                                 <Tooltip color='secondary'
                                 content={assignment[0].orgName}
                                 className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'

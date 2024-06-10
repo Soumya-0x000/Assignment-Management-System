@@ -1,6 +1,6 @@
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import React, { useEffect, useState } from 'react'
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload } from 'react-icons/fa6';
 import { useDateFormatter } from "@react-aria/i18n";
 import { parseDate } from '../../common/customHooks';
 import toast from 'react-hot-toast';
@@ -8,7 +8,11 @@ import { supabase } from '../../CreateClient';
 
 const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     let formatter = useDateFormatter({dateStyle: "full"});
-    const [assignmentToRender, setAssignmentToRender] = useState({})
+    const [assignmentToRender, setAssignmentToRender] = useState({});
+    const [studentInfo, setStudentInfo] = useState({
+        name: '',
+        rollNo: ''
+    })
 
     const handleFileDownloadToast = (item) => {
         console.log(item)
@@ -16,29 +20,62 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
 
     useEffect(() => {
         (async() => {
-            try {
-                const tableName = `studentsSem${[...assignment?.sem][0]}`
-                const { department, subject, fullSubName } = assignment
+            if (modalStatus) {
+                try {
+                    const tableName = `studentsSem${[...assignment?.sem][0]}`
+                    const { department, fullSubName } = assignment
 
-                const {data: studentData, error: studentError} = await supabase
-                    .from(tableName)
-                    .select('*')
-                    .eq('department', department)
-                    .not('submittedAssignments', 'is', null)
-
-                console.log(studentData)
-
-                setAssignmentToRender(studentData)
-            } catch (error) {
-                console.error('An unexpected error occurred:', error);
-                toast.error('Error in getting student responses', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                        padding: '16px'
+                    const {data: studentData, error: studentError} = await supabase
+                        .from(tableName)
+                        .select('*')
+                        .eq('department', department)
+                        .neq('submittedAssignments', null)
+                    console.log(studentData)
+                    console.log(studentError)
+                    if (studentError) {
+                        console.error('An unexpected error occurred:', studentError);
+                        toast.error('Error in getting student responses', {
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                                padding: '16px'
+                            }
+                        });
                     }
-                })
+
+                    if (studentData.length === 0) {
+                        toast('No responses found', {
+                            icon: '⚠️',
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                                padding: '16px'
+                            }
+                        });
+                        setAssignmentToRender([])
+                    } else {
+                        
+                        const tempArr = studentData?.map(val => val?.submittedAssignments[fullSubName]).flat() || [];
+                        const filteredOnName = tempArr.filter(val => val.assignmentOrgName === assignment?.orgName)
+                        console.log(filteredOnName);
+                        setAssignmentToRender(filteredOnName);
+
+                        const { name, rollNo } = studentData[0];
+                        setStudentInfo({name, rollNo})
+                    }
+                } catch (error) {
+                    console.error('An unexpected error occurred:', error);
+                    toast.error('Error in getting student responses', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                            padding: '16px'
+                        }
+                    })
+                }
             }
         })()
     }, [assignment]);
@@ -53,7 +90,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                 <ModalContent>
                 {(setModalStatus) => (<>
                     <ModalHeader className=" font-robotoMono text-yellow-200 pb-3 border-b-1 mx-3 border-green-300">
-                        Submitted assignments 
+                        Submitted assignments {assignmentToRender?.length > 0 && <>
+                            ({assignmentToRender?.length}) 
+                        </>}
                     </ModalHeader>
 
                     <ModalBody>
@@ -74,7 +113,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                 </div>
                             </div>
                         </div>
-                        {console.log(assignmentToRender)}
+
                         {assignmentToRender?.length > 0 ? (
                             <div className=' flex flex-wrap items-center gap-4 mt-10'>
                                 {assignmentToRender.map((item, indx) => (
@@ -84,7 +123,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                         <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>{indx+1}</span>
 
                                         <div className=' text-slate-200 font-mavenPro text-[1.1rem]'>
-                                            {item.myFileOrgName}
+                                            {item.myFileOrgName} 
                                         </div>
 
                                         <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 space-x-2'>
@@ -116,6 +155,15 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             onClick={() => handleFileDownloadToast(item)}>
                                                 <FaDownload/>
                                             </button>
+                                        </div>
+
+                                        <div className=' text-indigo-300 tracking-wide font-robotoMono font-bold mt-3 py-2 px-3 rounded-lg bg-slate-950 flex flex-col gap-y-3'>
+                                            <span>
+                                                Submitted By: {item?.name}
+                                            </span>
+                                            <span>
+                                                {/* Roll no: {console.log(item)} */}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}
