@@ -74,7 +74,6 @@ export const formatDate = (date) => {
 }
 
 export const parseDate = (dateObj) => {
-    const { year, month, day, hour, minute, second, millisecond, timeZone } = dateObj;
-    const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second, millisecond));
-    return new Date(date.toLocaleString('en-US', { timeZone }));
-};  
+    const { year, month, day } = dateObj;
+    return new Date(year, month - 1, day);
+};

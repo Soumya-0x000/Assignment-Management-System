@@ -58,7 +58,10 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
         e.preventDefault();
     
         try {
-            if (updatedStudentData.semester === studentData.semester) {
+            console.log(typeof(+updatedStudentData.semester))
+            console.log(typeof(+studentData.semester))
+            console.log(currentTableName)
+            if (+updatedStudentData.semester === +studentData.semester) {
                 const { data: responseData, error: responseError } = await supabase
                     .from(tableName)
                     .update({
@@ -67,7 +70,6 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
                         password: updatedStudentData.password.trim(),
                         birthDate: updatedStudentData.birthDate.trim(),
                         semester: updatedStudentData.semester,
-                        department: updatedStudentData.department.trim()
                     })
                     .eq('usnId', usnId)
 
@@ -92,6 +94,7 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
                     handleReset()
                 }
             } else {
+                console.log(updatedStudentData)
                 const { data: responseData, error: responseError } = await supabase
                     .from(currentTableName)
                     .insert({
@@ -101,9 +104,11 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
                         birthDate: updatedStudentData.birthDate.trim(),
                         semester: updatedStudentData.semester,
                         department: updatedStudentData.department.trim(),
-                        usnId: updatedStudentData.usnId.trim()
+                        usnId: updatedStudentData.usnId.trim(),
+                        rollNo: updatedStudentData.rollNo
                     })
-                    
+                    console.log(responseData)
+                    console.log(responseError)
                 if (responseError === null && responseData === null) {
                     const { error: delError } = await supabase
                         .from(tableName)
@@ -122,8 +127,7 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
                     } else {
                         toast.success(`${updatedStudentData.semester > studentData.semester 
                             ? 'Promoted' : 'Demoted'
-                        }`, {
-                            style: {
+                        }`,{style: {
                                 borderRadius: '10px',
                                 background: '#333',
                                 color: '#fff',
@@ -155,8 +159,7 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
             updatedStudentData.emailId.includes('@') &&
             updatedStudentData.password.trim().length >= 6 &&
             updatedStudentData.birthDate !== '' &&
-            updatedStudentData.semester !== '' &&
-            updatedStudentData.department !== '' 
+            updatedStudentData.semester !== '' 
 
         const hasChanged = Object.keys(updatedStudentData).some(key => updatedStudentData[key] !== studentData[key])
 
@@ -253,8 +256,7 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
 
                     <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
                     onAction={(key) => handleDropDown('department', key)}>
-                        <DropdownItem key={'MCA'}>MCA</DropdownItem>
-                        <DropdownItem key={'MSc'}>MSc</DropdownItem>
+                        <DropdownItem key={updatedStudentData.department}>{updatedStudentData.department}</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
 

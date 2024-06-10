@@ -15,6 +15,7 @@ import { childVariants, staggerVariants } from '../../common/Animation';
 import { useSelector } from 'react-redux';
 import { useDateFormatter } from "@react-aria/i18n";
 import { downloadFile, parseDate } from '../../common/customHooks';
+import SubmittedResponses from './SubmittedResponses';
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
@@ -35,6 +36,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [searchMode, setSearchMode] = useState(initialSearchMode);
     const [searchCategoryName, setSearchCategoryName] = useState('orgName');
     const [searchingEnabled, setSearchingEnabled] = useState(false);
+    const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
+    const [questionAssignment, setQuestionAssignment] = useState({});
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -210,7 +213,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         }
     };
 
-    const handleFileDownloadToast = (value) => {
+    const handleFileDownloadToast = (value, event) => {
+        event.stopPropagation();
+
         toast.promise(handleFileDownload(value), {
             loading: 'Downloading...',
             success: 'File downloaded successfully',
@@ -224,7 +229,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         })
     }
 
-    const handleDeleteModal = (assignment) => {
+    const handleDeleteModal = (assignment, event) => {
+        event.stopPropagation();
         setAssignmentDetails(assignment)
         onOpen()
     };
@@ -300,6 +306,11 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         });
     };
 
+    const displaySubmittedAssignments = (item) => {
+        setQuestionAssignment(item[0])
+        setIsSubmittedAssignmentModalOpen(true)
+    };
+
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className=' border-b-2 pb-2'>
@@ -372,6 +383,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         {populatingKey?.map((assignment, indx) => (
                             <motion.div 
                             variants={childVariants}
+                            onClick={() => displaySubmittedAssignments(assignment)}
                             className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all' 
                             key={indx}>
                                 <Tooltip color='secondary'
@@ -395,13 +407,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
                                 <div className=' flex items-center justify-between mt-3'>
                                     <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
-                                    onClick={() => handleDeleteModal(assignment[0])}>
+                                    onClick={(e) => handleDeleteModal(assignment[0], e)}>
                                         <FaRegTrashAlt />
                                         Remove
                                     </button>
 
                                     <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                    onClick={() => handleFileDownloadToast(assignment[0])}>
+                                    onClick={(e) => handleFileDownloadToast(assignment[0], e)}>
                                         <FaDownload/>
                                     </button>
                                 </div>
@@ -444,6 +456,12 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 </>)}
                 </ModalContent>
             </Modal>
+
+            <SubmittedResponses
+                modalStatus={isSubmittedAssignmentModalOpen}
+                setModalStatus={setIsSubmittedAssignmentModalOpen}
+                assignment={questionAssignment}
+            />
         </div>
     )
 }

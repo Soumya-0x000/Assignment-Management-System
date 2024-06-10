@@ -36,6 +36,7 @@ const RenderAssignments = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [questionAssignment, setQuestionAssignment] = useState({});
     const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
+    const [isDeadlineExceeded, setIsDeadlineExceeded] = useState(false);
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -312,7 +313,27 @@ const RenderAssignments = () => {
     const uploadingModal = (item, event) => {
         event.stopPropagation();
         setQuestionAssignment(item)
-        onOpen();
+        
+        const { day: dDay, year: dYear, month: dMonth } = item.submitDeadline;
+        const { year, month, day } = now(getLocalTimeZone());
+        
+        const deadlineDate = new Date(dYear, dMonth - 1, dDay);
+        const currentDate = new Date(year, month - 1, day);
+        
+        const isDeadlineExceeded = currentDate > deadlineDate;
+        
+        if(isDeadlineExceeded) {
+            toast('Submission date exceeded', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        } else onOpen();
+        
+        setIsDeadlineExceeded(isDeadlineExceeded)
     }
 
     const displaySubmittedAssignments = (item) => {
@@ -346,7 +367,7 @@ const RenderAssignments = () => {
                         className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all relative' 
                         key={indx}
                         onClick={() => displaySubmittedAssignments(item)}>
-                            <span className=' absolute p-2 bg-slate-900 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>
+                            <span className=' absolute p-2 bg-slate-900 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20'>
                                 {indx+1}
                             </span>
 
@@ -452,13 +473,16 @@ const RenderAssignments = () => {
                         <Button color="danger" className=' text-md font-robotoMono' onPress={onClose}>
                             Close
                         </Button>
-
-                        <Button 
-                        color="primary" 
-                        className=' text-md font-robotoMono'
-                        onClick={(e) => handleFileUploadToast(e)}>
-                            Upload
-                        </Button>
+                        
+                        {!isDeadlineExceeded && (
+                            <Button 
+                            color="primary" 
+                            className=' text-md font-robotoMono'
+                            onClick={(e) => handleFileUploadToast(e)}>
+                                Upload
+                            </Button>
+                        )}
+                        
                     </ModalFooter>
                 </>)}
                 </ModalContent>

@@ -39,8 +39,10 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
     }, [studentId, modalStatus]);
 
     useEffect(() => {
-        const tempArr = assignmentInfo[assignment?.fullSubName]?.filter(val => val.assignmentOrgName === assignment?.orgName)
-        setAssignmentToRender(tempArr)
+        if(assignmentInfo) {
+            const tempArr = assignmentInfo[assignment?.fullSubName]?.filter(val => val.assignmentOrgName === assignment?.orgName)
+            setAssignmentToRender(tempArr)
+        }
     }, [assignment, assignmentInfo]);
 
     const handleDeleteModal = (item) => {
