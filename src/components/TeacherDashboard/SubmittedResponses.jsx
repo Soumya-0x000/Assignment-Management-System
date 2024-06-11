@@ -2,20 +2,74 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from
 import React, { useEffect, useState } from 'react'
 import { FaDownload } from 'react-icons/fa6';
 import { useDateFormatter } from "@react-aria/i18n";
-import { parseDate } from '../../common/customHooks';
+import { downloadFile, parseDate } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
 
 const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     let formatter = useDateFormatter({dateStyle: "full"});
     const [assignmentToRender, setAssignmentToRender] = useState({});
-    const [studentInfo, setStudentInfo] = useState({
+    const [studentInfo, setStudentInfo] = useState([{
         name: '',
         rollNo: ''
-    })
+    }]);
 
     const handleFileDownloadToast = (item) => {
-        console.log(item)
+        toast.promise(handleFileDownload(item), {
+            loading: 'Downloading...',
+            success: 'File downloaded successfully',
+            error: 'Error in downloading file'
+        }, {style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+                padding: '16px'
+            }
+        })
+    };
+
+    const handleFileDownload = async(item) => {
+        try {            
+            const fileName = item?.myFileName;
+            const path = `${item?.dept}/${item?.sem}/${fileName}`;
+
+            const { data: storageData, error: storageError } = await supabase
+                .storage
+                .from('submittedAssignments')
+                .download(path)
+
+            if (storageError) {
+                console.error('Error in downloading file');
+                toast.error('Error in downloading file', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                        padding: '16px'
+                    }
+                });
+            } else {
+                toast.success(`${item.orgName} downloaded successfully`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                        padding: '16px'
+                    }
+                });
+                await downloadFile(storageData, item.myFileOrgName);
+            }
+        } catch (error) {
+            console.error('Error in downloading file');
+            toast.error('Error in downloading file', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                    padding: '16px'
+                }
+            });
+        }
     };
 
     useEffect(() => {
@@ -30,8 +84,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         .select('*')
                         .eq('department', department)
                         .neq('submittedAssignments', null)
-                    console.log(studentData)
-                    console.log(studentError)
+
                     if (studentError) {
                         console.error('An unexpected error occurred:', studentError);
                         toast.error('Error in getting student responses', {
@@ -55,15 +108,16 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                             }
                         });
                         setAssignmentToRender([])
-                    } else {
-                        
-                        const tempArr = studentData?.map(val => val?.submittedAssignments[fullSubName]).flat() || [];
-                        const filteredOnName = tempArr.filter(val => val.assignmentOrgName === assignment?.orgName)
-                        console.log(filteredOnName);
+                    } else if (studentData.length > 0) {                        
+                        const tempArr = (studentData
+                            ?.map(val => val?.submittedAssignments[fullSubName])
+                            .flat()
+                        ).filter(Boolean) || [];
+                        const filteredOnName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
                         setAssignmentToRender(filteredOnName);
 
-                        const { name, rollNo } = studentData[0];
-                        setStudentInfo({name, rollNo})
+                        const studentDetails = studentData.map(({name, rollNo}) => [{name, rollNo}]).flat();
+                        setStudentInfo(studentDetails)
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error);
@@ -120,7 +174,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                     <div 
                                     className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full sm:w-fit relative'
                                     key={indx}>
-                                        <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>{indx+1}</span>
+                                        <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>
+                                            {indx+1}
+                                        </span>
 
                                         <div className=' text-slate-200 font-mavenPro text-[1.1rem]'>
                                             {item.myFileOrgName} 
@@ -162,7 +218,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                                 Submitted By: {item?.name}
                                             </span>
                                             <span>
-                                                {/* Roll no: {console.log(item)} */}
+                                                Roll no: {studentInfo.flatMap(val => val.name === item.name && val.rollNo)}
                                             </span>
                                         </div>
                                     </div>

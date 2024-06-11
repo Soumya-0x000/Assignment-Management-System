@@ -15,6 +15,7 @@ export default {
         'xmd': '510px',
         'postMd': '760px',
         'preLg': '950px',
+        'postLg': '1100px',
         'preXl': '1400px',
         '3xl': '1700px',
       },

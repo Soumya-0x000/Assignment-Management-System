@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
 import { 
     Button, 
+    DatePicker, 
     Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
     Modal, ModalContent, ModalFooter, ModalHeader, 
     Tooltip, useDisclosure 
@@ -16,6 +17,7 @@ import { useSelector } from 'react-redux';
 import { useDateFormatter } from "@react-aria/i18n";
 import { downloadFile, parseDate } from '../../common/customHooks';
 import SubmittedResponses from './SubmittedResponses';
+import { getLocalTimeZone, today, now } from "@internationalized/date";
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
@@ -38,11 +40,14 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [searchingEnabled, setSearchingEnabled] = useState(false);
     const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
     const [questionAssignment, setQuestionAssignment] = useState({});
+    const [isEditingDeadline, setIsEditingDeadline] = useState(new Array(populatingKey.length).fill(false));
+    const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
     useEffect(() => {
         setPopulatingKey([...assignments])
+        setIsEditingDeadline(new Array(assignments.length).fill(false))
     }, [assignments]);
 
     useEffect(() => {
@@ -311,6 +316,57 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         setIsSubmittedAssignmentModalOpen(true)
     };
 
+    const handleDeadlineEdit = async(item) => {
+        console.log(item)
+        console.log(editedDeadline)
+        try {
+            const { data: deadlineData, error: deadlineError } = await supabase
+                .from('teachers')
+                .update({ deadline: item.deadline })
+                .eq('id', item.id)
+
+            if (deadlineError) {
+                console.error('Error in editing deadline')
+                toast.error('Error in editing deadline', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            } else {
+                toast.success('Deadline edited successfully', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            }
+        } catch (error) {
+            console.error('Error in editing deadline')
+            toast.error('Error in editing deadline', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
+
+    const handleDeadlineChange = (indx, event, value) => {
+        event.stopPropagation();
+        
+        const updateDeadline = [...isEditingDeadline]
+        updateDeadline[indx] = !updateDeadline[indx]
+        setIsEditingDeadline(updateDeadline)
+        
+        console.log(value[0]?.submitDeadline)
+        console.log(editedDeadline)
+        // setEditedDeadline(value[0]?.submitDeadline)
+    }
+
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className=' border-b-2 pb-2'>
@@ -375,53 +431,89 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             </div>
 
             {assignments.length ? (
-                <motion.div className='mt-4 flex flex-wrap items-center gap-3'
+                <motion.div className='mt-4 grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4'
                 variants={staggerVariants}
                 initial="initial"
                 animate="animate">
                     {populatingKey.length > 0 ? (<>
                         {populatingKey?.map((assignment, indx) => (
-                            <motion.div 
-                            variants={childVariants}
-                            onClick={() => displaySubmittedAssignments(assignment)}
-                            className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit max-w-full sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all relative' 
-                            key={indx}>
-                                <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20'>
-                                    {indx+1}
-                                </span>
+                            <div className='space-y-1'>
+                                <motion.div 
+                                variants={childVariants}
+                                onClick={() => displaySubmittedAssignments(assignment)}
+                                className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
+                                key={indx}>
+                                    <span className=' sm:h idden absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20 text-[13px]'>
+                                        {indx+1}
+                                    </span>
 
-                                <Tooltip color='secondary'
-                                content={assignment[0].orgName}
-                                className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
-                                placement='top'>
-                                    <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
-                                        {assignment[0].orgName}
+                                    <Tooltip color='secondary'
+                                    content={assignment[0].orgName}
+                                    className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
+                                    placement='top'>
+                                        <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
+                                            {assignment[0].orgName}
+                                        </div>
+                                    </Tooltip>
+
+                                    <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
+                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
+                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
+                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px] line-clamp-1'>{assignment[0].subject}</span>
                                     </div>
-                                </Tooltip>
 
-                                <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
-                                    <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].subject}</span>
+                                    <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
+                                        {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
+                                    </div>
+
+                                    <div className=' flex items-center justify-between mt-3'>
+                                        <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
+                                        onClick={(e) => handleDeleteModal(assignment[0], e)}>
+                                            <FaRegTrashAlt />
+                                            Remove
+                                        </button>
+
+                                        <div className=' space-x-3'>
+                                            <Tooltip color='success'
+                                            content={'Edit deadline'}
+                                            className=' text-yellow-200 bg-yellow-800 font-mono w-fit'
+                                            placement='top'>
+                                                <button className=' text-yellow-400 text-[17px] bg-yellow-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
+                                                onClick={(e) => handleDeadlineChange(indx, e, assignment)}>
+                                                    <FaEdit />
+                                                </button>
+                                            </Tooltip>
+
+                                            <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
+                                            onClick={(e) => handleFileDownloadToast(assignment[0], e)}>
+                                                <FaDownload/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                <div
+                                className={`w-full flex overflow-hidden transition-all duration-00 ease-in-out ${isEditingDeadline[indx] ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className='flex gap-x-2 w-full'>
+                                        <DatePicker 
+                                            hideTimeZone
+                                            showMonthAndYearPickers
+                                            isRequired
+                                            granularity="day"
+                                            className="w-full" 
+                                            isInvalid
+                                            minValue={today(getLocalTimeZone())}
+                                            value={editedDeadline}
+                                            onChange={setEditedDeadline} 
+                                        />
+
+                                        <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
+                                        onClick={() => handleDeadlineEdit(assignment)}>
+                                            Update
+                                        </Button>
+                                    </div>
                                 </div>
-
-                                <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
-                                    {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
-                                </div>
-
-                                <div className=' flex items-center justify-between mt-3'>
-                                    <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
-                                    onClick={(e) => handleDeleteModal(assignment[0], e)}>
-                                        <FaRegTrashAlt />
-                                        Remove
-                                    </button>
-
-                                    <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                    onClick={(e) => handleFileDownloadToast(assignment[0], e)}>
-                                        <FaDownload/>
-                                    </button>
-                                </div>
-                            </motion.div>
+                            </div>
                         ))}
                     </>) : (
                         <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg w-full'>
@@ -467,7 +559,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 assignment={questionAssignment}
             />
         </div>
-    )
+    );
 }
 
 export default GivenAssignments;
