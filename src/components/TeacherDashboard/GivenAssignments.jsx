@@ -41,7 +41,10 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
     const [questionAssignment, setQuestionAssignment] = useState({});
     const [isEditingDeadline, setIsEditingDeadline] = useState(new Array(populatingKey.length).fill(false));
-    const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
+    const [editedDeadline, setEditedDeadline] = useState({
+        existing: '',
+        new: now(getLocalTimeZone())
+    });
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -355,17 +358,25 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         }
     };
 
-    const handleDeadlineChange = (indx, event, value) => {
+    const handleIsDeadlineVisible = (indx, event, value) => {
         event.stopPropagation();
         
         const updateDeadline = [...isEditingDeadline]
         updateDeadline[indx] = !updateDeadline[indx]
         setIsEditingDeadline(updateDeadline)
-        
+
         console.log(value[0]?.submitDeadline)
+        setEditedDeadline(prev => ({
+            ...prev, existing: value[0]?.submitDeadline
+        }))
         console.log(editedDeadline)
-        // setEditedDeadline(value[0]?.submitDeadline)
     }
+        
+    useEffect(() => {
+        // setEditedDeadline(value[0]?.submitDeadline)
+        
+    }, [isEditingDeadline]);
+    console.log(editedDeadline.day)
 
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
@@ -437,12 +448,12 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 animate="animate">
                     {populatingKey.length > 0 ? (<>
                         {populatingKey?.map((assignment, indx) => (
-                            <div className='space-y-1'>
+                            <div className='space-y-1'
+                            key={indx}>
                                 <motion.div 
                                 variants={childVariants}
-                                onClick={() => displaySubmittedAssignments(assignment)}
                                 className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
-                                key={indx}>
+                                onClick={() => displaySubmittedAssignments(assignment)}>
                                     <span className=' sm:h idden absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20 text-[13px]'>
                                         {indx+1}
                                     </span>
@@ -479,7 +490,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                             className=' text-yellow-200 bg-yellow-800 font-mono w-fit'
                                             placement='top'>
                                                 <button className=' text-yellow-400 text-[17px] bg-yellow-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                                onClick={(e) => handleDeadlineChange(indx, e, assignment)}>
+                                                onClick={(e) => handleIsDeadlineVisible(indx, e, assignment)}>
                                                     <FaEdit />
                                                 </button>
                                             </Tooltip>
@@ -503,8 +514,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                             className="w-full" 
                                             isInvalid
                                             minValue={today(getLocalTimeZone())}
-                                            value={editedDeadline}
-                                            onChange={setEditedDeadline} 
+                                            value={editedDeadline.new}
+                                            onChange={setEditedDeadline}
+                                            aria-label='update deadline'
                                         />
 
                                         <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
