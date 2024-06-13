@@ -356,7 +356,7 @@ const RenderAssignments = () => {
                 </div>
             </RadioGroup>
 
-            <motion.div className=' flex flex-wrap gap-4 rounded-lg overflow-hidden mt-10 bg-gradient-to-br from-pink-600 to-indigo-600 p-4'
+            <motion.div className=' grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4 rounded-lg overflow-hidden mt-10 bg-gradient-to-br from-pink-600 to-indigo-600 p-4'
             variants={staggerVariants}
             initial="initial"
             animate="animate">
@@ -364,7 +364,7 @@ const RenderAssignments = () => {
                     {renderedAssignments.map((item, indx) => (
                         <motion.div 
                         variants={childVariants}
-                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group w-full sm:w-fit sm:max-w-[25rem] overflow-hidden cursor-pointer group transition-all relative' 
+                        className='bg-[#19253a] rounded-xl p-3 flex flex-col gap-y-3 group overflow-hidden cursor-pointer group transition-all relative' 
                         key={indx}
                         onClick={() => displaySubmittedAssignments(item)}>
                             <span className=' absolute p-2 bg-slate-900 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20'>

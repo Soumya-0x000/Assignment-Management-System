@@ -160,7 +160,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     continue;
                 }
 
-                insertOnAssignmentTable(newAssignment, columnName);
+                insertOnAssignmentTable(newAssignment, columnName, currentValue.sem);
             } catch (err) {
                 console.error(`Error uploading file ${newFileName}:`, err);
                 toast.error(`Can't upload`, {
@@ -170,13 +170,15 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         color: '#fff',
                     }
                 });
+            } finally {
+                onClose();
             }
         }
     };
 
-    const insertOnAssignmentTable = async (newAssignment, tableName) => {
-        const assignmentTableContent = newAssignment[0];
+    const insertOnAssignmentTable = async (newAssignment, tableName, sem) => {
         const GivenBy = `${teacherData.title} ${teacherData.name}`;
+        const assignmentTableContent = newAssignment[0];
     
         // Fetch the existing record for the teacher
         const { data: existingData, error: fetchError } = await supabase
@@ -197,7 +199,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             return;
         }
     
-        let updatedAssignments = existingData ? existingData[currentValue.sem] || {} : {};
+        let updatedAssignments = existingData ? existingData[sem] || {} : {};
         
         // Ensure the subject key exists in the updatedAssignments
         if (!updatedAssignments[assignmentTableContent.subject]) {
@@ -206,13 +208,14 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     
         // Append the new assignment to the subject array
         updatedAssignments[assignmentTableContent.subject].push(assignmentTableContent);
+        console.log(updatedAssignments)
     
         // Upsert the updated assignments
         const { data: assignmentTableData, error: assignmentTableError } = await supabase
             .from(tableName)
             .upsert({
                 uniqId: teacherId,
-                [currentValue.sem]: updatedAssignments,
+                [sem]: updatedAssignments,
                 GivenBy
             }, {
                 onConflict: ['uniqId']
@@ -230,7 +233,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             return;
         }
     
-        onClose();
         toast.success('Successfully uploaded', {
             style: {
                 borderRadius: '10px',
@@ -314,8 +316,10 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         hideTimeZone
                         showMonthAndYearPickers
                         isRequired
+                        granularity='day'
                         className=" w-full" 
                         isInvalid
+                        value={deadline}
                         minValue={today(getLocalTimeZone())}
                         onChange={setDeadline} 
                     />

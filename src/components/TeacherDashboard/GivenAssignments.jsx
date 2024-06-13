@@ -20,6 +20,7 @@ import SubmittedResponses from './SubmittedResponses';
 import { getLocalTimeZone, today, now } from "@internationalized/date";
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
+    const { teacherData } = useSelector(state => state.teacherAuth);
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
@@ -41,10 +42,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
     const [questionAssignment, setQuestionAssignment] = useState({});
     const [isEditingDeadline, setIsEditingDeadline] = useState(new Array(populatingKey.length).fill(false));
-    const [editedDeadline, setEditedDeadline] = useState({
-        existing: '',
-        new: now(getLocalTimeZone())
-    });
+    const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -289,6 +287,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             }
 
             setSearchKeyword('')
+            setIsEditingDeadline(new Array(populatingKey.length).fill(false))
         }
     }, [searchMode])
 
@@ -320,13 +319,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     };
 
     const handleDeadlineEdit = async(item) => {
-        console.log(item)
-        console.log(editedDeadline)
         try {
+            const columnName = `${item[0]?.department}assignments`;
+
             const { data: deadlineData, error: deadlineError } = await supabase
                 .from('teachers')
-                .update({ deadline: item.deadline })
-                .eq('id', item.id)
+                .select(columnName)
+                .eq('uniqId', teacherId)
 
             if (deadlineError) {
                 console.error('Error in editing deadline')
@@ -338,6 +337,48 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     }
                 })
             } else {
+                const assignmentsArray = deadlineData[0][`${item[0]?.department}assignments`];
+                const foundEntryIndex = assignmentsArray.findIndex(entry => entry[0]?.orgName === item[0]?.orgName);
+                console.log(assignmentsArray[foundEntryIndex])                
+                if (foundEntryIndex === -1) {
+                    toast.error('Assignment not found', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    });
+                    return;
+                }
+                
+                const updatedDeadlineArr = {...assignmentsArray[foundEntryIndex][0]};
+                Object.keys(editedDeadline).forEach(key => {
+                    if (key in updatedDeadlineArr.submitDeadline) {
+                        updatedDeadlineArr.submitDeadline[key] = editedDeadline[key];
+                    }
+                })
+                // console.log(assignmentsArray[foundEntryIndex])
+
+                const { data: updateData, error: updateError } = await supabase
+                    .from('teachers')
+                    .update({
+                        [columnName]: assignmentsArray
+                    })
+                    .eq('uniqId', teacherId);
+
+                if (updateError) {
+                    console.error('Error in editing deadline')
+                    toast.error('Error in editing deadline', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
+                } else {
+                    insertOnAssignmentTable(assignmentsArray[foundEntryIndex], columnName, item[0].sem);
+                }
+
                 toast.success('Deadline edited successfully', {
                     style: {
                         borderRadius: '10px',
@@ -355,28 +396,86 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     color: '#fff',
                 }
             })
+        } finally {
+            setIsEditingDeadline(new Array(populatingKey.length).fill(false));
+            setEditedDeadline(now(getLocalTimeZone()))
         }
     };
+
+    const insertOnAssignmentTable = async (newAssignment, tableName, sem) => {
+        const GivenBy = `${teacherData.title} ${teacherData.name}`;
+        const assignmentTableContent = newAssignment[0];
+    
+        // Fetch the existing record for the teacher
+        const { data: existingData, error: fetchError } = await supabase
+            .from(tableName)
+            .select('*')
+            .eq('uniqId', teacherId)
+            .single();
+    
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116: no rows found
+            console.error('Error fetching existing assignments:', fetchError.message);
+            toast.error('Error occurred while fetching existing assignments', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+    
+        let updatedAssignments = existingData ? existingData[sem] || {} : {};
+        
+        // Ensure the subject key exists in the updatedAssignments
+        if (!updatedAssignments[assignmentTableContent.subject]) {
+            updatedAssignments[assignmentTableContent.subject] = [];
+        }
+    
+        // Append the new assignment to the subject array
+        updatedAssignments[assignmentTableContent.subject].push(assignmentTableContent);
+        console.log(updatedAssignments)
+    
+        // Upsert the updated assignments
+        const { data: assignmentTableData, error: assignmentTableError } = await supabase
+            .from(tableName)
+            .upsert({
+                uniqId: teacherId,
+                [sem]: updatedAssignments,
+                GivenBy
+            }, {
+                onConflict: ['uniqId']
+            });
+    
+        if (assignmentTableError) {
+            console.error('Error updating assignments:', assignmentTableError.message);
+            toast.error('Error occurred on assignment uploading', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+    
+        toast.success('Successfully uploaded', {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        });
+    };
+    
 
     const handleIsDeadlineVisible = (indx, event, value) => {
         event.stopPropagation();
         
-        const updateDeadline = [...isEditingDeadline]
+        const updateDeadline = new Array(populatingKey.length).fill(false)
         updateDeadline[indx] = !updateDeadline[indx]
         setIsEditingDeadline(updateDeadline)
-
-        console.log(value[0]?.submitDeadline)
-        setEditedDeadline(prev => ({
-            ...prev, existing: value[0]?.submitDeadline
-        }))
-        console.log(editedDeadline)
     }
-        
-    useEffect(() => {
-        // setEditedDeadline(value[0]?.submitDeadline)
-        
-    }, [isEditingDeadline]);
-    console.log(editedDeadline.day)
 
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
@@ -514,7 +613,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                             className="w-full" 
                                             isInvalid
                                             minValue={today(getLocalTimeZone())}
-                                            value={editedDeadline.new}
+                                            value={editedDeadline}
                                             onChange={setEditedDeadline}
                                             aria-label='update deadline'
                                         />
