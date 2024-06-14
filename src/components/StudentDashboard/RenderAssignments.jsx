@@ -405,7 +405,7 @@ const RenderAssignments = () => {
                     ))}
                 </>) : (
                     <div className=' text-lg font-robotoMono font-bold bg-slate-800 py-2 px-3 rounded-lg w-full text-slate-200'>
-                        No assignments for {selectedSubject === 'All' ? '' : selectedSubject}
+                        No assignments {selectedSubject === 'All' ? '' : `for ${selectedSubject}`}
                     </div>
                 )}
             </motion.div>

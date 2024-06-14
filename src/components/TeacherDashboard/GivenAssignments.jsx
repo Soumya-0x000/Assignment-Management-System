@@ -245,7 +245,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         e.preventDefault();
 
         if (searchKeyword) {
-            console.log(searchCategoryName,populatingKey)
             const filteredAssignments = populatingKey.filter(val => val[0][searchCategoryName].toLowerCase().includes(searchKeyword.toLowerCase()))
             if (filteredAssignments.length === 0) {
                 toast.error(`No search result found for ${searchKeyword}`, {
@@ -339,7 +338,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             } else {
                 const assignmentsArray = deadlineData[0][`${item[0]?.department}assignments`];
                 const foundEntryIndex = assignmentsArray.findIndex(entry => entry[0]?.orgName === item[0]?.orgName);
-                console.log(assignmentsArray[foundEntryIndex])                
+
                 if (foundEntryIndex === -1) {
                     toast.error('Assignment not found', {
                         style: {
@@ -357,7 +356,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         updatedDeadlineArr.submitDeadline[key] = editedDeadline[key];
                     }
                 })
-                // console.log(assignmentsArray[foundEntryIndex])
 
                 const { data: updateData, error: updateError } = await supabase
                     .from('teachers')
@@ -375,9 +373,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             color: '#fff',
                         }
                     })
-                } else {
-                    insertOnAssignmentTable(assignmentsArray[foundEntryIndex], columnName, item[0].sem);
-                }
+                } else insertOnAssignmentTable(assignmentsArray[foundEntryIndex], columnName, item[0].sem);
 
                 toast.success('Deadline edited successfully', {
                     style: {
@@ -403,13 +399,12 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     };
 
     const insertOnAssignmentTable = async (newAssignment, tableName, sem) => {
-        const GivenBy = `${teacherData.title} ${teacherData.name}`;
-        const assignmentTableContent = newAssignment[0];
+        const assignmentContent = newAssignment[0];
     
         // Fetch the existing record for the teacher
         const { data: existingData, error: fetchError } = await supabase
             .from(tableName)
-            .select('*')
+            .select(sem)
             .eq('uniqId', teacherId)
             .single();
     
@@ -425,27 +420,28 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             return;
         }
     
-        let updatedAssignments = existingData ? existingData[sem] || {} : {};
-        
-        // Ensure the subject key exists in the updatedAssignments
-        if (!updatedAssignments[assignmentTableContent.subject]) {
-            updatedAssignments[assignmentTableContent.subject] = [];
+        let updatedAssignments = existingData ? { ...existingData[sem] } : {};
+    
+        if (!updatedAssignments[assignmentContent.subject]) {
+            updatedAssignments[assignmentContent.subject] = [];
+        } else {
+            const foundEntry = updatedAssignments[assignmentContent.subject].find(item => item.name === assignmentContent.name);
+            if (foundEntry) {
+                for (let key in editedDeadline) {
+                    if (editedDeadline.hasOwnProperty(key)) {
+                        foundEntry.submitDeadline[key] = editedDeadline[key];
+                    }
+                }
+            }
         }
-    
-        // Append the new assignment to the subject array
-        updatedAssignments[assignmentTableContent.subject].push(assignmentTableContent);
-        console.log(updatedAssignments)
-    
+        
         // Upsert the updated assignments
         const { data: assignmentTableData, error: assignmentTableError } = await supabase
             .from(tableName)
-            .upsert({
-                uniqId: teacherId,
+            .update({
                 [sem]: updatedAssignments,
-                GivenBy
-            }, {
-                onConflict: ['uniqId']
-            });
+            })
+            .eq('uniqId', teacherId);
     
         if (assignmentTableError) {
             console.error('Error updating assignments:', assignmentTableError.message);
@@ -468,7 +464,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         });
     };
     
-
+    
     const handleIsDeadlineVisible = (indx, event, value) => {
         event.stopPropagation();
         
@@ -551,7 +547,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             key={indx}>
                                 <motion.div 
                                 variants={childVariants}
-                                className='bg-[#2f3646] rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
+                                className='bg-[#2f3646] h-fit rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
                                 onClick={() => displaySubmittedAssignments(assignment)}>
                                     <span className=' sm:h idden absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20 text-[13px]'>
                                         {indx+1}
