@@ -102,7 +102,10 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                 });
                 
                 // Rollback: Re-upload the file to storage
-                await supabase.storage.from('submittedAssignments').upload(filePath, deleteData);
+                await supabase
+                    .storage
+                    .from('submittedAssignments')
+                    .upload(filePath, deleteData);
                 return;
             }
     
@@ -111,7 +114,13 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                 updatedAssignments[assignmentToDelete.fullSubName] = updatedAssignments[assignmentToDelete.fullSubName].filter(
                     assignment => assignment.myFileName !== assignmentToDelete.myFileName
                 );
+
+                if (updatedAssignments[assignmentToDelete.fullSubName].length === 0) {
+                    delete updatedAssignments[assignmentToDelete.fullSubName];
+                }
             }
+
+            console.log(updatedAssignments)
     
             // Update student data with filtered assignments
             const { data: updateData, error: updateError } = await supabase

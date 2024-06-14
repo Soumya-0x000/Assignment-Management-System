@@ -157,7 +157,8 @@ const StudentHomePage = () => {
                 </div>
             </div>
 
-            {/* <ShiftingCountdown date={studentData?.birthDate}/> */}
+            <ShiftingCountdown date={studentData?.birthDate}/>
+            {console.log(studentData?.birthDate)}
 
             {/* assignments */}
             <div className=' mt-8 w-full'>
