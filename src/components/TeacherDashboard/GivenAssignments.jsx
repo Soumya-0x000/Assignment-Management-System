@@ -20,7 +20,6 @@ import SubmittedResponses from './SubmittedResponses';
 import { getLocalTimeZone, today, now } from "@internationalized/date";
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
-    const { teacherData } = useSelector(state => state.teacherAuth);
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [assignmentDetails, setAssignmentDetails] = useState({});
@@ -463,7 +462,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             }
         });
     };
-    
     
     const handleIsDeadlineVisible = (indx, event, value) => {
         event.stopPropagation();

@@ -33,7 +33,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     
     useEffect(() => {
         const semName = currentValue.sem.split(' ').join('');
-        const pathName = `${currentValue.dept}/${semName}/`;
+        const pathName = `${currentValue.dept}/${semName}`;
         setFilePath(pathName);
 
         const subArr = deptSemClasses[currentValue.dept][semName];
@@ -67,12 +67,47 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             });
             return;
         }
+
+        const getBaseFileName = (fileName) => fileName.split('_').slice(0, -1).join('_');
+
+        // Fetch existing file names before the loop
+        const { data: existingFiles, error: fetchError } = await supabase
+            .storage
+            .from('assignments')
+            .list(filePath);
+
+        if (fetchError) {
+            console.error('Error fetching existing files:', fetchError.message);
+            toast.error('An error occurred while fetching existing files', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            });
+            return;
+        }
+
+        const existingBaseNames = existingFiles.map(file => getBaseFileName(file.name));
     
         for (const [index, fileItem] of selectedFiles.entries()) {
             const file = fileItem.file;
-            const newFileName = `${fileNameStarter}_${index}_${fileItem.filename}`;
-            const fullPath = `${filePath}${newFileName}`;
-    
+            const newFileName = `${fileNameStarter}_${fileItem.filename}_${index}`;
+            const fullPath = `${filePath}/${newFileName}`;
+            const newFileBaseName = getBaseFileName(newFileName);
+            
+            // Check if the new base file name already exists
+            if (existingBaseNames.includes(newFileBaseName)) {
+                toast.error(`File with base name ${newFileBaseName} already exists in ${currentValue.department} ${currentValue.sem}`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                });
+                continue;
+            }
+
             try {
                 const { data, error } = await supabase
                     .storage
@@ -208,7 +243,6 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
     
         // Append the new assignment to the subject array
         updatedAssignments[assignmentTableContent.subject].push(assignmentTableContent);
-        console.log(updatedAssignments)
     
         // Upsert the updated assignments
         const { data: assignmentTableData, error: assignmentTableError } = await supabase
@@ -320,7 +354,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                         className=" w-full" 
                         isInvalid
                         value={deadline}
-                        // minValue={today(getLocalTimeZone())}
+                        minValue={today(getLocalTimeZone())}
                         onChange={setDeadline} 
                     />
                 </div>
