@@ -253,10 +253,10 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                         </div>
 
                         {assignmentToRender?.length > 0 ? (
-                            <div className=' flex flex-wrap items-center gap-4 mt-10'>
+                            <div className=' grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4 mt-10'>
                                 {assignmentToRender.map((item, indx) => (
                                     <div 
-                                    className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full sm:w-fit relative'
+                                    className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full relative'
                                     key={indx}>
                                         <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>{indx+1}</span>
 
