@@ -132,7 +132,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                 }
             }
         })()
-    }, [assignment]);
+    }, [assignment, modalStatus]);
 
     return (
         <div>

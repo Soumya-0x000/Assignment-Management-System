@@ -98,7 +98,7 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
             
             // Check if the new base file name already exists
             if (existingBaseNames.includes(newFileBaseName)) {
-                toast.error(`File with base name ${newFileBaseName} already exists in ${currentValue.department} ${currentValue.sem}`, {
+                toast.error(`File already exists`, {
                     style: {
                         borderRadius: '10px',
                         background: '#333',

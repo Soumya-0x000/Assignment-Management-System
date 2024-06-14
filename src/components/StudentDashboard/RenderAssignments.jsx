@@ -156,14 +156,36 @@ const RenderAssignments = () => {
     }
 
     const handleFileUpload = async () => {
+        const getBaseFileName = (fileName) => fileName.split('_').slice(0, -1).join('_');
+        const filePath = `${questionAssignment.department}/${questionAssignment.sem}`;
+
+        const { data: existingFiles, error: fetchError } = await supabase
+            .storage
+            .from('submittedAssignments')
+            .list(filePath);
+
+        const existingBaseNames = existingFiles.map(file => getBaseFileName(file.name));
+
         try {
             for (const [index, fileItem] of selectedFiles.entries()) {
                 const file = fileItem?.file;
                 if (!file) continue;
     
-                const newFileName = `${studentData.department}_${questionAssignment.sem}_${questionAssignment.fullSubName}_${index}_Roll_${studentData.rollNo}_${file.name}`;
-                const filePath = `${questionAssignment.department}/${questionAssignment.sem}/`;
-                const fullPath = `${filePath}${newFileName}`;
+                const newFileName = `${studentData.department}_${questionAssignment.sem}_${questionAssignment.fullSubName}_Roll_${studentData.rollNo}_${file.name}_${index}`;
+                const fullPath = `${filePath}/${newFileName}`;
+                const newFileBaseName = getBaseFileName(newFileName);
+
+                // Check if the new base file name already exists
+                if (existingBaseNames.includes(newFileBaseName)) {
+                    toast.error(`File already exists`, {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+                    continue;
+                }
     
                 const { data: uploadData, error: uploadError } = await supabase
                     .storage
@@ -259,7 +281,6 @@ const RenderAssignments = () => {
                         .from('submittedAssignments')
                         .remove([fullPath]);
                 } else {
-                    console.log('Assignment data updated successfully:', upsertData);
                     toast.success('Assignment data updated successfully', {
                         style: {
                             borderRadius: '10px',
@@ -269,8 +290,6 @@ const RenderAssignments = () => {
                     });
                 }
             }
-            onClose();
-            setSelectedFiles([]);
         } catch (error) {
             console.log('Error in uploading file:', error);
             toast.error('Error in uploading file', {
@@ -280,6 +299,9 @@ const RenderAssignments = () => {
                     color: '#fff',
                 },
             });
+        } finally {
+            onClose();
+            setSelectedFiles([]);
         }
     };
     
