@@ -1,10 +1,24 @@
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import React, { useEffect, useState } from 'react'
+import { 
+    Button, 
+    Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
+    Modal, ModalBody, ModalContent, ModalFooter, ModalHeader 
+} from '@nextui-org/react';
 import { FaDownload } from 'react-icons/fa6';
 import { useDateFormatter } from "@react-aria/i18n";
 import { downloadFile, parseDate } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
+import { MdOutlineGrade } from "react-icons/md";
+
+const gradeArr = [
+    { value: 'A', color: 'bg-green-400 text-green-900' },
+    { value: 'B', color: 'bg-yellow-300 text-yellow-900' },
+    { value: 'C', color: 'bg-orange-400 text-orange-900' },
+    { value: 'D', color: 'bg-red-400 text-red-900' },
+    { value: 'E', color: 'bg-red-400 text-red-900' },
+    { value: 'F', color: 'bg-[#FF4F39] text-red-900' },
+];
 
 const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     let formatter = useDateFormatter({dateStyle: "full"});
@@ -13,6 +27,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         name: '',
         rollNo: ''
     }]);
+    const [studentGrade, setStudentGrade] = useState({});
 
     const handleFileDownloadToast = (item) => {
         toast.promise(handleFileDownload(item), {
@@ -134,6 +149,17 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         })()
     }, [assignment, modalStatus]);
 
+    const handleGrade = (e, item, indx) => {
+        const newItem = {
+            ...item,
+            grade: e.currentKey
+        }
+        
+        const newAssignmentArr = [...assignmentToRender]
+        newAssignmentArr[indx] = newItem
+        setAssignmentToRender(newAssignmentArr)
+    };
+        
     return (
         <div>
             <Modal 
@@ -182,16 +208,16 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             {item.myFileOrgName} 
                                         </div>
 
-                                        <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 space-x-2'>
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                        <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 flex gap-2'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.sem}
                                             </span>
                                             
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.dept}
                                             </span>
                                             
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.subName}
                                             </span>
                                         </div>
@@ -211,6 +237,39 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             onClick={() => handleFileDownloadToast(item)}>
                                                 <FaDownload/>
                                             </button>
+                                            
+                                            <div className=' flex items- center justify-center gap-x-3'>
+                                                {item?.grade && (
+                                                    <div className=' bg-pink-900 w-16 h-[2.14rem] rounded-xl text-pink-300 flex items-center justify-center font-bold font-oxanium tracking-wider'>
+                                                        {item?.grade}
+                                                    </div>
+                                                )}
+
+                                                <Dropdown>
+                                                    <DropdownTrigger>
+                                                        <button className=' text-yellow-300 text-[26px] bg-yellow-900 p-1 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1 border-none'>
+                                                            <MdOutlineGrade/>
+                                                        </button>
+                                                    </DropdownTrigger>
+
+                                                    <DropdownMenu 
+                                                    selectionMode="single"
+                                                    selectedKeys={item?.grade}
+                                                    onSelectionChange={(e) => handleGrade(e, item, indx)}
+                                                    className=' bg-slate-800 rounded-xl text-slate-200 font-oxanium'
+                                                    closeOnSelect={false}
+                                                    aria-label="Action event example" >
+                                                    {gradeArr.map(dropdownItem => (
+                                                        <DropdownItem key={dropdownItem.value}
+                                                        className={`${dropdownItem.color}`}>
+                                                            <span className=' font-bold'>
+                                                                {dropdownItem.value}
+                                                            </span>
+                                                        </DropdownItem>
+                                                    ))}
+                                                    </DropdownMenu>
+                                                </Dropdown>
+                                            </div>
                                         </div>
 
                                         <div className=' text-indigo-300 tracking-wide font-robotoMono font-bold mt-3 py-2 px-3 rounded-lg bg-slate-950 flex flex-col gap-y-3'>
