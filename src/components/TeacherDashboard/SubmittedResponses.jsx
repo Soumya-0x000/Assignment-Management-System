@@ -1,10 +1,21 @@
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import React, { useEffect, useState } from 'react'
 import { FaDownload } from 'react-icons/fa6';
 import { useDateFormatter } from "@react-aria/i18n";
 import { downloadFile, parseDate } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
+import { MdOutlineGrade } from "react-icons/md";
+
+const gradeArr = [
+    { value: 'AA', color: 'bg-green-400 text-green-900' },
+    { value: 'A+', color: 'bg-green-400 text-green-900' },
+    { value: 'A', color: 'bg-green-400 text-green-900' },
+    { value: 'B', color: 'bg-yellow-300 text-yellow-900' },
+    { value: 'C', color: 'bg-orange-400 text-orange-900' },
+    { value: 'D', color: 'bg-red-400 text-red-900' },
+    { value: 'E', color: 'bg-red-400 text-red-900' },
+];
 
 const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     let formatter = useDateFormatter({dateStyle: "full"});
@@ -182,16 +193,16 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             {item.myFileOrgName} 
                                         </div>
 
-                                        <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 space-x-2'>
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                        <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 flex gap-2'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.sem}
                                             </span>
                                             
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.dept}
                                             </span>
                                             
-                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
+                                            <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.subName}
                                             </span>
                                         </div>
@@ -211,6 +222,28 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             onClick={() => handleFileDownloadToast(item)}>
                                                 <FaDownload/>
                                             </button>
+                                            
+                                            <div>
+                                                <Dropdown>
+                                                    <DropdownTrigger>
+                                                        <button className=' text-yellow-300 text-[26px] bg-yellow-900 p-1 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'>
+                                                            <MdOutlineGrade/>
+                                                        </button>
+                                                    </DropdownTrigger>
+
+                                                    <DropdownMenu className=' bg-slate-800 rounded-xl text-slate-200 font-oxanium'
+                                                    aria-label="Action event example" >
+                                                    {gradeArr.map((item, indx) => (
+                                                        <DropdownItem key={item.value}
+                                                        className={`${item.color}`}>
+                                                            <span className=' font-bold'>
+                                                                {item.value}
+                                                            </span>
+                                                        </DropdownItem>
+                                                    ))}
+                                                    </DropdownMenu>
+                                                </Dropdown>
+                                            </div>
                                         </div>
 
                                         <div className=' text-indigo-300 tracking-wide font-robotoMono font-bold mt-3 py-2 px-3 rounded-lg bg-slate-950 flex flex-col gap-y-3'>
