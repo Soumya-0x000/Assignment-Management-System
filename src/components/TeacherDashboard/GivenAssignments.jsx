@@ -18,6 +18,7 @@ import { useDateFormatter } from "@react-aria/i18n";
 import { downloadFile, parseDate } from '../../common/customHooks';
 import SubmittedResponses from './SubmittedResponses';
 import { getLocalTimeZone, today, now } from "@internationalized/date";
+import { delResponses } from './delResponseAssignments';
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
@@ -60,13 +61,16 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const handleFileDelete = async(item) => {
         try {
             const semName = item.sem.split(' ').join('');
-            const path = `${item?.department}/${semName}/${item?.name}`
+            const path = `${item?.department}/${semName}`
+            const fullPath = `${path}/${item?.name}`
             const columnName = `${item?.department}assignments`;
+
+            delResponses(item, path, teacherId)
 
             const { data: storageData, error: storageError } = await supabase
                 .storage
                 .from('assignments')
-                .remove([path]);
+                .remove([fullPath]);
 
             if (storageError) {
                 console.error('Error in deleting file')

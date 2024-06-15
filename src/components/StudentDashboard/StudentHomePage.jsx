@@ -158,7 +158,6 @@ const StudentHomePage = () => {
             </div>
 
             <ShiftingCountdown date={studentData?.birthDate}/>
-            {console.log(studentData?.birthDate)}
 
             {/* assignments */}
             <div className=' mt-8 w-full'>

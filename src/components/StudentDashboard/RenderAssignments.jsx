@@ -178,6 +178,7 @@ const RenderAssignments = () => {
                 // Check if the new base file name already exists
                 if (existingBaseNames.includes(newFileBaseName)) {
                     toast.error(`File already exists`, {
+                        icon: '⚠️',
                         style: {
                             borderRadius: '10px',
                             background: '#333',

@@ -120,12 +120,15 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                 }
             }
 
-            console.log(updatedAssignments)
+            let assignmentForUploading = {}
+            Object.keys(updatedAssignments).length === 0
+                ? assignmentForUploading = null
+                : assignmentForUploading = updatedAssignments
     
             // Update student data with filtered assignments
             const { data: updateData, error: updateError } = await supabase
                 .from(tableName)
-                .update({ submittedAssignments: updatedAssignments })
+                .update({ submittedAssignments: assignmentForUploading })
                 .eq('uniqId', studentId);
     
             if (updateError) {

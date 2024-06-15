@@ -528,7 +528,7 @@ export const CountdownItem = ({ num, text }) => {
                     initial={{ y: "100%" }}
                     animate={{ y: "0%" }}
                     exit={{ y: "-100%" }}
-                    className=" text-[23px] md:text-2xl lg:text-3xl text-black font-oxanium font-bold lg:font-semibold"
+                    className=" block text-[23px] md:text-2xl lg:text-3xl text-black font-oxanium font-bold lg:font-semibold"
                     transition={{ ease: "backIn", duration: 0.75 }}>
                         {num}
                     </motion.span>

@@ -202,7 +202,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             </span>
                                             
                                             <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
-                                                Submitted date: {formatter.format(parseDate(item.submittedDate))}
+                                                Submission date: {formatter.format(parseDate(item.submittedDate))}
                                             </span>
                                         </div>
 
