@@ -27,8 +27,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         name: '',
         rollNo: ''
     }]);
-    const [selectTedGrade, setSelectTedGrade] = useState(new Set([""]))
+    const [selectTedGrade, setSelectTedGrade] = useState(new Set([""]));
     const [allStudentData, setAllStudentData] = useState({});
+    const [assignmentWithGrade, setAssignmentWithGrade] = useState({});
 
     const handleFileDownloadToast = (item) => {
         toast.promise(handleFileDownload(item), {
@@ -164,23 +165,67 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         newAssignmentArr[indx] = newItem
         setAssignmentToRender(newAssignmentArr);
 
-        const extractedEntry = allStudentData.find(val => val.name === item.name)['submittedAssignments']
-        const temp = extractedEntry[item.fullSubName]
+        const extractedAssignmentEntry = allStudentData.find(val => val.name === item.name)['submittedAssignments']
+        const temp = extractedAssignmentEntry[item.fullSubName]
        
         const getIndex = temp.findIndex(val => val.myFileName === newItem.myFileName)
         temp[getIndex] = newItem
 
         const assignmentToUpload = {
-            ...extractedEntry,
+            ...extractedAssignmentEntry,
             [item.fullSubName]: temp
         }
-        console.log(assignmentToUpload)
+
+        const updatedStudentData = {
+            ...allStudentData,
+            [allStudentData.findIndex(val => val.name === item.name)]: {
+                ...allStudentData[allStudentData.findIndex(val => val.name === item.name)],
+                ['submittedAssignments']: assignmentToUpload
+            }
+        }
+        setAssignmentWithGrade(Object.values(updatedStudentData))
     };
 
     const updateWithGrades = async () => {
         try {
-            console.log(allStudentData)
-            console.log(assignmentToRender)
+            for (const assignment of assignmentWithGrade) {
+                const gradeExistence = Object.values(assignment?.submittedAssignments)
+                ?.map(val => (val
+                    ?.map(val => val?.grade)
+                    ?.filter(Boolean)
+                ))?.flat();
+                
+                if(!gradeExistence.length) return
+
+                const {data: updatedGradeData, error: gradeError} = await supabase
+                    .from(assignment?.tableName)
+                    .update({submittedAssignments: assignment?.submittedAssignments})
+                    .neq('submittedAssignments', null)
+                    .eq('usnId', assignment['usnId'])
+
+                if (gradeError) {
+                    console.error('An unexpected error occurred in updating students with grade:', gradeError);
+                    toast.error('Error in updating students with grade', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                            padding: '16px'
+                        }
+                    })
+                }
+
+                if (updatedGradeData) {
+                    toast.success('Grades updated successfully', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                            padding: '16px'
+                        }
+                    })
+                }
+            }
         } catch (error) {
             console.error('An unexpected error occurred in updating students with grade:', error);
             toast.error('Error in updating students with grade', {
@@ -193,6 +238,34 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
             })
         } finally {
             setModalStatus(false)
+            setAssignmentWithGrade(false)
+            setSelectTedGrade(new Set([""]))
+        }
+    };
+
+    const updateGradeToast = () => {
+        if (assignmentWithGrade) {
+            toast.promise(updateWithGrades(), {
+                loading: 'Updating grades...',
+                success: 'Grades updated successfully',
+                error: 'Error in updating grades'
+            }, {style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                    padding: '16px'
+                }
+            })
+        } else {
+            toast.error('Please grade at least one student', {
+                icon: '⚠️',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                    padding: '16px'
+                }
+            })
         }
     };
         
@@ -288,7 +361,8 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
 
                                                 <Dropdown>
                                                     <DropdownTrigger>
-                                                        <button className=' text-yellow-300 text-[26px] bg-yellow-900 p-1 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1 border-none'>
+                                                        <button className=' text-yellow-300 text-[26px] bg-yellow-900 p-1 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1 border-none'
+                                                        onClick={() => setSelectTedGrade(new Set([""]))}>
                                                             <MdOutlineGrade/>
                                                         </button>
                                                     </DropdownTrigger>
@@ -333,7 +407,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                     </ModalBody>
 
                     <ModalFooter className=' flex items-center justify-between'>
-                        <Button color="secondary" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={updateWithGrades}>
+                        <Button color="secondary" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={updateGradeToast}>
                             Update
                         </Button>
                         
