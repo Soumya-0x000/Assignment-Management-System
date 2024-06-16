@@ -132,11 +132,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 const tempAssignmentArr = assignmentTableDelData[0][item.sem][item.subject];
                 const filteredAssignmentArr = tempAssignmentArr.filter(val => val.name !== item.name);
 
-                if (filteredAssignmentArr.length === 0) {
-                    delete assignmentTableDelData[0][item.sem][item.subject];
-                } else {
-                    assignmentTableDelData[0][item.sem][item.subject] = filteredAssignmentArr;
-                }
+                if (filteredAssignmentArr.length === 0) delete assignmentTableDelData[0][item.sem][item.subject];
+                else assignmentTableDelData[0][item.sem][item.subject] = filteredAssignmentArr;
+                
 
                 const { data: assignmentData, error: assignmentError } = await supabase
                     .from(columnName)

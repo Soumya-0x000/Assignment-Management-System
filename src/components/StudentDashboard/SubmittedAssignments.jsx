@@ -6,8 +6,10 @@ import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { FaDownload } from 'react-icons/fa6';
+import { useSelector } from 'react-redux';
 
 const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentId}) => {
+    const { gradeArr } = useSelector(state => state.teacherAuth);
     let formatter = useDateFormatter({dateStyle: "full"});
     const tableName = useMemo(() => {
         return localStorage.getItem('studentTableName')
@@ -230,6 +232,12 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
         }
     };
 
+    const getGradeColor = (grade) => {
+        const gradeItem = gradeArr.find(item => item.value === grade);
+        if (gradeItem) return gradeItem.color;
+        else return 'bg-gray-400, text-gray-900' ;
+    };
+    
     return (
         <div>
             <Modal 
@@ -270,12 +278,17 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                                     <div 
                                     className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full relative'
                                     key={indx}>
-                                        <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>{indx+1}</span>
+                                        {/* index */}
+                                        <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>
+                                            {indx+1}
+                                        </span>
 
+                                        {/* file name */}
                                         <div className=' text-slate-200 font-mavenPro text-[1.1rem]'>
                                             {item.myFileOrgName}
                                         </div>
 
+                                        {/* sem, dept, subName */}
                                         <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 space-x-2'>
                                             <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
                                                 {item.sem}
@@ -290,6 +303,7 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                                             </span>
                                         </div>
 
+                                        {/* deadline, submitted date */}
                                         <div className=' mt-6 font-jaldi text-green-300 tracking-wider flex flex-col gap-y-3 text-[1.05rem]'>
                                             <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
                                                 Deadline: {formatter.format(parseDate(item.deadline))}
@@ -300,6 +314,7 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                                             </span>
                                         </div>
 
+                                        {/* download and remove button */}
                                         <div className=' flex items-center justify-between mt-9'>
                                             <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
                                             onClick={() => handleDeleteModal(item)}>
@@ -307,10 +322,18 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
                                                 Remove
                                             </button>
 
-                                            <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                            onClick={() => handleFileDownloadToast(item)}>
-                                                <FaDownload/>
-                                            </button>
+                                            <div className=' flex gap-x-2'>
+                                                {item?.grade && (
+                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold font-oxanium tracking-wider`}>
+                                                        {item?.grade}
+                                                    </div>
+                                                )}
+
+                                                <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
+                                                onClick={() => handleFileDownloadToast(item)}>
+                                                    <FaDownload/>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

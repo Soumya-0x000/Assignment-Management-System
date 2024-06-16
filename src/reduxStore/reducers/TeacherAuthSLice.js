@@ -6,7 +6,15 @@ const initialState = {
     selectedTeacherId: '',
     deptSemClasses: {},
     teacherData: [],
-    assignmentToRender: []
+    assignmentToRender: [],
+    gradeArr: [
+        { value: 'A', color: 'bg-green-400 text-green-900' },
+        { value: 'B', color: 'bg-yellow-300 text-yellow-900' },
+        { value: 'C', color: 'bg-orange-400 text-orange-900' },
+        { value: 'D', color: 'bg-red-400 text-red-900' },
+        { value: 'E', color: 'bg-red-400 text-red-900' },
+        { value: 'F', color: 'bg-[#FF4F39] text-red-900' },
+    ]
 };
 
 export const TeacherAuthSlice = createSlice({

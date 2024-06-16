@@ -10,17 +10,11 @@ import { downloadFile, parseDate } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
 import { MdOutlineGrade } from "react-icons/md";
-
-const gradeArr = [
-    { value: 'A', color: 'bg-green-400 text-green-900' },
-    { value: 'B', color: 'bg-yellow-300 text-yellow-900' },
-    { value: 'C', color: 'bg-orange-400 text-orange-900' },
-    { value: 'D', color: 'bg-red-400 text-red-900' },
-    { value: 'E', color: 'bg-red-400 text-red-900' },
-    { value: 'F', color: 'bg-[#FF4F39] text-red-900' },
-];
+import { useSelector } from 'react-redux';
 
 const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
+    const { gradeArr } = useSelector(state => state.teacherAuth);
+
     let formatter = useDateFormatter({dateStyle: "full"});
     const [assignmentToRender, setAssignmentToRender] = useState({});
     const [studentInfo, setStudentInfo] = useState([{
@@ -268,7 +262,13 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
             })
         }
     };
-        
+    
+    const getGradeColor = (grade) => {
+        const gradeItem = gradeArr.find(item => item.value === grade);
+        if (gradeItem) return gradeItem.color;
+        else return 'bg-gray-400, text-gray-900' ;
+    };
+
     return (
         <div>
             <Modal 
@@ -354,7 +354,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             
                                             <div className=' flex items- center justify-center gap-x-3'>
                                                 {item?.grade && (
-                                                    <div className=' bg-pink-900 w-16 h-[2.14rem] rounded-xl text-pink-300 flex items-center justify-center font-bold font-oxanium tracking-wider'>
+                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold font-oxanium tracking-wider`}>
                                                         {item?.grade}
                                                     </div>
                                                 )}
