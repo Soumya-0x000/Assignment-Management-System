@@ -27,7 +27,8 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         name: '',
         rollNo: ''
     }]);
-    const [studentGrade, setStudentGrade] = useState({});
+    const [selectTedGrade, setSelectTedGrade] = useState(new Set([""]))
+    const [allStudentData, setAllStudentData] = useState({});
 
     const handleFileDownloadToast = (item) => {
         toast.promise(handleFileDownload(item), {
@@ -123,7 +124,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                             }
                         });
                         setAssignmentToRender([])
-                    } else if (studentData.length > 0) {                        
+                    } else if (studentData.length > 0) {
+                        setAllStudentData(studentData);
+
                         const tempArr = (studentData
                             ?.map(val => val?.submittedAssignments[fullSubName])
                             .flat()
@@ -133,6 +136,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
 
                         const studentDetails = studentData.map(({name, rollNo}) => [{name, rollNo}]).flat();
                         setStudentInfo(studentDetails)
+                        setSelectTedGrade((new Set([""])))
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error);
@@ -150,14 +154,46 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     }, [assignment, modalStatus]);
 
     const handleGrade = (e, item, indx) => {
-        const newItem = {
-            ...item,
-            grade: e.currentKey
-        }
+        setSelectTedGrade(e)
+        const grade = Array.from(e)[0]
+
+        const newItem = { ...item, grade };
+        !grade && delete newItem.grade
         
         const newAssignmentArr = [...assignmentToRender]
         newAssignmentArr[indx] = newItem
-        setAssignmentToRender(newAssignmentArr)
+        setAssignmentToRender(newAssignmentArr);
+
+        const extractedEntry = allStudentData.find(val => val.name === item.name)['submittedAssignments']
+        const temp = extractedEntry[item.fullSubName]
+       
+        const getIndex = temp.findIndex(val => val.myFileName === newItem.myFileName)
+        temp[getIndex] = newItem
+
+        const assignmentToUpload = {
+            ...extractedEntry,
+            [item.fullSubName]: temp
+        }
+        console.log(assignmentToUpload)
+    };
+
+    const updateWithGrades = async () => {
+        try {
+            console.log(allStudentData)
+            console.log(assignmentToRender)
+        } catch (error) {
+            console.error('An unexpected error occurred in updating students with grade:', error);
+            toast.error('Error in updating students with grade', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                    padding: '16px'
+                }
+            })
+        } finally {
+            setModalStatus(false)
+        }
     };
         
     return (
@@ -200,14 +236,17 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                     <div 
                                     className=' bg-slate-900 rounded-lg overflow-hidden py-3 px-4 w-full relative'
                                     key={indx}>
+                                        {/* index no */}
                                         <span className=' absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold'>
                                             {indx+1}
                                         </span>
 
+                                        {/* name */}
                                         <div className=' text-slate-200 font-mavenPro text-[1.1rem]'>
                                             {item.myFileOrgName} 
                                         </div>
 
+                                        {/* sem, dept, sub */}
                                         <div className=' text-yellow-300 font-robotoMono tracking-wide mt-6 flex gap-2'>
                                             <span className=' bg-[#2e3e67] rounded-lg px-2 py-1 h-fit'>
                                                 {item.sem}
@@ -222,6 +261,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             </span>
                                         </div>
 
+                                        {/* deadline, submission date */}
                                         <div className=' mt-6 font-jaldi text-green-300 tracking-wider flex flex-col gap-y-3 text-[1.05rem]'>
                                             <span className=' bg-[#2e3e67] rounded-lg px-2 py-1'>
                                                 Deadline: {formatter.format(parseDate(item.deadline))}
@@ -232,6 +272,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             </span>
                                         </div>
 
+                                        {/* download and grade */}
                                         <div className=' flex items-center justify-between mt-9'>
                                             <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
                                             onClick={() => handleFileDownloadToast(item)}>
@@ -254,24 +295,25 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
 
                                                     <DropdownMenu 
                                                     selectionMode="single"
-                                                    selectedKeys={item?.grade}
+                                                    selectedKeys={selectTedGrade}
                                                     onSelectionChange={(e) => handleGrade(e, item, indx)}
                                                     className=' bg-slate-800 rounded-xl text-slate-200 font-oxanium'
                                                     closeOnSelect={false}
                                                     aria-label="Action event example" >
-                                                    {gradeArr.map(dropdownItem => (
-                                                        <DropdownItem key={dropdownItem.value}
-                                                        className={`${dropdownItem.color}`}>
-                                                            <span className=' font-bold'>
-                                                                {dropdownItem.value}
-                                                            </span>
-                                                        </DropdownItem>
-                                                    ))}
+                                                        {gradeArr.map(dropdownItem => (
+                                                            <DropdownItem key={dropdownItem.value}
+                                                            className={`${dropdownItem.color}`}>
+                                                                <span className=' font-bold'>
+                                                                    {dropdownItem.value}
+                                                                </span>
+                                                            </DropdownItem>
+                                                        ))}
                                                     </DropdownMenu>
                                                 </Dropdown>
                                             </div>
                                         </div>
 
+                                        {/* submitted by and roll no */}
                                         <div className=' text-indigo-300 tracking-wide font-robotoMono font-bold mt-3 py-2 px-3 rounded-lg bg-slate-950 flex flex-col gap-y-3'>
                                             <span>
                                                 Submitted By: {item?.name}
@@ -290,7 +332,11 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         )}
                     </ModalBody>
 
-                    <ModalFooter>
+                    <ModalFooter className=' flex items-center justify-between'>
+                        <Button color="secondary" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={updateWithGrades}>
+                            Update
+                        </Button>
+                        
                         <Button color="danger" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={() => setModalStatus(false)}>
                             Close
                         </Button>
