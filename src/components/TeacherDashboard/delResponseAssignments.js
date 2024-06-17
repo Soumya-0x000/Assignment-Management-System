@@ -63,7 +63,7 @@ export const delResponses = async (item, path, teacherId) => {
 
             const {data: updatedData, error: updateError} = await supabase
                 .from(tableName)
-                .update({ submittedAssignments: updatedAssignments })
+                .update({ submittedAssignments: Object.keys(updatedAssignments).length > 0 ? updatedAssignments : null })
                 .eq('usnId', assignment['usnId'])
             
             if (updateError) {
