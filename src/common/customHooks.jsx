@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 
 export const formatSemester = (sem) => {
@@ -76,4 +76,20 @@ export const formatDate = (date) => {
 export const parseDate = (dateObj) => {
     const { year, month, day } = dateObj;
     return new Date(year, month - 1, day);
+};
+
+const useDebounce = (text, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(text);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedValue(text);
+        }, delay);
+        
+        return () => {
+            clearTimeout(timer)
+        }
+    }, [text, delay]);
+
+    return debouncedValue;
 };

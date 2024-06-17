@@ -354,7 +354,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             
                                             <div className=' flex items- center justify-center gap-x-3'>
                                                 {item?.grade && (
-                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold font-oxanium tracking-wider`}>
+                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold text-xl font-oxanium tracking-wider`}>
                                                         {item?.grade}
                                                     </div>
                                                 )}

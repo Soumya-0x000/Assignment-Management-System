@@ -69,7 +69,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
             const { data: storageData, error: storageError } = await supabase
                 .storage
-                .from('assignments')
+                // .from('assignments')
                 .remove([fullPath]);
 
             if (storageError) {
@@ -135,7 +135,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 if (filteredAssignmentArr.length === 0) delete assignmentTableDelData[0][item.sem][item.subject];
                 else assignmentTableDelData[0][item.sem][item.subject] = filteredAssignmentArr;
                 
-
                 const { data: assignmentData, error: assignmentError } = await supabase
                     .from(columnName)
                     .update({ [item.sem]: assignmentTableDelData[0][item.sem] })
