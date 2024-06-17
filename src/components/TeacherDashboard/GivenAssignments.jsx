@@ -7,7 +7,7 @@ import {
     Button, 
     DatePicker, 
     Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
-    Modal, ModalContent, ModalFooter, ModalHeader, 
+    Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, 
     Tooltip, useDisclosure 
 } from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
@@ -65,11 +65,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             const fullPath = `${path}/${item?.name}`
             const columnName = `${item?.department}assignments`;
 
-            delResponses(item, path, teacherId)
-
             const { data: storageData, error: storageError } = await supabase
                 .storage
-                // .from('assignments')
+                .from('assignments')
                 .remove([fullPath]);
 
             if (storageError) {
@@ -139,6 +137,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                     .from(columnName)
                     .update({ [item.sem]: assignmentTableDelData[0][item.sem] })
                     .eq('uniqId', teacherId)
+
+                delResponses(item, path, teacherId)
 
                 if (assignmentError) {
                     console.error('Error updating assignment table:', assignmentError.message);
@@ -640,7 +640,11 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             onClose={onClose}>
                 <ModalContent>
                 {(onClose) => (<>
-                    <ModalHeader className="flex flex-col gap-1">Delete {assignmentDetails.orgName} ?</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1 font-robotoMono">Delete {assignmentDetails.orgName} ?</ModalHeader>
+
+                    <ModalBody className=' font-mono text-red-400 font-bold text-lg'>
+                        Deleting your assignment will also delete the student responses.
+                    </ModalBody>
 
                     <ModalFooter>
                         <Button color="danger" className=' text-md font-robotoMono' onPress={onClose}>
