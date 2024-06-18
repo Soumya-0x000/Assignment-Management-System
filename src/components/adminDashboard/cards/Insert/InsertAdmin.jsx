@@ -47,16 +47,16 @@ export const InsertAdmin = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const { data, error } = await supabase
+            const { data: tableInsertData, error: tableInsertError } = await supabase
                 .from('admin')
-                .insert({
+                .upsert({
                     title: commonAttributes.title.trim(),
                     name: commonAttributes.name.trim(), 
                     emailId: commonAttributes.email.trim(), 
                     password: commonAttributes.password.trim() 
-                })
+                }, { onConflict: ['emailId'] })
 
-            if (error) {
+            if (tableInsertError) {
                 toast.error(`Can't insert`, {
                     style: {
                         borderRadius: '10px',
@@ -71,7 +71,23 @@ export const InsertAdmin = () => {
                         background: '#333',
                         color: '#fff',
                     }
+                });
+
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                    email: commonAttributes.email.trim(),
+                    password: commonAttributes.password.trim(),
                 })
+
+                if (signUpError) {
+                    setTimeout(async() => {
+                        const {data: delData, error: delError} = await supabase
+                            .from('admin')
+                            .delete()
+                            .eq('emailId', commonAttributes.email.trim())
+                    }, 600);
+                    throw signUpError;    
+                }
+        
                 handleReset()
             }
         } catch (error) {
@@ -89,8 +105,8 @@ export const InsertAdmin = () => {
         ) {
             toast.promise(handleSubmit(e), {
                 loading: 'Insertion process started...',
-                success: 'Successfully inserted!',
-                error: 'Failed to insert.',
+                success: 'Successfully created new admin!',
+                error: 'Failed to create admin',
                 style: {
                     borderRadius: '10px',
                     background: '#333',

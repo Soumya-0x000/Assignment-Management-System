@@ -1,21 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { 
-    Modal, 
-    ModalContent, 
-    ModalHeader, 
-    ModalBody, 
-    ModalFooter, 
-    Button, 
-    useDisclosure, 
-    Checkbox, 
-    Input, 
-    Link
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, 
+    Button, useDisclosure, Input
 } from "@nextui-org/react";
 import { supabase } from "../../../CreateClient";
 import { MailIcon } from "../icons/MailIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function AdminLogIn() {
@@ -181,8 +173,6 @@ export default function AdminLogIn() {
 
     return (
         <>
-            <Toaster/>
-
             <Button onPress={onOpen} className="bg-gray-900 font-bold font-oxanium tracking-wider text-green-300 sm:text-[17px] text-left rounded-md">
                 Admin
             </Button>
@@ -195,7 +185,7 @@ export default function AdminLogIn() {
             placement="top-center"
             onClose={onClose}>
                 <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1 text-xl mb-5">
+                    <ModalHeader className="flex flex-col gap-1 text-xl mb-5 font-mono">
                         Log in as Admin
                     </ModalHeader>
 

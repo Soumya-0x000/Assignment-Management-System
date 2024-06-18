@@ -65,9 +65,10 @@ const Sidebar = () => {
     }, []);
 
     return (
-        <div className={`${sidebarHold 
+        <div 
+        className={`${sidebarHold 
             ? `min-w-[8rem] max-w-[8rem] md:min-w-[13rem] md:max-w-[13rem]` 
-            : `min-w-[4rem] max-w-[4rem] 
+            : `min-w-[3.4rem] max-w-[3.4rem] 
             md:min-w-[5rem] md:max-w-[5rem] 
             hover:preLg:min-w-[13rem] hover:preLg:max-w-[13rem]`
         } transition-all h-screen flex flex-col items-center justify-between bg-slate-800 rounded-tr-md hover:rounded-tr-lg rounded-br-md hover:rounded-br-lg relative group py-5 overflow-y-auto gap-y-8`}>
@@ -98,7 +99,7 @@ const Sidebar = () => {
             </div>
 
             {/* operational buttons */}
-            <div className=' w-full px-3 space-y-4'>
+            <div className=' w-full px-1.5 space-y-4'>
                 <AdminHome sidebarHold={sidebarHold}/>
                 <SelectTeachers sidebarHold={sidebarHold}/>
                 <SelectStudent sidebarHold={sidebarHold}/>
@@ -112,7 +113,7 @@ const Sidebar = () => {
             content={'LogOut'}
             color='danger'
             closeDelay={0}>
-                <div className=' w-full px-3'>
+                <div className=' w-full px-1.5'>
                     <button className={` h-10 w-full text-white rounded-lg transition-all flex items-center justify-center gap-x-2 bg-[#fc5050] text-lg`}
                     onClick={handleSignOutToaster}>
                         <GrPowerShutdown/>

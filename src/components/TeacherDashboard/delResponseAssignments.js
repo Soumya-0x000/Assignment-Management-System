@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import { supabase } from "../../CreateClient";
 
-export const delResponses = async (item, path, teacherId) => {
+export const delResponses = async (item, path) => {
     const tableName = `studentsSem${[...item.sem][0]}`
 
     try {
