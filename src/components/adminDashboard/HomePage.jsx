@@ -13,6 +13,7 @@ import { BsPersonLinesFill } from 'react-icons/bs';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
 import { NavigationActions } from '../../common/Animation';
 import AllSubjects from './pages/AllSubjects';
+import PendingAdmins from './pages/PendingAdmins';
 
 const navArr = [
     { name: 'Name', val: 'name', title: '' },
@@ -235,6 +236,10 @@ const HomePage = () => {
                 />
             </div>
 
+            <div className=' mt-8 w-full pb-5 flex justify-center'>
+                <PendingAdmins/>
+            </div>
+            
             <div className=' mt-8 w-full pb-5 flex justify-center'>
                 <AllSubjects/>
             </div>

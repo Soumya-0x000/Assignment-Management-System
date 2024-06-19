@@ -31,8 +31,8 @@ const AdminProtectedRoute = () => {
         //         return <Outlet />;
         //     }
         // });
-                return <Outlet />;
     }, []);
+    return <Outlet />;
 
 }
 

@@ -47,9 +47,7 @@ const AdminRegistration = () => {
         });
     };
 
-
     const handleSignUp = async () => {
-        
         try {
             const { data: tableInsertData, error: tableInsertError } = await supabase
                 .from('pendingAdmin')
@@ -57,7 +55,8 @@ const AdminRegistration = () => {
                     title: adminSignUpData.title.trim(),
                     name: adminSignUpData.name.trim(), 
                     emailId: adminSignUpData.email.trim(), 
-                    password: adminSignUpData.password.trim() 
+                    password: adminSignUpData.password.trim(),
+                    createdAt: new Date().toISOString()
                 }, { onConflict: ['emailId'] })
 
             if (tableInsertError) {
@@ -95,7 +94,7 @@ const AdminRegistration = () => {
                 handleReset()
             }
         } catch (error) {
-            console.log(error);
+            console.error(error.message);
             toast.error('Error occurred during creating admin', {
                 style: {
                     borderRadius: '10px',
