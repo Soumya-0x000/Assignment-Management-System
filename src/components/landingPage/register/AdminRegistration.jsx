@@ -79,7 +79,9 @@ const AdminRegistration = () => {
                 const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                     email: adminSignUpData.email.trim(),
                     password: adminSignUpData.password.trim(),
-                })
+                }, {
+                    redirectTo: 'https://assignment-management-system-nine.vercel.app/' 
+                });        
 
                 if (signUpError) {
                     setTimeout(async() => {
