@@ -5,6 +5,7 @@ import TeacherLogIn from './logIn/TeacherLogIn.jsx';
 import AdminLogIn from './logIn/AdminLogIn.jsx';
 import MainRegisterPage from './register/MainRegisterPage.jsx';
 import SlidingTabs from '../../common/SlidingTabs.jsx';
+import AdminRegistration from './register/AdminRegistration.jsx';
 
 const userArr = ['Student', 'Teacher', 'Admin'];
 
@@ -30,9 +31,9 @@ const LandingPage = () => {
                             setSelected={setSelected}
                         />
 
-                        <div className='mt-4 flex justify-between w-full '>
+                        <div className='mt-4 flex justify-between w-full gap-x-4'>
                             {/* login */}
-                            <div className={` flex flex-col ${selected === 'Student' ? ' xsm:max-w-[8rem] sm:max-w-[9rem] max-w-[6.7rem]' : ''} bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md w-full h-[10.5rem]`}>
+                            <div className={` flex flex-col ${selected === ('Student' || 'Admin') ? ' xsm:max-w-[8rem] sm:max-w-[9rem] max-w-[6.7rem]' : ''} bg-[#b2b2b24b] rounded-md overflow-hidden shadow-black shadow-md w-full h-[10.5rem]`}>
                                 <div className=' bg-slate-900 h-16 text-slate-200 font-robotoMono font-bold flex items-center justify-center'>
                                     Sign In
                                 </div>
@@ -57,6 +58,10 @@ const LandingPage = () => {
                             {/* register */}
                             {selected === 'Student' && ( 
                                 <MainRegisterPage userType={selected}/>
+                            )}
+                            
+                            {selected === 'Admin' && ( 
+                                <AdminRegistration userType={selected}/>
                             )}
                         </div>
                     </div>

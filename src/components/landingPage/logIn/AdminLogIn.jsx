@@ -125,6 +125,7 @@ export default function AdminLogIn() {
                 });
                 
                 if (error) throw new Error(error.message);
+
                 if (data.user === null && data.session === null) {
                     toast('Check your mailbox', {
                         icon: '📨',
@@ -136,12 +137,7 @@ export default function AdminLogIn() {
                     });
                 }
 
-                supabase.auth.onAuthStateChange((_, session) => {
-                    setSessionVal(session)
-                    if (session?.user?.role === 'authenticated') {
-                        navigate(`/admindashboard/${adminData[0].uniqId}`)
-                    }
-                })
+                navigate(`/admindashboard/${adminData[0].uniqId}`)  
             } catch (error) {
                 console.error('Error occurred in signing in', error);
                 toast.error('Error occurred in signing in');

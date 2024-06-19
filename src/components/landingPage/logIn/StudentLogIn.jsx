@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { 
-    Modal, 
-    ModalContent, 
-    ModalHeader, 
-    ModalBody, 
-    ModalFooter, 
-    Button, 
-    useDisclosure, 
-    Checkbox, 
-    Input, 
-    Link, 
-    Dropdown, 
-    DropdownTrigger, 
-    DropdownMenu, 
-    DropdownItem
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, 
+    Button, useDisclosure, Checkbox, Input, Link, 
+    Dropdown, DropdownTrigger, DropdownMenu, DropdownItem
 } from "@nextui-org/react";
 import { LockIcon } from "../icons/LockIcon";
 import { supabase } from "../../../CreateClient";
@@ -204,16 +193,6 @@ export default function StudentLogIn({ userType }) {
                                     <DropdownItem key={'MSc'}>MSc</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
-
-                            <div className="flex py-2 px-1 justify-between">
-                                <Checkbox classNames={{ label: "text-small" }}>
-                                    Remember me
-                                </Checkbox>
-
-                                <Link color="primary" href="#" size="sm">
-                                    Forgot password?
-                                </Link>
-                            </div>
                         </ModalBody>
 
                         <ModalFooter className=" mt-5">

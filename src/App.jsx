@@ -6,29 +6,30 @@ import { Toaster } from 'react-hot-toast';
 import AdminDashboard from './components/adminDashboard/AdminDashboard';
 import TeacherHomePage from './components/TeacherDashboard/TeacherHomePage';
 import StudentHomePage from './components/StudentDashboard/StudentHomePage';
+import AdminProtectedRoute from './common/AdminProtectedRoute';
 
 const App = () => {
-    const { adminIsAuthenticated } = useSelector(state => state.adminAuth);
-    const { teacherIsAuthenticated } = useSelector(state => state.teacherAuth);
-    const { studentIsAuthenticated } = useSelector(state => state.studentAuth);
-
     return (
         <>
-            <Toaster/>
+            <Toaster />
             <Router>
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
                     <Route
                         path="/admindashboard/:adminId"
-                        element={adminIsAuthenticated ? <AdminDashboard /> : <Navigate to="/" />}
+                        element={
+                            <AdminProtectedRoute>
+                                <AdminDashboard />
+                            </AdminProtectedRoute>
+                        }
                     />
                     <Route
                         path="/teacherdashboard/:teacherId"
-                        element={teacherIsAuthenticated ? <TeacherHomePage /> : <Navigate to="/" />}
+                        element={ <TeacherHomePage /> }
                     />
                     <Route
                         path="/studentdashboard/:usnid"
-                        element={studentIsAuthenticated ? <StudentHomePage /> : <Navigate to="/" />}
+                        element={ <StudentHomePage /> }
                     />
                 </Routes>
             </Router>

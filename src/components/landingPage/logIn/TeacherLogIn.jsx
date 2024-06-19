@@ -1,15 +1,7 @@
 import React, { useState } from "react";
 import { 
-    Modal, 
-    ModalContent, 
-    ModalHeader, 
-    ModalBody, 
-    ModalFooter, 
-    Button, 
-    useDisclosure, 
-    Checkbox, 
-    Input, 
-    Link
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, 
+    Button, useDisclosure, Checkbox, Input, Link
 } from "@nextui-org/react";
 import { MailIcon } from "../icons/MailIcon";
 import { supabase } from "../../../CreateClient";
