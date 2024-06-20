@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../CreateClient';
-import { formatSemester, shorthandSemester, tableList } from '../../common/customHooks';
+import { formatSemester, shorthandSemester, tableList, titleArr } from '../../common/customHooks';
 import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
 import { HiOutlineIdentification } from "react-icons/hi";
@@ -250,7 +250,6 @@ const HomePage = () => {
 export default HomePage;
 
 const EditAdmin = ({ id, title, name, email, password }) => {
-    const titleArr = ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Prof.', 'Sr.', 'Jr.', 'Smt.'];
 
     const [commonAttributes, setCommonAttributes] = useState({
         id: "",

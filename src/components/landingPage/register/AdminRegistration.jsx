@@ -6,6 +6,7 @@ import { CgLogIn } from 'react-icons/cg'
 import { MailIcon } from '../icons/MailIcon';
 import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { supabase } from '../../../CreateClient';
+import { titleArr } from '../../../common/customHooks';
 
 const AdminRegistration = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -174,11 +175,9 @@ const AdminRegistration = () => {
 
                                                 <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
                                                 onAction={(key) => handleDropDown('title', key)}>
-                                                    <DropdownItem key={'Dr.'}>Dr.</DropdownItem>
-                                                    <DropdownItem key={'Mr.'}>Mr.</DropdownItem>
-                                                    <DropdownItem key={'Mrs.'}>Mrs.</DropdownItem>
-                                                    <DropdownItem key={'Miss'}>Miss</DropdownItem>
-                                                    <DropdownItem key={'Prof.'}>Prof.</DropdownItem>
+                                                    {titleArr.map(title => 
+                                                        <DropdownItem key={title}>{title}</DropdownItem>
+                                                    )}
                                                 </DropdownMenu>
                                             </Dropdown>
                                         </div>

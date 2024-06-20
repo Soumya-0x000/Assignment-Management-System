@@ -78,7 +78,7 @@ export const parseDate = (dateObj) => {
     return new Date(year, month - 1, day);
 };
 
-const useDebounce = (text, delay) => {
+export const useDebounce = (text, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(text);
 
     useEffect(() => {
@@ -93,3 +93,5 @@ const useDebounce = (text, delay) => {
 
     return debouncedValue;
 };
+
+export const titleArr = ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Prof.', 'Sr.', 'Jr.', 'Smt.'];
