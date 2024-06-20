@@ -81,7 +81,8 @@ const AdminRegistration = () => {
                     password: adminSignUpData.password.trim(),
                 }, {
                     redirectTo: 'https://assignment-management-system-nine.vercel.app/' 
-                });        
+                });
+                console.log(signUpData)
 
                 if (signUpError) {
                     setTimeout(async() => {
@@ -148,7 +149,7 @@ const AdminRegistration = () => {
             backdrop="blur"
             isOpen={isOpen} 
             onOpenChange={onClose}
-            className="border-[1px] bg-slate-700 border-slate-300 absolute top-1/2 -translate-y-1/2"
+            className="border-[1px] bg-slate-800 border-slate-300 absolute top-1/2 -translate-y-1/2"
             placement="top-center"
             onClose={onClose}>
                 <ModalContent>

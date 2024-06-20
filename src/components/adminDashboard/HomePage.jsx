@@ -226,7 +226,7 @@ const HomePage = () => {
                 </div>
             </div>
             
-            <div className=' mt-[4rem] xl:mt-[5rem] w-full'>
+            <div className=' mt-[1rem] xl:mt-[5rem] w-full'>
                 <EditAdmin 
                     id={adminDetails.uniqId}
                     title={adminDetails.title}
@@ -236,11 +236,11 @@ const HomePage = () => {
                 />
             </div>
 
-            <div className=' mt-8 w-full pb-5 flex justify-center'>
+            <div className=' w-full flex justify-center'>
                 <PendingAdmins/>
             </div>
             
-            <div className=' mt-8 w-full pb-5 flex justify-center'>
+            <div className=' w-full pb-5 flex justify-center'>
                 <AllSubjects/>
             </div>
         </div>
@@ -250,6 +250,8 @@ const HomePage = () => {
 export default HomePage;
 
 const EditAdmin = ({ id, title, name, email, password }) => {
+    const titleArr = ['Mr.', 'Miss', 'Mrs.', 'Dr.', 'Prof.', 'Sr.', 'Jr.', 'Smt.'];
+
     const [commonAttributes, setCommonAttributes] = useState({
         id: "",
         title: "",
@@ -398,11 +400,9 @@ const EditAdmin = ({ id, title, name, email, password }) => {
 
                                     <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
                                     onAction={(key) => handleDropDown('title', key)}>
-                                        <DropdownItem key={'Dr.'}>Dr.</DropdownItem>
-                                        <DropdownItem key={'Mr.'}>Mr.</DropdownItem>
-                                        <DropdownItem key={'Mrs.'}>Mrs.</DropdownItem>
-                                        <DropdownItem key={'Miss'}>Miss</DropdownItem>
-                                        <DropdownItem key={'Prof.'}>Prof.</DropdownItem>
+                                    {titleArr.map(title => 
+                                        <DropdownItem key={title}>{title}</DropdownItem>
+                                    )}
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
