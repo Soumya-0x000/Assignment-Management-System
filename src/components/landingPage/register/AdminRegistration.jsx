@@ -68,6 +68,7 @@ const AdminRegistration = () => {
                         color: '#fff',
                     }
                 })
+                return
             } else {
                 toast.success(`Successfully inserted ${adminSignUpData.name} as Admin`, {
                     style: {
@@ -80,10 +81,7 @@ const AdminRegistration = () => {
                 const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                     email: adminSignUpData.email.trim(),
                     password: adminSignUpData.password.trim(),
-                }, {
-                    redirectTo: 'https://assignment-management-system-nine.vercel.app/' 
                 });
-                console.log(signUpData)
 
                 if (signUpError) {
                     setTimeout(async() => {
@@ -113,9 +111,9 @@ const AdminRegistration = () => {
 
     const handleSignUpToast = () => {
         const validate = adminSignUpData.name.trim().length > 4 &&
-        adminSignUpData.email.trim().length > 6 &&
-        adminSignUpData.email.includes('@') &&
-        adminSignUpData.password.trim().length >= 6
+            adminSignUpData.email.trim().length > 6 &&
+            adminSignUpData.email.includes('@') &&
+            adminSignUpData.password.trim().length >= 6
         
         if (validate) {
             toast.promise(handleSignUp(), {

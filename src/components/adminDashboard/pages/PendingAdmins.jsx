@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { supabase } from '../../../CreateClient';
 import toast from 'react-hot-toast';
 import { nameLogo } from '../../../common/customHooks';
@@ -16,10 +16,11 @@ const PendingAdmins = () => {
         head: '',
         detail: '',
         actionType: '',
-        action: () => {}
+        action: () => {},
+        index: null
     })
 
-    useEffect(() => {
+    useMemo(() => {
         (async() => {
             const {data: pendingData, error: pendingError} = await supabase
                 .from('pendingAdmin')
@@ -42,12 +43,16 @@ const PendingAdmins = () => {
         })();
     }, []);
 
-    const deleteAdmin = async() => {
+    const filteredAdmins = (mail) => setPendingAdmins(pendingAdmins.filter((admin) => admin.emailId !== mail))
+
+    const deleteAdmin = async(value) => {
         try {
+            const selectedEntry = pendingAdmins[value.index];
+
             const {data: delData, error: delError} = await supabase
                 .from('pendingAdmin')
                 .delete()
-                .eq('emailId', pendingAdmins[0].emailId)
+                .eq('emailId', selectedEntry['emailId'])
 
             if (delError) {
                 console.error('Error occurred during deleting', delError.message);
@@ -55,17 +60,17 @@ const PendingAdmins = () => {
                     const {data: approveData, error: approveError} = await supabase
                         .from('pendingAdmin')
                         .upsert({
-                            title: pendingAdmins[0].title,
-                            name: pendingAdmins[0].name,
-                            emailId: pendingAdmins[0].emailId,
-                            password: pendingAdmins[0].password,
+                            title: selectedEntry['title'],
+                            name: selectedEntry['name'],
+                            emailId: selectedEntry['emailId'],
+                            password: selectedEntry['password'],
                             createdAt: new Date().toISOString()
                         }, { onConflict: ['emailId'] })
                 }, 400);
                 return
             }
 
-            setPendingAdmins(pendingAdmins.filter((admin) => admin.emailId !== admin.emailId))
+            filteredAdmins(selectedEntry['emailId']);
         } catch (error) {
             console.error('Error occurred during deleting', error);
             toast.error('Error occurred during deletion', {
@@ -79,15 +84,18 @@ const PendingAdmins = () => {
         }
     };
 
-    const approveAdmin = async() => {
+    const approveAdmin = async(value) => {
         try {
+            const selectedEntry = pendingAdmins[value.index];
+            console.log(value)
+
             const {data: approveData, error: approveError} = await supabase
                 .from('admin')
                 .insert([{
-                    title: pendingAdmins[0].title,
-                    name: pendingAdmins[0].name,
-                    emailId: pendingAdmins[0].emailId,
-                    password: pendingAdmins[0].password
+                    title: selectedEntry['title'],
+                    name: selectedEntry['name'],
+                    emailId: selectedEntry['emailId'],
+                    password: selectedEntry['password']
                 }])
 
             if (approveError) {
@@ -98,9 +106,7 @@ const PendingAdmins = () => {
             const {data: delData, error: delError} = await supabase
                 .from('pendingAdmin')
                 .delete()
-                .eq('emailId', pendingAdmins[0].emailId)
-            
-            setPendingAdmins(pendingAdmins.filter((admin) => admin.emailId !== admin.emailId));
+                .eq('emailId', selectedEntry['emailId'])
             
             if (delError) {
                 console.error('Error occurred during approving', delError.message);
@@ -108,10 +114,12 @@ const PendingAdmins = () => {
                     const {data: delData, error: delError} = await supabase
                         .from('admin')
                         .delete()
-                        .eq('emailId', admin.emailId)
+                        .eq('emailId', mail)
                 }, 400);
                 return
             }
+            
+            filteredAdmins(selectedEntry['emailId']);
 
             toast.success('Successfully approved', {
                 style: {
@@ -133,15 +141,20 @@ const PendingAdmins = () => {
         }
     };
 
-    const handleModal = ({head, detail, actionType}, callBack) => {
+    const handleModal = ({head, detail, actionType}, callBack, index) => {
+        setModalDetail(prev => ({ 
+            ...prev,
+            head, detail, 
+            actionType, index, 
+            action: callBack
+        }));
         onOpen();
-        setModalDetail({ head, detail, actionType, action: callBack });
     }
 
     const handleActionToast = () => {
         const loadingText = modalDetail.actionType.slice(0, -1)+'ing'
 
-        toast.promise(modalDetail.action(), {
+        toast.promise(modalDetail.action(modalDetail), {
             loading: loadingText,
             success: `done`,
             error: 'something went wrong'
@@ -161,15 +174,17 @@ const PendingAdmins = () => {
             </span>
 
             <div className=' grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 mt-3'>
-                {(pendingAdmins.length > 0) ? pendingAdmins.map((admin, index) => (
+                {(pendingAdmins.length > 0) ? pendingAdmins?.map((admin, index) => (
                     <div key={index} className='flex flex-col gap-y-2 bg-slate-900 rounded-lg px-2 py-3'>
                         <div className=' flex gap-x-2'>
                             <div className='min-w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center'>
-                                <span className='text-md text-slate-200 font-bold tracking-wide font-oxanium'>{nameLogo(admin.name)}</span>
+                                <span className='text-md text-slate-200 font-bold tracking-wide font-oxanium'>
+                                    {nameLogo(admin.name)}
+                                </span>
                             </div>
 
-                            <div className='flex flex-col items-start w-full justify-center gap-y-5 bg-slate-700 rounded-lg p-2'>
-                                <div className='flex items-center gap-x-3 font-mono text-lg text-cyan-200'>
+                            <div className='flex flex-col items-start w-full justify-center gap-y-4 bg-slate-700 rounded-lg line-clamp-1 overflow-hidden p-2'>
+                                <div className='flex items-center gap-x-3 font-mono text-lg text-cyan-200 line-clamp-1'>
                                     {admin.title} {admin.name}
                                 </div>
 
@@ -186,7 +201,7 @@ const PendingAdmins = () => {
                                     head: 'Delete admin ⚠️', 
                                     detail: `Are you sure, you want to delete ${admin.name}`,
                                     actionType: 'Remove'
-                                }, deleteAdmin
+                                }, deleteAdmin, index
                             )}
                             className='text-red-500 hover:text-red-400 text-xl hover:scale-110 transition-all hover:bg-[#711c1c] rounded-full p-2'>
                                 <FaRegTrashCan/>
@@ -198,7 +213,7 @@ const PendingAdmins = () => {
                                     head: 'Approve admin ✅', 
                                     detail: `Are you sure, you want to approve ${admin.name} as admin?`,
                                     actionType: 'Approve' 
-                                }, approveAdmin
+                                }, approveAdmin, index
                             )}
                             className='text-green-400 hover:text-green-500 hover:bg-green-900 rounded-full p-2 text-[1.4rem] hover:scale-110 transition-all'>
                                 <FaUserCheck/>
