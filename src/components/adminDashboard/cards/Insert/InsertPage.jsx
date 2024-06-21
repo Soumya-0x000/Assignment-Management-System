@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import SlidingTabs from '../../../../common/SlidingTabs'
 import { motion } from 'framer-motion';
-import { InsertAdmin } from './InsertAdmin';
 import { InsertTeacher } from './TeacherInsert/InsertTeacher';
 import { InsertStudent } from './InsertStudent';
 

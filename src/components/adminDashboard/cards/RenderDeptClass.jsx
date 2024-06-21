@@ -12,7 +12,7 @@ export const RenderDeptClass = ({data}) => {
                         </p>
                     </div>
 
-                    <div className='grid grid-cols-1sm: grid-cols-2 gap-x-5 gap-y-3 place-content-center place-items-center'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 px-3 place-content-center place-items-center'>
                         {data[val].length > 0 ? data[val]
                         .filter(sub => Object.entries(sub).length > 0)
                         .sort((a, b) => {
@@ -21,7 +21,7 @@ export const RenderDeptClass = ({data}) => {
                             return keyA.localeCompare(keyB)
                         })
                         .map((sub, i) => (   
-                            <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold min-w-[12rem] max-w-[12rem]'
+                            <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
                             key={i}>
                                 <span>{Object.entries(sub)[0][0]}:</span>
                                 <span>{Object.entries(sub)[0][1]}</span>

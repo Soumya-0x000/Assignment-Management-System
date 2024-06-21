@@ -53,7 +53,11 @@ const TeacherCard = () => {
             loading: 'Deleting teacher...',
             success: 'Deletion initiated...!',
             error: 'Failed to initiate deletion...'
-        })
+        }, {style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+        }})
     };
 
     const handleDeleteMiddleware = (index) => {
@@ -66,7 +70,7 @@ const TeacherCard = () => {
 
     return (
         <div className=' w-full h-full overflow-y-auto flex flex-wrap'>
-            <motion.div className='flex items-center justify-center flex-wrap overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
+            <motion.div className='grid md:grid-cols-2 xl:grid-cols-3 overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
             variants={staggerVariants}
             initial='initial'
             animate='animate'>
@@ -74,31 +78,32 @@ const TeacherCard = () => {
                     data && (
                         <motion.div 
                         key={data.emailId + indx}
-                        className='flex flex-wrap flex-col items-center justify-center p-2 bg-[#121118bb] rounded-lg group'
+                        className=' p-2 bg-[#121118bb] rounded-lg group h-fit'
                         variants={childVariants}>
                             {/* private details */}
-                            <div className='w-full flex justify-between gap-x-10 relative'>
+                            <div className='w-full flex justify-between gap-x-6 md:gap-x-2 relative'>
                                 {/* name email */}
                                 <div className=' space-y-2 w-full'>
-                                    {/* name */}
-                                    <p className='text-[1.3rem] font-bold text-[#5bffd0fb] font-onest tracking-wide line-clamp-1'>
+                                    <p className='text-[1.3rem] text-[#5bffd0fb] font-onest tracking-wide line-clamp-1'>
                                         {data.title} {data.name}
                                     </p>
 
-                                    {/* email */}
-                                    <div className=' w-full bg-[#31404d] rounded-lg pr-7'>
-                                        <div className='text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full'>
-                                            <MdOutlineMailOutline className=' text-xl'/> {data.emailId}
+                                    <div className=' md:max-w-[14.5rem] preLg:max-w-[20rem] bg-[#31404d] rounded-lg pl-2 pr-3 line-clamp-1 flex flex-col items-start justify-start'>
+                                        <div className='text-[#b7fa87e8] flex items-center gap-x-3 font-mavenPro py-1 line-clamp-1'>
+                                            <MdOutlineMailOutline className=' text-xl'/> 
+                                            <span>
+                                                {data.emailId}
+                                            </span>
                                         </div>
 
-                                        <div className='text-[#20e9b0e8] flex items-center gap-x-3 font-mavenPro py-1 pl-3 w-full'>
+                                        <div className='text-[#b7fa87e8] flex items-center gap-x-3 font-mavenPro py-1 w-full'>
                                             <button className=' text-xl' onClick={() => handlePswdVisibility(indx)}>
                                                 {showPswd[indx] ? <MdOutlineLockOpen/> : <MdOutlineLock/> }
                                             </button>
 
                                             <input 
                                                 type={showPswd[indx] ? "text" : "password"}
-                                                className='outline-none bg-transparent w-full text-[#20e9b0e8] font-mavenPro'
+                                                className='outline-none bg-transparent w-full font-mavenPro'
                                                 value={data.password}
                                                 disabled
                                             />
@@ -107,7 +112,7 @@ const TeacherCard = () => {
                                 </div>
 
                                 {/* logo */}
-                                <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1'>
+                                <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#1c6c6a] font-mavenPro font-bold text-[1.4rem] text-cyan-200 tracking-wider rounded-full overflow-hidden flex items-center justify-center mr-1'>
                                     {nameLogo(data.name)}
                                 </div>
 
@@ -118,25 +123,32 @@ const TeacherCard = () => {
                                 </button>
 
                                 {/* delete confirmation modal */}
-                                <Modal 
-                                backdrop="transparent"
+                                <Modal className=' bg-slate-600'
+                                backdrop="blur"
                                 isOpen={deleteModalOpen[indx]} 
                                 onClose={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                     <ModalContent>
-                                        <ModalHeader className="flex flex-col gap-1 text-lg">
+                                        <ModalHeader className="flex flex-col gap-1 text-lg font-robotoMono text-white">
                                             Deletion confirmation
                                         </ModalHeader>
 
-                                        <ModalBody className=' text-xl'>
+                                        <ModalBody className=' text-xl font-mavenPro text-cyan-200'>
                                             You want to remove {data?.name} ?
                                         </ModalBody>
 
                                         <ModalFooter className=" mt-3 flex justify-between">
-                                            <Button color="danger" variant="flat" onPress={() => handleDeleteMiddleware(indx, data?.uniqId)}>
+                                            <Button color="danger" 
+                                            variant="shadow"
+                                            className=' font-robotoMono text-[1rem]' 
+                                            onPress={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                                 Close
                                             </Button>
 
-                                            <Button className="bg-cyan-200 text-cyan-800" onClick={() => handleDeleteTeacherToast(data?.uniqId, data?.name)}
+                                            <Button 
+                                            color='primary'
+                                            variant='shadow'
+                                            className=" font-robotoMono text-[1rem]" 
+                                            onClick={() => handleDeleteTeacherToast(data?.uniqId, data?.name)}
                                             onPress={() => handleDeleteMiddleware(indx, data?.uniqId)}>
                                                 Delete
                                             </Button>
