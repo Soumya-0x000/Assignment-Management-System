@@ -152,7 +152,7 @@ export const InsertTeacher = () => {
     };
 
     return (
-        <form className=' w-full space-y-8 relative'>
+        <form className=' w-full space-y-8 relative mb-6'>
             <div className=' w-full flex flex-col items-center gap-y-8'>
                 {inputFields.map((field, index) => (
                     <div className=" w-full flex gap-x-4"

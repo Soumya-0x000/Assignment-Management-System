@@ -5,15 +5,13 @@ import { InsertAdmin } from './InsertAdmin';
 import { InsertTeacher } from './TeacherInsert/InsertTeacher';
 import { InsertStudent } from './InsertStudent';
 
-const tabs = ['Admin', 'Teacher', 'Student'];
+const tabs = ['Teacher', 'Student'];
 
 const InsertPage = () => {
     const [selected, setSelected] = useState(tabs[0]);
 
     const renderInsertionForm = () => {
         switch (selected) {
-            case 'Admin':
-                return <InsertAdmin/>;
             case 'Teacher':
                 return <InsertTeacher/>
             case 'Student':
