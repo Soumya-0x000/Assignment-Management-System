@@ -66,12 +66,27 @@ const HomePage = () => {
                 });
 
                 // Fetch data for teachers
-                const { data: teachersData, error: teachersError } = await supabase.from('teachers').select('*');
+                const { data: teachersData, error: teachersError } = await supabase
+                    .from('teachers')
+                    .select('*');
 
                 if (teachersData) teachersCount = teachersData.length
 
                 // Fetch data for admin
-                const { data: adminData, error: adminError } = await supabase.from('admin').select('*');
+                const { data: adminData, error: adminError } = await supabase
+                    .from('admin')
+                    .select('*');
+
+                if (adminError) {
+                    toast.error('Error occurred while fetching data', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    });
+                    return
+                }
 
                 if (adminData) {
                     adminCount = adminData.length;
@@ -183,9 +198,9 @@ const HomePage = () => {
             <div className=' w-full grid grid-cols-4 preXl:gap-x-4 place-items-center gap-y-4 pt-3'>
                 <div className='col-span-4 preXl:col-span-3 grid sm:grid-cols-2 place-items-center gap-x-4 gap-y-4 w-full h-full'>
                     {studentArr.map((category, index) => (
-                        <div key={index} className='bg-gradient-to-br from-cyan-700 to-violet-600 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
+                        <div key={index} className='bg-gradient-to-br from-cyan-700 to-violet-700 text-white font-mavenPro text-lg px-6 rounded-xl w-full h-full flex items-center justify-center py-3'>
                             <div className='w-full '>
-                                <div className='mb-2 bg-slate-800 rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
+                                <div className='mb-2 bg-slate-900 font-robotoMono rounded-full px-4 py-1 md:py-2 w-fit text-[1rem] md:text-md'>
                                     Currently we have
                                 </div>
 
@@ -193,9 +208,9 @@ const HomePage = () => {
                                     {category.title}
                                 </div>
 
-                                <div className='grid grid-cols-1 preLg:grid-cols-2 gap-3 mt-3'>
+                                <div className='grid grid-cols-1 xsm:grid-cols-2  sm:grid-cols-1 preLg:grid-cols-2  gap-3 mt-3'>
                                     {Object.entries(category.data).map(([semester, count], i) => (
-                                        <div className='bg-slate-800 rounded-full py-2 flex md:px-5 items-center justify-center' key={i}>
+                                        <div className='bg-slate-800 rounded-lg py-2 flex md:px-5 items-center justify-center' key={i}>
                                             <div className='hidden 3xl:block text-md'>
                                                 {formatSemester(semester.split('sem')[1])}: {count} {count === 1 ? 'student' : 'students'}
                                             </div>
@@ -214,13 +229,21 @@ const HomePage = () => {
                 <div className='col-span-4 preXl:col-span-1 gap-x-2 gap-y-3 xsm:gap-x-4 xsm:gap-y-4 text-white font-mavenPro text-lg rounded-lg w-full h-full flex preXl:flex-col justify-between'>
                     {adminTeacherArr.map((category, index) => (
                         <div key={index} className='w-full rounded-xl py-3 px-2 sm:px-5 bg-gradient-to-br from-cyan-700 to-violet-600'>
-                            <div className='mb-2 bg-slate-800 rounded-full px-2 lg:px-4 py-1 md:py-2 w-fit text-[.8rem] md:text-md'>
-                                Currently we have
+                            <div className='mb-2 bg-slate-900 font-robotoMono rounded-full px-2 sm:px-4 py-1 md:py-2 w-fit text-[.85rem] sm:text-md'>
+                                <span className=' xsm:hidden'>
+                                    We have
+                                </span>
+                                
+                                <span className=' hidden xsm:block'>
+                                    Currently we have
+                                </span>
                             </div>
 
                             <div className='mt-2 border-b-1 border-b-indigo-300'/>
                             
-                            <div className='mt-2 sm:text-xl'>{category.count} {category.title.toLowerCase()}</div>
+                            <div className='mt-2 sm:text-xl bg-slate-800 rounded-lg pl-3 py-1'>
+                                {category.count} {category.title.toLowerCase()}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -237,7 +260,10 @@ const HomePage = () => {
             </div>
 
             <div className=' w-full flex justify-center'>
-                <PendingAdmins/>
+                <PendingAdmins 
+                    facultyCount={adminTeacherArr}
+                    setFacultyCount={setAdminTeacherArr}
+                />
             </div>
             
             <div className=' w-full pb-5 flex justify-center'>
@@ -250,7 +276,6 @@ const HomePage = () => {
 export default HomePage;
 
 const EditAdmin = ({ id, title, name, email, password }) => {
-
     const [commonAttributes, setCommonAttributes] = useState({
         id: "",
         title: "",

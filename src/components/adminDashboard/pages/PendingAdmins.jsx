@@ -9,7 +9,7 @@ import {
     Button, useDisclosure 
 } from '@nextui-org/react';
 
-const PendingAdmins = () => {
+const PendingAdmins = ({facultyCount, setFacultyCount}) => {
     const [pendingAdmins, setPendingAdmins] = useState([]);
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [modalDetail, setModalDetail] = useState({
@@ -87,7 +87,6 @@ const PendingAdmins = () => {
     const approveAdmin = async(value) => {
         try {
             const selectedEntry = pendingAdmins[value.index];
-            console.log(value)
 
             const {data: approveData, error: approveError} = await supabase
                 .from('admin')
@@ -121,6 +120,18 @@ const PendingAdmins = () => {
             
             filteredAdmins(selectedEntry['emailId']);
 
+            const { data: allAdminData, error: allAdminError } = await supabase
+                .from('admin')
+                .select('*')
+            
+            if (allAdminError) {
+                console.error('Error occurred during approving', allAdminError.message);
+                return
+            }
+
+            const newAdminCount = facultyCount.flatMap(val => val.title === 'Admins' ? {...val, count: allAdminData.length} : val);
+            setFacultyCount(newAdminCount);
+
             toast.success('Successfully approved', {
                 style: {
                     borderRadius: '10px',
@@ -140,7 +151,7 @@ const PendingAdmins = () => {
             return
         }
     };
-
+    
     const handleModal = ({head, detail, actionType}, callBack, index) => {
         setModalDetail(prev => ({ 
             ...prev,
