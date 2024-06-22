@@ -72,7 +72,7 @@ export const FlyoutLink = ({ children, FlyoutContent, array, userMode, userId })
                 {children}
             </span>
 
-            <div className=" absolute right-0 lg:-right-[8rem] ">
+            <div className=" absolute right-0">
                 <AnimatePresence>
                     {showFlyout && (
                         <motion.div
@@ -100,6 +100,7 @@ export const userActions = ({selectedArray, userMode, userId}) => {
             case 'LogOut':
                 const { error } = await supabase.auth.signOut();
                 navigate(`/`)
+                localStorage.removeItem('adminId')
                 break;
             case 'Delete account':
                 onOpen();

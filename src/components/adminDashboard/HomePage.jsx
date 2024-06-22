@@ -177,7 +177,7 @@ const HomePage = () => {
     };
 
     return (
-        <div className=' flex flex-col items-center gap-y-16 h-full'>  
+        <div className=' flex flex-col items-center gap-y-16 h-full'>
             <div className=' w-full'>
                 <NavigationActions
                     navArr={navArr}

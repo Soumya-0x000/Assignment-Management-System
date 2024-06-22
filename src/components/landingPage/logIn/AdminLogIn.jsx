@@ -19,15 +19,7 @@ export default function AdminLogIn() {
     const [isVisible, setIsVisible] = useState(false);
     const [detailsMatched, setDetailsMatched] = useState(false);
     const [adminData, setAdminData] = useState([]);
-    const [sessionVal, setSessionVal] = useState({})
     const toggleVisibility = () => setIsVisible(!isVisible);
-    const router = useLocation();
-
-    const {
-        session: adminSession,
-        adminIsAuthenticated
-    } = useSelector(state => state.adminAuth)
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -117,16 +109,24 @@ export default function AdminLogIn() {
     const handleMagicLink = async (e) => {
         if (detailsMatched) {      
             try {
-                const { data, error } = await supabase.auth.signInWithOtp({
+                const { data: signInData, error: signInError } = await supabase.auth.signInWithOtp({
                     email: adminLoginData.email,
-                    options: {
-                        shouldCreateUser: false,
-                    }
+                    options: { shouldCreateUser: false }
                 });
                 
-                if (error) throw new Error(error.message);
+                if (signInError) {
+                    +signInError.status === +429 && toast.error('Try again after few minutes', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        },
+                    })    
+                    
+                    throw new Error(signInError.message);
+                }
 
-                if (data.user === null && data.session === null) {
+                if (signInData.user === null && signInData.session === null) {
                     toast('Check your mailbox', {
                         icon: '📨',
                         style: {
@@ -137,7 +137,19 @@ export default function AdminLogIn() {
                     });
                 }
 
-                navigate(`/admindashboard/${adminData[0].uniqId}`)  
+                supabase.auth.onAuthStateChange((_, session) => {
+                    if (!session) {
+                        navigate(`/`);
+                        return;
+                    }
+                    
+                    if (session.user.role === 'authenticated') {
+                        localStorage.setItem('adminId', adminData[0].uniqId)
+                        navigate(`/admindashboard/${adminData[0].uniqId}`);
+                    } else {
+                        navigate(`/`);
+                    }
+                }); 
             } catch (error) {
                 console.error('Error occurred in signing in', error);
                 toast.error('Error occurred in signing in');

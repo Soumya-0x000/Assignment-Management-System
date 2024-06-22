@@ -36,6 +36,7 @@ const Sidebar = () => {
     const handleAdminSignOut = async() => {
         const { error } = await supabase.auth.signOut();
         navigate(`/`)
+        localStorage.removeItem('adminId');
     };
 
     const handleSignOutToaster = () => {

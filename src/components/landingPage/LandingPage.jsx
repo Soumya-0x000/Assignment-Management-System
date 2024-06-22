@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BgColorAnimation from '../../common/BgColorAnimation.jsx';
 import StudentLogIn from './logIn/StudentLogIn.jsx';
 import TeacherLogIn from './logIn/TeacherLogIn.jsx';
@@ -6,11 +6,30 @@ import AdminLogIn from './logIn/AdminLogIn.jsx';
 import MainRegisterPage from './register/MainRegisterPage.jsx';
 import SlidingTabs from '../../common/SlidingTabs.jsx';
 import AdminRegistration from './register/AdminRegistration.jsx';
+import { supabase } from '../../CreateClient.js';
+import { useNavigate } from 'react-router-dom';
 
 const userArr = ['Student', 'Teacher', 'Admin'];
 
 const LandingPage = () => {
     const [selected, setSelected] = useState(userArr[0]);
+    const navigate = useNavigate();
+    const [adminId, setAdminId] = useState(localStorage.getItem('adminId'));
+
+    useEffect(() => {
+        setAdminId(localStorage.getItem('adminId'))
+        fetchAdmin()
+    }, []);
+
+    const fetchAdmin = async() => {
+        const adminData = await supabase.auth.getUser()
+        
+        if (adminData.data.user && adminId) {
+            navigate(`/admindashboard/${adminId}`)
+        } else {
+            navigate('/')
+        }
+    };
 
     return (
         <BgColorAnimation

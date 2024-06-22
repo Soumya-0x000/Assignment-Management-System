@@ -12,6 +12,7 @@ export const AdminAuthSlice = createSlice({
     reducers: {
         setAdminAuthentication: function(state, action) {
             state.adminIsAuthenticated = action.payload;
+            console.log('object')
         },
         setSelectedAdminId: function(state, action) {
             state.selectedAdminId = action.payload
