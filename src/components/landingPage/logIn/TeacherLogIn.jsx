@@ -38,7 +38,13 @@ export default function TeacherLogIn() {
 
             if (error) {
                 console.error('Error querying database:', error.message);
-                alert(`No teacher found with the provided credentials.`);
+                toast.error(`No teacher found with the provided credentials`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff'
+                    }
+                });
                 return;
             } else {
                 setTeacherLoginData({
@@ -49,7 +55,13 @@ export default function TeacherLogIn() {
             }
         } catch (error) {
             console.error('An unexpected error occurred:', error.message);
-            alert('An unexpected error occurred. Please try again.');
+            toast.error('An unexpected error occurred. Please try again', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff'
+                }
+            });
         }
         onClose();
     };
@@ -118,19 +130,9 @@ export default function TeacherLogIn() {
                             }
                             type={isVisible ? "text" : "password"}
                         />
-
-                        <div className="flex py-2 px-1 justify-between">
-                            <Checkbox classNames={{ label: "text-small" }}>
-                                Remember me
-                            </Checkbox>
-
-                            <Link color="primary" href="#" size="sm">
-                                Forgot password?
-                            </Link>
-                        </div>
                     </ModalBody>
 
-                    <ModalFooter className=" mt-10">
+                    <ModalFooter className=" mt-10 font-robotoMono">
                         <Button color="danger" variant="flat" onPress={onClose}>
                             Close
                         </Button>
