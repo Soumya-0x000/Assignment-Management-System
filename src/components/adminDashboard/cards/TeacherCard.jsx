@@ -70,7 +70,7 @@ const TeacherCard = () => {
 
     return (
         <div className=' w-full h-full overflow-y-auto flex flex-wrap'>
-            <motion.div className='grid md:grid-cols-2 xl:grid-cols-3 overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
+            <motion.div className='grid md:grid-cols-2 preXl:grid-cols-3 overflow-y-auto gap-4 xl:gap-5'
             variants={staggerVariants}
             initial='initial'
             animate='animate'>
@@ -88,7 +88,7 @@ const TeacherCard = () => {
                                         {data.title} {data.name}
                                     </p>
 
-                                    <div className=' md:max-w-[14.5rem] preLg:max-w-[20rem] bg-[#31404d] rounded-lg pl-2 pr-3 line-clamp-1 flex flex-col items-start justify-start'>
+                                    <div className=' min-w-fit md:max-w-[14.5rem] preLg:max-w-[17.5rem] xl:max-w-[23rem] bg-[#31404d] rounded-lg pl-2 pr-3 line-clamp-1 flex flex-col items-start justify-start'>
                                         <div className='text-[#b7fa87e8] flex items-center gap-x-3 font-mavenPro py-1 line-clamp-1'>
                                             <MdOutlineMailOutline className=' text-xl'/> 
                                             <span>

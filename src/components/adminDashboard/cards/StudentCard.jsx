@@ -123,7 +123,7 @@ const StudentCard = () => {
                                 </div>
 
                                 {/* logo */}
-                                <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1'>
+                                <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#1c6c6a] font-robotoMono font-bold text-[1.4rem] text-cyan-200 tracking-wider rounded-full overflow-hidden flex items-center justify-center mr-1'>
                                     {nameLogo(data.name)}
                                 </div>
 

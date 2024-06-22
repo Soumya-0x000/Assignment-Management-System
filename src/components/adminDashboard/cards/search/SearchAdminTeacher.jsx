@@ -204,7 +204,7 @@ const SearchAdminTeacher = ({mode, selected}) => {
             <div className="w-full flex flex-col items-center justify-center gap-y-4">
                 <div className="text-md text-green-500 font-onest">Search Results</div>
 
-                <motion.div className='flex items-center justify-center flex-wrap overflow-y-auto gap-5 sm:gap-7 lg:gap-9 xl:gap-14 2xl:gap-16'
+                <motion.div className='grid xl:grid-cols-2 overflow-y-auto gap-4 xl:gap-5'
                 variants={staggerVariants}
                 initial='initial'
                 animate='animate'>
@@ -271,7 +271,7 @@ const SearchAdminTeacher = ({mode, selected}) => {
                                     </div>
 
                                     {/* Logo */}
-                                    <div className="mt-1 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#c993ff] shadow-md shadow-orange-500 font-bold text-violet-800 rounded-full overflow-hidden flex items-center justify-center mr-1">
+                                    <div className='mt-3 min-w-14 max-w-14 min-h-14 max-h-14 bg-[#1c6c6a] font-mavenPro font-bold text-[1.4rem] text-cyan-200 tracking-wider rounded-full overflow-hidden flex items-center justify-center mr-1'>
                                         {nameLogo(result.name)}
                                     </div>
                                     

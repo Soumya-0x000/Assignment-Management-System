@@ -12,7 +12,7 @@ export const RenderDeptClass = ({data}) => {
                         </p>
                     </div>
 
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 px-3 place-content-center place-items-center'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3'>
                         {data[val].length > 0 ? data[val]
                         .filter(sub => Object.entries(sub).length > 0)
                         .sort((a, b) => {
@@ -20,13 +20,15 @@ export const RenderDeptClass = ({data}) => {
                             const keyB = Object.keys(b)[0];
                             return keyA.localeCompare(keyB)
                         })
-                        .map((sub, i) => (   
-                            <div className=' flex items-center justify-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold w-full'
-                            key={i}>
-                                <span>{Object.entries(sub)[0][0]}:</span>
-                                <span>{Object.entries(sub)[0][1]}</span>
-                            </div>
-                        )) : (
+                        .map((sub, i) => (<>
+                            {Object.values(sub).filter(Boolean).length > 0 && (
+                                <div className=' flex items-center flex-wrap gap-x-2 rounded-lg p-2 bg-[#1e5341] text-[#9fffcfe8] text-[.9rem] font-onest tracking-wide font-bold w-full h-fit'
+                                key={i}>
+                                    <span>{Object.entries(sub)[0][0]}:</span>
+                                    <span>{Object.entries(sub)[0][1]}</span>
+                                </div>
+                            )}
+                        </>)) : (
                             <div className=' col-span-4 flex items-center justify-center rounded-lg p-2 bg-[#3746b8] text-[#ffffa3e8] text-[.9rem] font-robotoMono font-bold min-w-[25rem] max-w-[25rem]'>No {val} classes...</div>
                         )}
                     </div>
