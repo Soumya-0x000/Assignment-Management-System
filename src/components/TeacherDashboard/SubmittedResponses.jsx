@@ -377,9 +377,10 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                                         {gradeArr.map(dropdownItem => (
                                                             <DropdownItem key={dropdownItem.value}
                                                             className={`${dropdownItem.color}`}>
-                                                                <span className=' font-bold'>
-                                                                    {dropdownItem.value}
-                                                                </span>
+                                                                <div className=' font-bold space-x-5'>
+                                                                    <span>{dropdownItem.value}</span>
+                                                                    <span>{dropdownItem.score}</span>
+                                                                </div>
                                                             </DropdownItem>
                                                         ))}
                                                     </DropdownMenu>

@@ -10,9 +10,11 @@ import UpdateData from './UpdateData';
 import RenderAssignments from './RenderAssignments';
 import { useDispatch } from 'react-redux';
 import { setStudentInfo } from '../../reduxStore/reducers/StudentDashboardSlice';
+import { PiIdentificationBadge } from "react-icons/pi";
 
 const navArr = [
     { name: 'Name', val: 'name' },
+    { name: 'Roll no', val: 'rollNo' },
     { name: 'Email', val: 'emailId' },
     { name: 'Password', val: 'password' },
     { name: 'USN Id', val: 'usnId' },
@@ -108,6 +110,11 @@ const StudentHomePage = () => {
                 return <div className=' flex items-center gap-x-5  text-[16px] lg:text-lg'>
                     <MdOutlinePerson2 className=' text-[1.7rem] text-blue-500'/>
                     {studentData.name}
+                </div>
+
+            case 'Roll no':
+                return <div className=' flex items-center gap-x-5'>
+                    <PiIdentificationBadge className=' text-2xl text-violet-400'/>Roll no: {studentData.rollNo}
                 </div>
                 
             case 'Email':

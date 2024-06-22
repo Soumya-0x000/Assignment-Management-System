@@ -8,12 +8,11 @@ const initialState = {
     teacherData: [],
     assignmentToRender: [],
     gradeArr: [
-        { value: 'A', color: 'bg-green-400 text-green-900' },
-        { value: 'B', color: 'bg-yellow-300 text-yellow-900' },
-        { value: 'C', color: 'bg-orange-400 text-orange-900' },
-        { value: 'D', color: 'bg-red-400 text-red-900' },
-        { value: 'E', color: 'bg-red-400 text-red-900' },
-        { value: 'F', color: 'bg-[#FF4F39] text-red-900' },
+        { value: 'A', score: '100%', color: 'bg-green-400 text-green-900' },
+        { value: 'B', score: '80%', color: 'bg-yellow-300 text-yellow-900' },
+        { value: 'C', score: '60%', color: 'bg-orange-400 text-orange-900' },
+        { value: 'D', score: '40%', color: 'bg-red-400 text-red-900' },
+        { value: 'E', score: '20%', color: 'bg-red-500 text-red-900' },
     ]
 };
 

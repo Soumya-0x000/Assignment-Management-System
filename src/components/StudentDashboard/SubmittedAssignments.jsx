@@ -324,8 +324,9 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
 
                                             <div className=' flex gap-x-2'>
                                                 {item?.grade && (
-                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold font-oxanium tracking-wider`}>
-                                                        {item?.grade}
+                                                    <div className={` ${getGradeColor(item?.grade)} w-fit px-2 h-[2.14rem] rounded-xl flex items-center justify-center gap-x-3 font-bold font-oxanium tracking-wider`}>
+                                                        <span>{item.grade}</span>
+                                                        <span>{gradeArr.find(val => val.value === item.grade).score}</span>
                                                     </div>
                                                 )}
 

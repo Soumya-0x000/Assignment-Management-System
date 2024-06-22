@@ -504,8 +504,7 @@ const RenderAssignments = () => {
                             onClick={(e) => handleFileUploadToast(e)}>
                                 Upload
                             </Button>
-                        )}
-                        
+                        )}    
                     </ModalFooter>
                 </>)}
                 </ModalContent>
