@@ -21,6 +21,10 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         name: '',
         rollNo: ''
     }]);
+    const [notSubmittedData, setNotSubmittedData] = useState([{
+        name: '',
+        rollNo: ''
+    }])
     const [selectTedGrade, setSelectTedGrade] = useState(new Set([""]));
     const [allStudentData, setAllStudentData] = useState({});
     const [assignmentWithGrade, setAssignmentWithGrade] = useState({});
@@ -94,9 +98,8 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         .from(tableName)
                         .select('*')
                         .eq('department', department)
-                        .neq('submittedAssignments', null)
 
-                    if (studentError) {
+                    if (studentError && notSubmittedStudentError) {
                         console.error('An unexpected error occurred:', studentError);
                         toast.error('Error in getting student responses', {
                             style: {
@@ -108,7 +111,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         });
                     }
 
-                    if (studentData.length === 0) {
+                    if (!studentData.length) {
                         toast('No responses found', {
                             icon: '⚠️',
                             style: {
@@ -120,18 +123,29 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         });
                         setAssignmentToRender([])
                     } else if (studentData.length > 0) {
-                        setAllStudentData(studentData);
+                        const submittedStudents = studentData?.filter(val => val.submittedAssignments !== null)
+                        setAllStudentData(submittedStudents);
+                        console.log(studentData);
 
-                        const tempArr = (studentData
+                        const tempArr = (submittedStudents
                             ?.map(val => val?.submittedAssignments[fullSubName])
                             .flat()
                         ).filter(Boolean) || [];
                         const filteredOnName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
                         setAssignmentToRender(filteredOnName);
 
-                        const studentDetails = studentData.map(({name, rollNo}) => [{name, rollNo}]).flat();
+                        const studentDetails = submittedStudents.map(({name, rollNo}) => [{name, rollNo}]).flat();
                         setStudentInfo(studentDetails)
                         setSelectTedGrade((new Set([""])))
+                        
+                        
+                        const notSubmittedStudents = studentData?.filter(val => 
+                            (val.submittedAssignments?.[assignment.fullSubName])
+                        ) || [];
+                        setNotSubmittedData(notSubmittedStudents);
+                        console.log(assignment.fullSubName)
+                        console.log(notSubmittedStudents)
+                        console.log(submittedStudents)
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error);
@@ -354,8 +368,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                             
                                             <div className=' flex items- center justify-center gap-x-3'>
                                                 {item?.grade && (
-                                                    <div className={` ${getGradeColor(item?.grade)} w-16 h-[2.14rem] rounded-xl flex items-center justify-center font-bold text-xl font-oxanium tracking-wider`}>
+                                                    <div className={` ${getGradeColor(item?.grade)} w-fit px-2 h-[2.14rem] rounded-xl flex items-center justify-center gap-x-3 font-bold font-oxanium tracking-wider`}>
                                                         {item?.grade}
+                                                        <span>{gradeArr.find(val => val.value === item?.grade).score}</span>
                                                     </div>
                                                 )}
 
@@ -402,7 +417,27 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                             </div>
                         ) : (
                             <div className=' w-full bg-slate-950 p-3 text-lg font-robotoMono rounded-lg text-white'>
-                                You have not submitted any assignment
+                                No assignment have been submitted yet
+                            </div>
+                        )}
+
+                        {/* not submitted by */}
+                        {(notSubmittedData.length > 0) && (
+                            <div className=' w-full bg-slate-700 mt-7 p-3 text-lg font-robotoMono rounded-lg text-white'>
+                                Not Submitted by
+                                <div className=' grid grid-cols-1 xsm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-4'>
+                                    {notSubmittedData.map((students, indx) => (
+                                        <div className=' text-indigo-300 tracking-wide font-robotoMono font-bold mt-3 py-2 px-3 rounded-lg bg-slate-950 flex flex-col gap-y-3 text-sm sm:text-medium'
+                                        key={students.rollNo+indx}>
+                                            <span className=' line-clamp-1'>
+                                                Name: {students?.name}
+                                            </span>
+                                            <span>
+                                                Roll no: {students.rollNo}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </ModalBody>
