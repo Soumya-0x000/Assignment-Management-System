@@ -125,27 +125,21 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                     } else if (studentData.length > 0) {
                         const submittedStudents = studentData?.filter(val => val.submittedAssignments !== null)
                         setAllStudentData(submittedStudents);
-                        console.log(studentData);
 
                         const tempArr = (submittedStudents
                             ?.map(val => val?.submittedAssignments[fullSubName])
                             .flat()
                         ).filter(Boolean) || [];
-                        const filteredOnName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
-                        setAssignmentToRender(filteredOnName);
+                        const filteredOnSubName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
+                        setAssignmentToRender(filteredOnSubName);
 
                         const studentDetails = submittedStudents.map(({name, rollNo}) => [{name, rollNo}]).flat();
                         setStudentInfo(studentDetails)
                         setSelectTedGrade((new Set([""])))
                         
-                        
-                        const notSubmittedStudents = studentData?.filter(val => 
-                            (val.submittedAssignments?.[assignment.fullSubName])
-                        ) || [];
+                        const submittingStudentName = [...new Set(filteredOnSubName.map(item => item.name))]
+                        const notSubmittedStudents = studentData?.filter(val => !submittingStudentName.includes(val.name)) || [];
                         setNotSubmittedData(notSubmittedStudents);
-                        console.log(assignment.fullSubName)
-                        console.log(notSubmittedStudents)
-                        console.log(submittedStudents)
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error);
@@ -299,6 +293,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                     </ModalHeader>
 
                     <ModalBody>
+                        {/* question assignment */}
                         <div className=' border-b w-fit border-green-400 pb-3'>
                             <div className='bg-[#385368] rounded-xl mt-5 p-3 flex flex-col gap-y-3 group w-full sm:w-fit overflow-hidden cursor-pointer group transition-all line-clamp-1' >
                                 <div className='text-cyan-200 text-lg font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
@@ -316,7 +311,8 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                                 </div>
                             </div>
                         </div>
-
+                        
+                        {/* assignment list */}
                         {assignmentToRender?.length > 0 ? (
                             <div className=' grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4 mt-10'>
                                 {assignmentToRender.map((item, indx) => (
