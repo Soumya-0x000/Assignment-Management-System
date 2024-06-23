@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { 
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, 
     Button, useDisclosure, Checkbox, Input, Link
@@ -18,6 +18,10 @@ export default function TeacherLogIn() {
     });
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
+
+    useEffect(() => {
+        localStorage.clear()
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -51,6 +55,7 @@ export default function TeacherLogIn() {
                     email: '',
                     password: ''
                 });
+                localStorage.setItem('teacherId', data.uniqId)
                 navigate(`/teacherdashboard/${data.uniqId}`)
             }
         } catch (error) {

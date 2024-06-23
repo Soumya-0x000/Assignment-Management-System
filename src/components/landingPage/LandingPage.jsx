@@ -19,6 +19,7 @@ const LandingPage = () => {
     useEffect(() => {
         setAdminId(localStorage.getItem('adminId'))
         fetchAdmin()
+        localStorage.removeItem('teacherId')
     }, []);
 
     const fetchAdmin = async() => {
@@ -75,13 +76,8 @@ const LandingPage = () => {
                             </div>
 
                             {/* register */}
-                            {selected === 'Student' && ( 
-                                <MainRegisterPage userType={selected}/>
-                            )}
-                            
-                            {selected === 'Admin' && ( 
-                                <AdminRegistration userType={selected}/>
-                            )}
+                            {selected === 'Student' && <MainRegisterPage userType={selected}/> }                            
+                            {selected === 'Admin' && <AdminRegistration userType={selected}/> }
                         </div>
                     </div>
                 </div>

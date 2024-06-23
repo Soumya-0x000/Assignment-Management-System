@@ -100,7 +100,7 @@ export const userActions = ({selectedArray, userMode, userId}) => {
             case 'LogOut':
                 const { error } = await supabase.auth.signOut();
                 navigate(`/`)
-                localStorage.removeItem('adminId')
+                localStorage.clear()
                 break;
             case 'Delete account':
                 onOpen();
