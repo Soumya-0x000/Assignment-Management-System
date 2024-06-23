@@ -156,6 +156,20 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         })()
     }, [assignment, modalStatus]);
 
+    const detectRealtimeChanges = () => {
+        const channels = supabase.channel('custom-all-channel')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'studentsSem1' },
+            (payload) => {
+                console.log('Change received!', payload)
+            }
+        )
+        .subscribe()
+        console.log(channels)
+    }
+    detectRealtimeChanges()
+
     const handleGrade = (e, item, indx) => {
         setSelectTedGrade(e)
         const grade = Array.from(e)[0]
