@@ -487,7 +487,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             return (
                                 <Dropdown key={index}>
                                     <DropdownTrigger>
-                                        <Button className={`rounded-lg pl-4 transition-colors outline-none border-none bg-slate-950 w-full sm:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
+                                        <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full sm:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
                                         variant="bordered"
                                         onClick={() => setSearchingEnabled(true)}>
                                             {searchModeArr[index][key][searchMode[key]]  === undefined

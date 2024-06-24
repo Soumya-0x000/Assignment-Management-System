@@ -27,6 +27,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
     }])
     const [selectTedGrade, setSelectTedGrade] = useState(new Set([""]));
     const [allStudentData, setAllStudentData] = useState({});
+    const [notNullStudentAssignmentData, setNotNullStudentAssignmentData] = useState({});
     const [assignmentWithGrade, setAssignmentWithGrade] = useState({});
 
     const handleFileDownloadToast = (item) => {
@@ -123,23 +124,8 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         });
                         setAssignmentToRender([])
                     } else if (studentData.length > 0) {
-                        const submittedStudents = studentData?.filter(val => val.submittedAssignments !== null)
-                        setAllStudentData(submittedStudents);
-
-                        const tempArr = (submittedStudents
-                            ?.map(val => val?.submittedAssignments[fullSubName])
-                            .flat()
-                        ).filter(Boolean) || [];
-                        const filteredOnSubName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
-                        setAssignmentToRender(filteredOnSubName);
-
-                        const studentDetails = submittedStudents.map(({name, rollNo}) => [{name, rollNo}]).flat();
-                        setStudentInfo(studentDetails)
-                        setSelectTedGrade((new Set([""])))
-                        
-                        const submittingStudentName = [...new Set(filteredOnSubName.map(item => item.name))]
-                        const notSubmittedStudents = studentData?.filter(val => !submittingStudentName.includes(val.name)) || [];
-                        setNotSubmittedData(notSubmittedStudents);
+                        setAllStudentData(studentData)
+                        assignmentDataExtractor(studentData, fullSubName)
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred:', error);
@@ -156,19 +142,50 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         })()
     }, [assignment, modalStatus]);
 
-    const detectRealtimeChanges = () => {
-        const channels = supabase.channel('custom-all-channel')
-        .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'studentsSem1' },
-            (payload) => {
-                console.log('Change received!', payload)
-            }
-        )
-        .subscribe()
-        console.log(channels)
+    const assignmentDataExtractor = (studentData, fullSubName) => {
+        const submittedStudents = studentData?.filter(val => val.submittedAssignments !== null)
+        setNotNullStudentAssignmentData(submittedStudents);
+
+        const tempArr = (submittedStudents
+            ?.map(val => val?.submittedAssignments[fullSubName])
+            .flat()
+        ).filter(Boolean) || [];
+        const filteredOnSubName = tempArr?.filter(val => val.assignmentOrgName === assignment?.orgName)
+        setAssignmentToRender(filteredOnSubName);
+
+        const studentDetails = submittedStudents.map(({name, rollNo}) => [{name, rollNo}]).flat();
+        setStudentInfo(studentDetails)
+        setSelectTedGrade((new Set([""])))
+        
+        const submittingStudentName = [...new Set(filteredOnSubName.map(item => item.name))]
+        const notSubmittedStudents = studentData?.filter(val => !submittingStudentName.includes(val.name)) || [];
+        setNotSubmittedData(notSubmittedStudents);
     }
-    detectRealtimeChanges()
+    
+    const detectRealtimeChanges = () => {
+        const { department, fullSubName } = assignment
+        let tableName = '';
+        if (Object.keys(assignment).length) tableName = `studentsSem${[...assignment?.sem][0]}`
+        
+        supabase.channel('get-1stSem-student-data')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: `${tableName}`,
+                filter: `department=eq.${department}`
+            }, (payload) => {
+                const { new: newStudentData } = payload
+                
+                const newEntryIndex = allStudentData.findIndex(val => val.uniqId === newStudentData.uniqId)
+
+                if (newEntryIndex !== -1) {
+                    allStudentData[newEntryIndex] = newStudentData
+                    assignmentDataExtractor(allStudentData, fullSubName)
+                }
+            }
+        ).subscribe()
+    };
+    detectRealtimeChanges();
 
     const handleGrade = (e, item, indx) => {
         setSelectTedGrade(e)
@@ -181,7 +198,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         newAssignmentArr[indx] = newItem
         setAssignmentToRender(newAssignmentArr);
 
-        const extractedAssignmentEntry = allStudentData.find(val => val.name === item.name)['submittedAssignments']
+        const extractedAssignmentEntry = notNullStudentAssignmentData.find(val => val.name === item.name)['submittedAssignments']
         const temp = extractedAssignmentEntry[item.fullSubName]
        
         const getIndex = temp.findIndex(val => val.myFileName === newItem.myFileName)
@@ -193,9 +210,9 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
         }
 
         const updatedStudentData = {
-            ...allStudentData,
-            [allStudentData.findIndex(val => val.name === item.name)]: {
-                ...allStudentData[allStudentData.findIndex(val => val.name === item.name)],
+            ...notNullStudentAssignmentData,
+            [notNullStudentAssignmentData.findIndex(val => val.name === item.name)]: {
+                ...notNullStudentAssignmentData[notNullStudentAssignmentData.findIndex(val => val.name === item.name)],
                 ['submittedAssignments']: assignmentToUpload
             }
         }
@@ -440,7 +457,7 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                             <div className=' grid grid-cols-1 xmd:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-2 sm:gap-4 px-3 pb-3'>
                                 {notSubmittedData.map((students, indx) => (
                                     <div className=' text-indigo-300 tracking-wide font-robotoMono mt-3 p-2 rounded-lg bg-slate-950 flex flex-col gap-y-4 text-sm sm:text-[.95rem]'
-                                    key={students.rollNo+indx}>
+                                    key={indx}>
                                         <span className=' line-clamp-1 font-bold'>
                                             Name: {students?.name}
                                         </span>

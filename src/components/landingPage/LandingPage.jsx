@@ -20,6 +20,7 @@ const LandingPage = () => {
         setAdminId(localStorage.getItem('adminId'))
         fetchAdmin()
         localStorage.removeItem('teacherId')
+        localStorage.removeItem('studentTableName')
     }, []);
 
     const fetchAdmin = async() => {
