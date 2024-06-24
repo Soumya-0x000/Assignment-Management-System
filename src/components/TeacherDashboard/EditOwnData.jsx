@@ -50,11 +50,13 @@ export const EditOwnData = ({
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        setCommonAttributes({
-            ...commonAttributes,
-            [name]: value
-        });
+        
+        if (name !== 'name') {
+            setCommonAttributes({
+                ...commonAttributes,
+                [name]: value
+            });
+        }
     };
 
     const handleDropDown = (name, val) => {

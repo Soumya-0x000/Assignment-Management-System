@@ -37,6 +37,7 @@ const RenderAssignments = () => {
     const [questionAssignment, setQuestionAssignment] = useState({});
     const [isSubmittedAssignmentModalOpen, setIsSubmittedAssignmentModalOpen] = useState(false);
     const [isDeadlineExceeded, setIsDeadlineExceeded] = useState(false);
+    const [isAssignmentUpdated, setIsAssignmentUpdated] = useState(false);
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -51,12 +52,12 @@ const RenderAssignments = () => {
 
                     const { data: assignmentData, error: assignmentError } = await supabase
                         .from(assignmentTableName)
-                        .select(semName)
+                        .select(`${semName}, GivenBy`)
 
                     const { data: subjectData, error: subjectError } = await supabase
                         .from('subjects')
                         .select(studentData.department)
-
+                        
                     if (assignmentError || subjectError) {
                         console.error('Error fetching assignments from Supabase:', assignmentError);
                         toast.error('Error fetching assignments', {
@@ -68,14 +69,26 @@ const RenderAssignments = () => {
                         })
                     } else {
                         setMySubjects(subjectData[0][studentData.department][semName]);
-                        const fetchedAssignments = assignmentData
-                            .flatMap(val => Object.entries(val)
-                                .filter(([key, val]) => key === semName && val)
-                                .flatMap(([key, val]) => val))
-                            .filter(Boolean);
-                        console.log(fetchedAssignments)
+                        // console.log(assignmentData)
+
+                        const fetchedAssignments = assignmentData.map(item => {
+                            const name = Object.values(item).find(innerItem => typeof innerItem === 'string');
+                            const assignments = Object.entries(item).filter(([_, value]) => typeof value === 'object' && value !== null);
+                            
+                            const updatedAssignmentData = assignments.reduce((acc, [subject, subjectAssignments]) => {
+                                const updatedSubjectAssignments = Object.entries(subjectAssignments).reduce((subAcc, [key, assignmentsArray]) => {
+                                    subAcc[key] = assignmentsArray.map(assignment => ({ ...assignment, givenBy: name }));
+                                    return subAcc;
+                                }, {});
+                                
+                                acc[subject] = updatedSubjectAssignments;
+                                return acc;
+                            }, {});
+                            
+                            return Object.values(updatedAssignmentData)[0];
+                        });
                         setMyAssignments(fetchedAssignments);
-                        setSelectedSubject('All');
+                        setSelectedSubject('All')
                     }
                 } catch (error) {
                     console.log('Error fetching assignments from Supabase:', error);
@@ -105,7 +118,6 @@ const RenderAssignments = () => {
                     .flat()
                     .filter(Boolean)
                 
-                console.log(tempSelectedSubjects);
                 setRenderedAssignments(tempSelectedSubjects);
             }
         }
@@ -123,6 +135,8 @@ const RenderAssignments = () => {
             }, (payload) => {
                 const { new: updatedAssignments } = payload
                 console.log(updatedAssignments[semester])
+                if (mySubjects.map(item => item.name).includes(Object.keys(updatedAssignments))) {
+                }
             }
         ).subscribe();
     };
@@ -434,6 +448,10 @@ const RenderAssignments = () => {
 
                             <div className=' font-robotoMono text-sm bg-slate-950 text-green-300 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
                                 {item.submitDeadline && formatter.format(parseDate(item.submitDeadline))}
+                            </div>
+
+                            <div className=' font-robotoMono text-sm bg-slate-950 text-violet-300 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
+                                By: {item.givenBy}
                             </div>
 
                             <div className=' flex items-center justify-between mt-3'>

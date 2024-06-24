@@ -8,7 +8,6 @@ import { SiGoogleclassroom } from 'react-icons/si';
 import { TbListNumbers } from 'react-icons/tb';
 import toast from 'react-hot-toast';
 import { supabase } from '../../CreateClient';
-import { useDispatch } from 'react-redux';
 
 const UpdateData = ({ studentData, setStudentData, usnId }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -33,7 +32,6 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
     }, [studentData]);
 
     const inputFields = [
-        { label: 'Name', name: 'name', type: 'text', icon: <BsPersonLinesFill /> },
         { label: 'Email', name: 'emailId', type: 'email', icon: <MailIcon /> },
         { label: 'Password', name: 'password', type: 'password', icon: isVisible ? <BiSolidLockOpen /> : <BiSolidLock /> },
         { label: 'Date of Birth', name: 'birthDate', type: 'date', icon: <BiCalendar /> }
@@ -65,7 +63,6 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
                 const { data: responseData, error: responseError } = await supabase
                     .from(tableName)
                     .update({
-                        name: updatedStudentData.name.trim(),
                         emailId: updatedStudentData.emailId.trim(),
                         password: updatedStudentData.password.trim(),
                         birthDate: updatedStudentData.birthDate.trim(),
@@ -216,7 +213,7 @@ const UpdateData = ({ studentData, setStudentData, usnId }) => {
             {inputFields.map((field, index) => (
                 <div key={index} className='relative w-full transition-all'>
                     <input
-                        autoFocus={field.name === 'name'}
+                        autoFocus={field.name === 'emailId'}
                         type={field.name === 'password' ? isVisible ? 'text' : 'password' : field.type}
                         name={field.name}
                         id={field.name}
