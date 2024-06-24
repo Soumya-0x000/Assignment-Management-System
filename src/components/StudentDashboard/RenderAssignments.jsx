@@ -69,24 +69,13 @@ const RenderAssignments = () => {
                         })
                     } else {
                         setMySubjects(subjectData[0][studentData.department][semName]);
-                        // console.log(assignmentData)
 
-                        const fetchedAssignments = assignmentData.map(item => {
-                            const name = Object.values(item).find(innerItem => typeof innerItem === 'string');
-                            const assignments = Object.entries(item).filter(([_, value]) => typeof value === 'object' && value !== null);
-                            
-                            const updatedAssignmentData = assignments.reduce((acc, [subject, subjectAssignments]) => {
-                                const updatedSubjectAssignments = Object.entries(subjectAssignments).reduce((subAcc, [key, assignmentsArray]) => {
-                                    subAcc[key] = assignmentsArray.map(assignment => ({ ...assignment, givenBy: name }));
-                                    return subAcc;
-                                }, {});
-                                
-                                acc[subject] = updatedSubjectAssignments;
-                                return acc;
-                            }, {});
-                            
-                            return Object.values(updatedAssignmentData)[0];
-                        });
+                        const fetchedAssignments = assignmentData
+                        .flatMap(val => Object.entries(val)
+                            .filter(([key, val]) => key === semName && val)
+                            .flatMap(([key, val]) => val))
+                        .filter(Boolean); 
+
                         setMyAssignments(fetchedAssignments);
                         setSelectedSubject('All')
                     }
@@ -124,6 +113,13 @@ const RenderAssignments = () => {
     }, [selectedSubject, myAssignments]);
 
     const detectAssignmentRealtimeChanges = () => {
+        const keys = [ "Computer Architecture", "Software Engineering" ]
+        // keys.forEach(item => )
+        const entryToBeUpdated = myAssignments.map(item => {
+            const key = Object.entries(item).filter (innerItem => typeof innerItem === 'string')
+            return key
+        })
+        console.log(entryToBeUpdated);
         const assignmentTableName = `${studentData.department}assignments`;
         const semester = getSemName(`${studentData?.semester}`)
 
@@ -133,10 +129,9 @@ const RenderAssignments = () => {
                 schema: 'public', 
                 table: `${assignmentTableName}`
             }, (payload) => {
-                const { new: updatedAssignments } = payload
-                console.log(updatedAssignments[semester])
-                if (mySubjects.map(item => item.name).includes(Object.keys(updatedAssignments))) {
-                }
+                const { GivenBy } = payload.new;
+                const updatedAssignments = payload.new[semester];
+                console.log(GivenBy, updatedAssignments)
             }
         ).subscribe();
     };

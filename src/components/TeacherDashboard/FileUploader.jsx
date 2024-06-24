@@ -20,7 +20,10 @@ registerPlugin(
     FilePondPluginFileEncode
 );
 
-const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
+const FileUploader = ({ 
+    currentValue, teacherId, 
+    onClose, setAssignments, teacherName 
+}) => {
     const { deptSemClasses, teacherData } = useSelector(state => state.teacherAuth);
 
     const [subExistingArray, setSubExistingArray] = useState([]);
@@ -138,7 +141,8 @@ const FileUploader = ({ currentValue, teacherId, onClose, setAssignments }) => {
                     fullSubName,
                     name: newFileName,
                     orgName: fileItem.filename,
-                    submitDeadline: deadline
+                    submitDeadline: deadline,
+                    givenBy: teacherName
                 }];
 
                 // Fetch existing assignments

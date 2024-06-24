@@ -337,6 +337,7 @@ const TeacherHomePage = () => {
                                 onClose={onClose}
                                 setAssignments={setAssignments}
                                 assignments={assignments}
+                                teacherName={`${teacherData.title} ${teacherData.name}`}
                             />
                         </ModalBody>
 
