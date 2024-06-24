@@ -69,6 +69,7 @@ const StudentHomePage = () => {
                     toast.error('No student found with the provided credentials.');
                     return;
                 } else {
+                    console.log(data)
                     setStudentData(data);
                     dispatch(setStudentInfo(data))
                 }

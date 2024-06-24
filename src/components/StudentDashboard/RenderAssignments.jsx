@@ -40,11 +40,13 @@ const RenderAssignments = () => {
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
+    const getSemName = (semester) => formatSemester(semester).split(' ')[0]+'Sem';
+
     useEffect(() => {
         if (Object.keys(studentData).length > 0) {
             (async() => {
                 try {
-                    const semName = formatSemester(`${studentData?.semester}`).split(' ')[0]+'Sem'
+                    const semName = getSemName(`${studentData?.semester}`)
                     const assignmentTableName = `${studentData.department}assignments`;
 
                     const { data: assignmentData, error: assignmentError } = await supabase
@@ -71,7 +73,7 @@ const RenderAssignments = () => {
                                 .filter(([key, val]) => key === semName && val)
                                 .flatMap(([key, val]) => val))
                             .filter(Boolean);
-                            
+                        console.log(fetchedAssignments)
                         setMyAssignments(fetchedAssignments);
                         setSelectedSubject('All');
                     }
@@ -90,20 +92,41 @@ const RenderAssignments = () => {
     }, [studentData]);
 
     useEffect(() => {
-        if (selectedSubject === 'All') {
-            const tempSelectedSubjects = myAssignments
-                .map(assignment => Object.values(assignment))
-                .flat().flat()
-            setRenderedAssignments(tempSelectedSubjects);
-        } else {
-            const tempSelectedSubjects = myAssignments
-                .map(assignment => (assignment[selectedSubject]))
-                .flat()
-                .filter(Boolean)
-            
-            setRenderedAssignments(tempSelectedSubjects);
+        if(myAssignments.length) {
+            if (selectedSubject === 'All') {
+                const tempSelectedSubjects = myAssignments
+                    .map(assignment => Object.values(assignment))
+                    .flat(2)
+                
+                setRenderedAssignments(tempSelectedSubjects);
+            } else {
+                const tempSelectedSubjects = myAssignments
+                    .map(assignment => (assignment[selectedSubject]))
+                    .flat()
+                    .filter(Boolean)
+                
+                console.log(tempSelectedSubjects);
+                setRenderedAssignments(tempSelectedSubjects);
+            }
         }
     }, [selectedSubject, myAssignments]);
+
+    const detectAssignmentRealtimeChanges = () => {
+        const assignmentTableName = `${studentData.department}assignments`;
+        const semester = getSemName(`${studentData?.semester}`)
+
+        supabase.channel('givenAssignments')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: `${assignmentTableName}`
+            }, (payload) => {
+                const { new: updatedAssignments } = payload
+                console.log(updatedAssignments[semester])
+            }
+        ).subscribe();
+    };
+    detectAssignmentRealtimeChanges();
 
     const handleFileDownload = async(item) => {
         try {
@@ -383,7 +406,7 @@ const RenderAssignments = () => {
             variants={staggerVariants}
             initial="initial"
             animate="animate">
-                {renderedAssignments.length > 0 ? (<>
+                {renderedAssignments.length ? (<>
                     {renderedAssignments.map((item, indx) => (
                         <motion.div 
                         variants={childVariants}
