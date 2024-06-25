@@ -178,6 +178,17 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
         )
     };
 
+    const getRealtimePendingAdmins = () => {
+        supabase.channel('pendingAdminChannel')
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'pendingAdmin'
+            }, (payload) => {setPendingAdmins(payload.new)}
+            ).subscribe();
+    };
+    getRealtimePendingAdmins()
+
     return (
         <div className=' bg-slate-800 rounded-lg px-2 py-3 w-full'>
             <span className=' text-slate-200 font-onest tracking-wider font-bold text-lg'>

@@ -2,8 +2,7 @@ import React, { useState } from 'react'
 import { 
     Button, useDisclosure, 
     Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
-    Modal, ModalBody, ModalContent, ModalFooter, ModalHeader,
-    Input, 
+    Modal, ModalBody, ModalContent, ModalFooter, ModalHeader
 } from '@nextui-org/react'
 import toast from 'react-hot-toast';
 import { BsPersonLinesFill } from 'react-icons/bs';
@@ -12,8 +11,7 @@ import { MailIcon } from '../icons/MailIcon';
 import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { supabase } from '../../../CreateClient';
 import { titleArr } from '../../../common/customHooks';
-import { TbStatusChange } from "react-icons/tb";
-import { motion } from 'framer-motion';
+import { RiPassPendingLine } from "react-icons/ri";
 
 const AdminRegistration = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -144,14 +142,52 @@ const AdminRegistration = () => {
             })
         }
     };
+    
+    const checkAdminApproved = async() => { 
+        const toastId = toast.loading('Checking status...', {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff'
+            }
+        });
 
-    const checkAdminApproved = async() => {
         try {
-            console.log(checkStatusEmail)
             const { data: checkData, error: checkError } = await supabase
                 .from('pendingAdmin')
+                .select('emailId')
+                .eq('emailId', checkStatusEmail.trim())
+
+            if (checkError) {
+                toast.error('Error in checking your status', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+                throw checkError
+            }
+
+            if (checkData.length) {
+                toast.error(`You haven't been approved`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
                 
-            
+                setCheckStatusEmail('');
+            } else {
+                toast.error(`You've been approved`, {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+            }
         } catch (error) {
             console.error(error);
             toast.error('Error occurred in checking status', {
@@ -161,19 +197,21 @@ const AdminRegistration = () => {
                     color: '#fff',
                 }
             })
+        } finally {
+            toast.dismiss(toastId)
         }
-    };
+    };    
 
     return (
         <div className='flex flex-col items-center justify-center gap-y-5 bg-[#b2b2b24b] p-2 rounded-md shadow-black shadow-md min-w-[66%] max-w-[66%]'>
-            <button onPress={onOpen} className="flex flex-wrap items-center justify-start gap-x-3 text-slate-200 bg-slate-800 rounded-md px-2 text-lg font-onest active:scale-110 transition-all w-full py-1.5">
+            <Button onPress={onOpen} className="flex flex-wrap items-center justify-start gap-x-3 text-slate-200 bg-slate-800 rounded-md px-2 text-lg font-onest active:scale-110 transition-all w-full py-1.5">
                 <CgLogIn className='text-[21px] sm:text-2xl'/>
                 <span className='text-[16px]'>Sign up Manually</span>
-            </button>
+            </Button>
             
             <div className="bg-slate-800 rounded-md px-2 transition-all w-full py-2 space-y-2">
                 <div className='text-lg font-onest flex flex-wrap items-center justify-start gap-x-3 text-slate-200'>
-                    <TbStatusChange className='text-[21px] sm:text-2xl'/>
+                    <RiPassPendingLine className='text-[21px] sm:text-2xl'/>
                     <span className='text-[16px]'>Check admin status ?</span>
                 </div>
 
