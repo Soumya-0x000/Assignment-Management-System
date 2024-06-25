@@ -18,7 +18,7 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
     const [assignmentInfo, setAssignmentInfo] = useState({});
     const [assignmentToRender, setAssignmentToRender] = useState([]);
     const [assignmentToDelete, setAssignmentToDelete] = useState([]);
-
+console.log(studentId)
     useEffect(() => {
         (async() => {
             if (studentId && modalStatus) {
@@ -237,6 +237,20 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
         if (gradeItem) return gradeItem.color;
         else return 'bg-gray-400, text-gray-900' ;
     };
+
+    const getRealtimeGrade = async() => {
+        supabase.channel('realtimeGrades')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: `${tableName}`,
+                filter: `uniqId=eq.${studentId}` 
+            }, (payload) => {
+                setAssignmentInfo(payload.new.submittedAssignments)
+            })
+            .subscribe();
+    };
+    getRealtimeGrade()
     
     return (
         <div>
