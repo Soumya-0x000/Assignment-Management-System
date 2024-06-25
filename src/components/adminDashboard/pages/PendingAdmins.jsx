@@ -185,10 +185,21 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                 schema: 'public',
                 table: 'pendingAdmin'
             }, (payload) => {
-                setPendingAdmins(prev => [...prev, payload.new])
+                if (Object.keys(payload.new).length === 0) {
+                    setPendingAdmins(prev => prev.filter(admin => admin.id !== payload.old.id));
+                } else {
+                    setPendingAdmins(prev => {
+                        const existingIndex = prev.findIndex(admin => admin.id === payload.new.id);
+                        if (existingIndex !== -1) {
+                            const updatedAdmins = [...prev];
+                            updatedAdmins[existingIndex] = payload.new;
+                            return updatedAdmins;
+                        } else return [...prev, payload.new];
+                    });
+                }
             }).subscribe();
     };
-    getRealtimePendingAdmins()
+    getRealtimePendingAdmins();
 
     return (
         <div className=' bg-slate-800 rounded-lg px-2 py-3 w-full'>
@@ -202,8 +213,8 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                         <div className=' flex gap-x-2'>
                             <div className='min-w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center'>
                                 <span className='text-md text-slate-200 font-bold tracking-wide font-oxanium'>
-                                    {nameLogo(admin.name)}
-                                </span>
+                                    {nameLogo(admin?.name)}
+                                </span>     
                             </div>
 
                             <div className='flex flex-col items-start w-full justify-center gap-y-4 bg-slate-700 rounded-lg line-clamp-1 overflow-hidden p-2'>
