@@ -1,5 +1,10 @@
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react'
 import React, { useState } from 'react'
+import { 
+    Button, useDisclosure, 
+    Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
+    Modal, ModalBody, ModalContent, ModalFooter, ModalHeader,
+    Input, 
+} from '@nextui-org/react'
 import toast from 'react-hot-toast';
 import { BsPersonLinesFill } from 'react-icons/bs';
 import { CgLogIn } from 'react-icons/cg'
@@ -7,6 +12,8 @@ import { MailIcon } from '../icons/MailIcon';
 import { BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { supabase } from '../../../CreateClient';
 import { titleArr } from '../../../common/customHooks';
+import { TbStatusChange } from "react-icons/tb";
+import { motion } from 'framer-motion';
 
 const AdminRegistration = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -22,6 +29,7 @@ const AdminRegistration = () => {
         { label: 'Email', name: 'email', type: 'email', icon: <MailIcon /> },
         { label: 'Password', name: 'password', type: 'password', icon: isVisible ? <BiSolidLockOpen /> : <BiSolidLock /> }
     ];
+    const [checkStatusEmail, setCheckStatusEmail] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -137,12 +145,52 @@ const AdminRegistration = () => {
         }
     };
 
+    const checkAdminApproved = async() => {
+        try {
+            console.log(checkStatusEmail)
+            const { data: checkData, error: checkError } = await supabase
+                .from('pendingAdmin')
+                
+            
+        } catch (error) {
+            console.error(error);
+            toast.error('Error occurred in checking status', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
+
     return (
-        <div className='flex items-center bg-[#b2b2b24b] p-2 rounded-md shadow-black shadow-md min-w-[66%] max-w-[66%]'>
-            <Button onPress={onOpen} className="flex flex-wrap items-center justify-start gap-x-3 text-slate-200 bg-slate-800 rounded-md pl-2 text-lg font-onest active:scale-110 transition-all w-full h-12">
+        <div className='flex flex-col items-center justify-center gap-y-5 bg-[#b2b2b24b] p-2 rounded-md shadow-black shadow-md min-w-[66%] max-w-[66%]'>
+            <button onPress={onOpen} className="flex flex-wrap items-center justify-start gap-x-3 text-slate-200 bg-slate-800 rounded-md px-2 text-lg font-onest active:scale-110 transition-all w-full py-1.5">
                 <CgLogIn className='text-[21px] sm:text-2xl'/>
                 <span className='text-[16px]'>Sign up Manually</span>
-            </Button>
+            </button>
+            
+            <div className="bg-slate-800 rounded-md px-2 transition-all w-full py-2 space-y-2">
+                <div className='text-lg font-onest flex flex-wrap items-center justify-start gap-x-3 text-slate-200'>
+                    <TbStatusChange className='text-[21px] sm:text-2xl'/>
+                    <span className='text-[16px]'>Check admin status ?</span>
+                </div>
+
+                <div className = 'flex space-x-2 w-full justify-center'>
+                    <input
+                        value={checkStatusEmail}
+                        onChange={(e) => setCheckStatusEmail(e.target.value)}
+                        className={` h-full py-2 rounded-lg w-full px-2 placeholder:font-mono placeholder:text-slate-100 text-white bg-slate-600 font-mono border-none outline-none focus:border-none focus:outline-none`}
+                        placeholder='Enter email address'
+                    />
+
+                    <button className='bg-slate-600 rounded-lg w-fit text-white font-mono text-[1rem] tracking-wider px-2 active:scale-105 transition-all' 
+                    onClick={checkAdminApproved}>
+                        Check
+                    </button>
+                </div> 
+            </div>
             
             <Modal 
             backdrop="blur"

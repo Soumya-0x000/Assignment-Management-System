@@ -18,7 +18,7 @@ const SubmittedAssignments = ({modalStatus, setModalStatus, assignment, studentI
     const [assignmentInfo, setAssignmentInfo] = useState({});
     const [assignmentToRender, setAssignmentToRender] = useState([]);
     const [assignmentToDelete, setAssignmentToDelete] = useState([]);
-console.log(studentId)
+
     useEffect(() => {
         (async() => {
             if (studentId && modalStatus) {
