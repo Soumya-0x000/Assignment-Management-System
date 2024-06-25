@@ -56,6 +56,15 @@ export const EditOwnData = ({
                 ...commonAttributes,
                 [name]: value
             });
+        } else {
+            toast('Name cannot be changed', {
+                icon: '🥲',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
         }
     };
 

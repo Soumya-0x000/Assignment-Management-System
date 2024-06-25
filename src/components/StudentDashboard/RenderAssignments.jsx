@@ -91,7 +91,7 @@ const RenderAssignments = () => {
                 }
             })()
         }
-    }, [studentData]);
+    }, [studentData, isAssignmentUpdated]);
 
     useEffect(() => {
         if(myAssignments.length) {
@@ -109,30 +109,19 @@ const RenderAssignments = () => {
                 
                 setRenderedAssignments(tempSelectedSubjects);
             }
+            setIsAssignmentUpdated(false);
         }
     }, [selectedSubject, myAssignments]);
 
     const detectAssignmentRealtimeChanges = () => {
-        const keys = [ "Computer Architecture", "Software Engineering" ]
-        // keys.forEach(item => )
-        const entryToBeUpdated = myAssignments.map(item => {
-            const key = Object.entries(item).filter (innerItem => typeof innerItem === 'string')
-            return key
-        })
-        console.log(entryToBeUpdated);
         const assignmentTableName = `${studentData.department}assignments`;
-        const semester = getSemName(`${studentData?.semester}`)
 
         supabase.channel('givenAssignments')
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
                 table: `${assignmentTableName}`
-            }, (payload) => {
-                const { GivenBy } = payload.new;
-                const updatedAssignments = payload.new[semester];
-                console.log(GivenBy, updatedAssignments)
-            }
+            }, () => {setIsAssignmentUpdated(true)}
         ).subscribe();
     };
     detectAssignmentRealtimeChanges();
