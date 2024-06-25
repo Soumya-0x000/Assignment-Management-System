@@ -54,7 +54,7 @@ const AdminRegistration = () => {
         });
     };
 
-    const handleSignUp = async () => {
+    const handleSignUp = async (toastId) => {
         try {
             const { data: tableInsertData, error: tableInsertError } = await supabase
                 .from('pendingAdmin')
@@ -112,26 +112,26 @@ const AdminRegistration = () => {
             })
         } finally {
             onClose();
+            toast.dismiss(toastId)
         }
     };
 
     const handleSignUpToast = () => {
+        const toastId = toast.loading('Creating admin', {
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff'
+            }
+        });
+
         const validate = adminSignUpData.name.trim().length > 4 &&
             adminSignUpData.email.trim().length > 6 &&
             adminSignUpData.email.includes('@') &&
             adminSignUpData.password.trim().length >= 6
         
         if (validate) {
-            toast.promise(handleSignUp(), {
-                loading: 'Creating admin',
-                success: 'Now you need approval',
-                error: 'Failed to sign up'
-            }, {style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff'
-                }
-            })
+            handleSignUp(toastId)
         } else {
             toast('Fill up the form 🥸', {
                 style: {

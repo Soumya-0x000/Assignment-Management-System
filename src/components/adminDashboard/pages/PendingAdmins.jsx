@@ -184,8 +184,10 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                 event: '*',
                 schema: 'public',
                 table: 'pendingAdmin'
-            }, (payload) => {setPendingAdmins(payload.new)}
-            ).subscribe();
+            }, (payload) => {
+                console.log(payload.new)
+                setPendingAdmins(payload.new)
+            }).subscribe();
     };
     getRealtimePendingAdmins()
 
