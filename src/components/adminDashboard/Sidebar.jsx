@@ -15,7 +15,7 @@ import AdminHome from './pages/AdminHome';
 
 const Sidebar = () => {
     const {adminId} = useParams();
-    const [name, setName] = useState('Soumya Sankar Das');
+    const [name, setName] = useState('');
     const [sidebarHold, setSidebarHold] = useState(false);
     const navigate = useNavigate();
 
@@ -55,6 +55,12 @@ const Sidebar = () => {
                     .select('*')
                     .eq('uniqId', adminId)
                     .single();
+
+                if (adminError) {
+                    console.error('Error occurred during fetching', adminError.message);
+                    return;
+                }
+
                 if (adminData) {
                     setName(adminData.name);
                 }

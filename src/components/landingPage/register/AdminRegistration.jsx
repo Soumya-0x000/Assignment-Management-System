@@ -170,23 +170,48 @@ const AdminRegistration = () => {
             }
 
             if (checkData.length) {
-                toast.error(`You haven't been approved`, {
+                toast(`You haven't been approved yet`, {
+                    icon: '⚠️',
                     style: {
                         borderRadius: '10px',
                         background: '#333',
                         color: '#fff',
                     }
                 })
-                
-                setCheckStatusEmail('');
             } else {
-                toast.error(`You've been approved`, {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                })
+                const {data, error} = await supabase
+                    .from('admin')
+                    .select('emailId')
+                    .eq('emailId', checkStatusEmail.trim())
+
+                if (error) {
+                    toast.error('Error in checking your status', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
+                    throw error
+                }
+
+                if (data.length) {
+                    toast.success(`You're an authorized admin`, {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
+                } else {
+                    toast.error(`Your request has been rejected`, {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#333',
+                            color: '#fff',
+                        }
+                    })
+                }
             }
         } catch (error) {
             console.error(error);
@@ -198,7 +223,8 @@ const AdminRegistration = () => {
                 }
             })
         } finally {
-            toast.dismiss(toastId)
+            toast.dismiss(toastId);
+            setCheckStatusEmail('');
         }
     };    
 

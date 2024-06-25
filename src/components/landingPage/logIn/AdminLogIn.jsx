@@ -115,7 +115,8 @@ export default function AdminLogIn() {
                 });
                 
                 if (signInError) {
-                    +signInError.status === +429 && toast.error('Try again after few minutes', {
+                    +signInError.status === +429 && toast('Try again after few minutes', {
+                        icon: '⏰',
                         style: {
                             borderRadius: '10px',
                             background: '#333',
@@ -152,7 +153,13 @@ export default function AdminLogIn() {
                 }); 
             } catch (error) {
                 console.error('Error occurred in signing in', error);
-                toast.error('Error occurred in signing in');
+                toast.error('Error occurred in signing in', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                });
             }
         }
     };
