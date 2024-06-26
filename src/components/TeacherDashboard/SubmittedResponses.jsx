@@ -447,6 +447,18 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                         </div>
                     )}
 
+                    <div className=' flex items-center justify-between'>
+                        <Button color="primary" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={updateGradeToast}>
+                            Update
+                        </Button>
+                        
+                        <Button color="danger" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={() => setModalStatus(false)}>
+                            Close
+                        </Button>
+                    </div>
+                </ModalBody>
+
+                <ModalFooter>
                     {/* not submitted by */}
                     {(notSubmittedData.length > 0) && (
                         <div className=' w-full bg-slate-700 mt-7 p- text-lg font-robotoMono rounded-lg overflow-hidden text-white'>
@@ -478,16 +490,6 @@ const SubmittedResponses = ({ modalStatus, setModalStatus, assignment }) => {
                             </div>
                         </div>
                     )}
-                </ModalBody>
-
-                <ModalFooter className=' flex items-center justify-between'>
-                    <Button color="secondary" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={updateGradeToast}>
-                        Update
-                    </Button>
-                    
-                    <Button color="danger" variant="shadow" className=' font-robotoMono tracking-wide text-[1rem]' onPress={() => setModalStatus(false)}>
-                        Close
-                    </Button>
                 </ModalFooter>
             </>)}
             </ModalContent>

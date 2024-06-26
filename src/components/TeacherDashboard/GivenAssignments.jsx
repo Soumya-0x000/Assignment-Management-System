@@ -19,6 +19,10 @@ import { downloadFile, parseDate } from '../../common/customHooks';
 import SubmittedResponses from './SubmittedResponses';
 import { getLocalTimeZone, today, now } from "@internationalized/date";
 import { delResponses } from './delResponseAssignments';
+import SlidingTabs from '../../common/SlidingTabs';
+import StudentPerformance from './StudentPerformance';
+
+const switchView = ['Given assignments', 'Submitted responses'];
 
 const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
@@ -43,6 +47,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [questionAssignment, setQuestionAssignment] = useState({});
     const [isEditingDeadline, setIsEditingDeadline] = useState(new Array(populatingKey.length).fill(false));
     const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
+    const [selectedView, setSelectedView] = useState(switchView[0]);
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -291,7 +296,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     }, [searchMode])
 
     const handelCancelSearch = (e) => {
-        e.preventDefault();
+        e && e.preventDefault();
 
         setSearchKeyword('');
         setSearchingEnabled(false);
@@ -299,17 +304,18 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         setSearchMode(initialSearchMode)
     };
 
+    useEffect(() => {
+        handelCancelSearch()
+    }, [selectedView])
+
     const handleSelectionChange = (e, indx) => {
         const currentKey = Object.keys(searchModeArr[indx])[0];
         const changedName = Array.from(e)[0];
 
-        setSearchMode(prev => {
-            const updatedSearchMode = {
-                ...prev,
-                [currentKey]: changedName
-            };
-            return updatedSearchMode;
-        });
+        setSearchMode(prev => ({
+            ...prev,
+            [currentKey]: changedName
+        }));
     };
 
     const displaySubmittedAssignments = (item) => {
@@ -474,7 +480,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
-            <div className=' border-b-2 pb-2'>
+            <div className=' border-b-2 pb-2 mb-3'>
                 <div className=' flex flex-col sm:flex-row items-center justify-between gap-4'>
                     <div className='md:text-[1rem] lg:text-xl font-onest w-full flex items-center'>
                         Given Assignments ({populatingKey.length})
@@ -535,102 +541,115 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 </div>
             </div>
 
-            {assignments.length ? (
-                <motion.div className='mt-4 grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4'
-                variants={staggerVariants}
-                initial="initial"
-                animate="animate">
-                    {populatingKey.length > 0 ? (<>
-                        {populatingKey?.map((assignment, indx) => (
-                            <div className='space-y-1'
-                            key={indx}>
-                                <motion.div 
-                                variants={childVariants}
-                                className='bg-[#2f3646] h-fit rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
-                                onClick={() => displaySubmittedAssignments(assignment)}>
-                                    <span className=' sm:h idden absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20 text-[13px]'>
-                                        {indx+1}
-                                    </span>
+            <SlidingTabs
+                tabs={switchView}
+                selected={selectedView}
+                setSelected={setSelectedView}
+            />
 
-                                    <Tooltip color='secondary'
-                                    content={assignment[0].orgName}
-                                    className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
-                                    placement='top'>
-                                        <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
-                                            {assignment[0].orgName}
+            {selectedView === switchView[0] ? <>
+                {assignments.length ? (
+                    <motion.div className='mt-4 grid grid-cols-1 sm:grid-cols-2 postLg:grid-cols-3 2xl:grid-cols-4 gap-4'
+                    variants={staggerVariants}
+                    initial="initial"
+                    animate="animate">
+                        {populatingKey.length > 0 ? (<>
+                            {populatingKey?.map((assignment, indx) => (
+                                <div className='space-y-1'
+                                key={indx}>
+                                    <motion.div 
+                                    variants={childVariants}
+                                    className='bg-[#2f3646] h-fit rounded-xl p-3 flex flex-col gap-y-3 group w-full overflow-hidden cursor-pointer group transition-all relative z-10' 
+                                    onClick={() => displaySubmittedAssignments(assignment)}>
+                                        <span className=' sm:h idden absolute p-2 bg-slate-950 right-0 top-0 text-violet-300 rounded-bl-xl font-oxanium font-bold z-20 text-[13px]'>
+                                            {indx+1}
+                                        </span>
+
+                                        <Tooltip color='secondary'
+                                        content={assignment[0].orgName}
+                                        className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
+                                        placement='top'>
+                                            <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
+                                                {assignment[0].orgName}
+                                            </div>
+                                        </Tooltip>
+
+                                        <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px] line-clamp-1'>{assignment[0].subject}</span>
                                         </div>
-                                    </Tooltip>
 
-                                    <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
-                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
-                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
-                                        <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px] line-clamp-1'>{assignment[0].subject}</span>
-                                    </div>
+                                        <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
+                                            {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
+                                        </div>
 
-                                    <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
-                                        {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
-                                    </div>
-
-                                    <div className=' flex items-center justify-between mt-3'>
-                                        <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
-                                        onClick={(e) => handleDeleteModal(assignment[0], e)}>
-                                            <FaRegTrashAlt />
-                                            Remove
-                                        </button>
-
-                                        <div className=' space-x-3'>
-                                            <Tooltip color='success'
-                                            content={'Edit deadline'}
-                                            className=' text-yellow-200 bg-yellow-800 font-mono w-fit'
-                                            placement='top'>
-                                                <button className=' text-yellow-400 text-[17px] bg-yellow-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                                onClick={(e) => handleIsDeadlineVisible(indx, e, assignment)}>
-                                                    <FaEdit />
-                                                </button>
-                                            </Tooltip>
-
-                                            <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
-                                            onClick={(e) => handleFileDownloadToast(assignment[0], e)}>
-                                                <FaDownload/>
+                                        <div className=' flex items-center justify-between mt-3'>
+                                            <button className=' bg-[#ae2222] px-2 py-1 text-[14px] rounded-lg flex items-center gap-x-1 text-red-300 font-bold font-lato tracking-wider w-fit active:scale-110 transition-all group-hover:translate-x-1'
+                                            onClick={(e) => handleDeleteModal(assignment[0], e)}>
+                                                <FaRegTrashAlt />
+                                                Remove
                                             </button>
+
+                                            <div className=' space-x-3'>
+                                                <Tooltip color='success'
+                                                content={'Edit deadline'}
+                                                className=' text-yellow-200 bg-yellow-800 font-mono w-fit'
+                                                placement='top'>
+                                                    <button className=' text-yellow-400 text-[17px] bg-yellow-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
+                                                    onClick={(e) => handleIsDeadlineVisible(indx, e, assignment)}>
+                                                        <FaEdit />
+                                                    </button>
+                                                </Tooltip>
+
+                                                <button className=' text-green-400 text-[17px] bg-green-900 p-2 rounded-xl active:scale-110 transition-all group-hover:-translate-x-1'
+                                                onClick={(e) => handleFileDownloadToast(assignment[0], e)}>
+                                                    <FaDownload/>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </motion.div>
+                                    </motion.div>
 
-                                <div
-                                className={`w-full flex overflow-hidden transition-all duration-00 ease-in-out ${isEditingDeadline[indx] ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <div className='flex gap-x-2 w-full'>
-                                        <DatePicker 
-                                            hideTimeZone
-                                            showMonthAndYearPickers
-                                            isRequired
-                                            granularity="day"
-                                            className="w-full" 
-                                            isInvalid
-                                            minValue={today(getLocalTimeZone())}
-                                            value={editedDeadline}
-                                            onChange={setEditedDeadline}
-                                            aria-label='update deadline'
-                                        />
+                                    <div
+                                    className={`w-full flex overflow-hidden transition-all duration-00 ease-in-out ${isEditingDeadline[indx] ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                        <div className='flex gap-x-2 w-full'>
+                                            <DatePicker 
+                                                hideTimeZone
+                                                showMonthAndYearPickers
+                                                isRequired
+                                                granularity="day"
+                                                className="w-full" 
+                                                isInvalid
+                                                minValue={today(getLocalTimeZone())}
+                                                value={editedDeadline}
+                                                onChange={setEditedDeadline}
+                                                aria-label='update deadline'
+                                            />
 
-                                        <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
-                                        onClick={() => handleDeadlineEdit(assignment)}>
-                                            Update
-                                        </Button>
+                                            <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
+                                            onClick={() => handleDeadlineEdit(assignment)}>
+                                                Update
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
+                            ))}
+                        </>) : (
+                            <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg w-full'>
+                                No assignment found
                             </div>
-                        ))}
-                    </>) : (
-                        <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg w-full'>
-                            No assignment found
-                        </div>
-                    )}
-                </motion.div>
-            ) : (
-                <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
-                    No assignments from your side
-                </div>
+                        )}
+                    </motion.div>
+                ) : (
+                    <div className=' text-lg font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
+                        No assignments from your side
+                    </div>
+                )}
+            </> : (
+                <StudentPerformance
+                    searchMode={searchMode}
+                    searchModeArr={searchModeArr}
+                />
             )}
 
             <Modal 

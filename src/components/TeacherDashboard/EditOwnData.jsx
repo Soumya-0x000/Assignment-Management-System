@@ -6,6 +6,7 @@ import { MailIcon } from "../landingPage/icons/MailIcon";
 import { BiSolidLock, BiSolidLockOpen } from "react-icons/bi";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 import ClassManagement from '../adminDashboard/cards/Insert/TeacherInsert/ClassManagement';
+import { titleArr } from '../../common/customHooks';
 
 export const EditOwnData = ({
     title,
@@ -183,11 +184,9 @@ export const EditOwnData = ({
 
                                     <DropdownMenu aria-label="Static Actions" className=' w-full bg-slate-900 text-green-500 rounded-xl '
                                     onAction={(key) => handleDropDown('title', key)}>
-                                        <DropdownItem key={'Dr.'}>Dr.</DropdownItem>
-                                        <DropdownItem key={'Mr.'}>Mr.</DropdownItem>
-                                        <DropdownItem key={'Mrs.'}>Mrs.</DropdownItem>
-                                        <DropdownItem key={'Miss'}>Miss</DropdownItem>
-                                        <DropdownItem key={'Prof.'}>Prof.</DropdownItem>
+                                        {titleArr.map(item => (
+                                            <DropdownItem key={item}>{item}</DropdownItem>
+                                        ))}
                                     </DropdownMenu>
                                 </Dropdown>
                             </div>
