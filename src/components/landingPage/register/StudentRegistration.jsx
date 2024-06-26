@@ -14,6 +14,7 @@ import { SiGoogleclassroom } from "react-icons/si";
 import { formatSemester } from '../../../common/customHooks';
 import toast from 'react-hot-toast';
 import { FaCalendarAlt } from "react-icons/fa";
+import { GoNumber } from "react-icons/go";
 
 const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
     const [commonAttributes, setCommonAttributes] = useState({
@@ -134,7 +135,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
         backdrop="blur"
         isOpen={isOpen} 
         onClose={onClose}
-        className="border-[1px] border-slate-300 absolute top-1/2 -translate-y-1/2"
+        className=" border-slate-300 absolute top-1/2 -translate-y-1/2"
         placement="top-center">
             <ModalContent>
                 <ModalHeader className="flex flex-col gap-1 text-xl mb-5 font-robotoMono">
@@ -154,7 +155,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
                         variant="bordered"
                     />
 
-                    <Input
+                    {/* <Input
                         endContent={<MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
                         label="Email"
                         type='email'
@@ -182,7 +183,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
                             </button>
                         }
                         type={isVisible ? "text" : "password"}
-                    />
+                    /> */}
 
                     <Input
                         endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
@@ -235,15 +236,14 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
 
                         <DropdownMenu aria-label="Static Actions"
                         onAction={(key) => handleDropDown('semester', key)}>
-                            <DropdownItem key={'1'}>1st semester</DropdownItem>
-                            <DropdownItem key={'2'}>2nd semester</DropdownItem>
-                            <DropdownItem key={'3'}>3rd semester</DropdownItem>
-                            <DropdownItem key={'4'}>4th semester</DropdownItem>
+                            {[1, 2, 3, 4].map(item => (
+                                <DropdownItem key={item}>{formatSemester(`${item}`)}</DropdownItem>
+                            ))}
                         </DropdownMenu>
                     </Dropdown>
 
                     <Input
-                        endContent={<MdAdminPanelSettings className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
+                        endContent={<GoNumber className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
                         label="Roll no"
                         type='number'
                         name="rollNo"

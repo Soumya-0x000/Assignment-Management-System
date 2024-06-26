@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.42.7",
     "axios": "^1.6.8",
     "dayjs": "^1.11.11",
+    "dotenv": "^16.4.5",
     "filepond": "^4.31.1",
     "filepond-plugin-file-encode": "^2.1.14",
     "filepond-plugin-file-validate-size": "^2.2.8",

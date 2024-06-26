@@ -464,7 +464,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         });
     };
     
-    const handleIsDeadlineVisible = (indx, event, value) => {
+    const handleIsDeadlineVisible = (indx, event) => {
         event.stopPropagation();
         
         const updateDeadline = new Array(populatingKey.length).fill(false)
