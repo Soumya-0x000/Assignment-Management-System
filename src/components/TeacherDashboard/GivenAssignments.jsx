@@ -481,19 +481,38 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className=' border-b-2 pb-2 mb-3'>
-                <div className=' flex flex-col sm:flex-row items-center justify-between gap-4'>
-                    <div className='md:text-[1rem] lg:text-xl font-onest w-full flex items-center'>
-                        Given Assignments ({populatingKey.length})
-                    </div>
+                <div className='md:text-[1rem] lg:text-xl font-onest w-full flex items-center'>
+                    {selectedView} ({populatingKey.length})
+                </div>
+
+                <div className='mt-2 flex flex-col-reverse md:flex-row gap-3 justify-between'>
+                    {selectedView === switchView[0] && (
+                        <div className=' relative rounded-lg overflow-hidden max-w-[70rem] w-full'>
+                            {/* input */}
+                            <input 
+                                type="text" 
+                                placeholder="Search"
+                                className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                value={searchKeyword}
+                                onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                            />
+
+                            <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
+                            onClick={(e) => handelCancelSearch(e)}>
+                                <RxCross2 className=' text-gray-300 text-xl' />
+                            </button>
+                        </div>
+                    )}
 
                     {/* category */}
-                    <div className='w-full flex items-center justify-between sm:justify-end gap-3 md:gap-4 h-[3rem]'>
+                    <div className='w-full lg:w-fit flex items-center justify-between lg:justify-end gap-3 md:gap-4 h-[3rem]'>
                         {searchModeArr.map((items, index) => {
                             const key = Object.keys(items)[0];
                             return (
                                 <Dropdown key={index}>
                                     <DropdownTrigger>
-                                        <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full sm:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
+                                        <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full lg:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
                                         variant="bordered"
                                         onClick={() => setSearchingEnabled(true)}>
                                             {searchModeArr[index][key][searchMode[key]]  === undefined
@@ -522,30 +541,15 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         })}
                     </div>
                 </div>
-
-                {/* input */}
-                <div className=' relative rounded-lg overflow-hidden mt-2 max-w-[50rem]'>
-                    <input 
-                        type="text" 
-                        placeholder="Search"
-                        className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
-                        onChange={(e) => setSearchKeyword(e.target.value)}
-                        value={searchKeyword}
-                        onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
-                    />
-
-                    <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
-                    onClick={(e) => handelCancelSearch(e)}>
-                        <RxCross2 className=' text-gray-300 text-xl' />
-                    </button>
-                </div>
             </div>
 
-            <SlidingTabs
-                tabs={switchView}
-                selected={selectedView}
-                setSelected={setSelectedView}
-            />
+            <div className=' max-w-[40rem]'>
+                <SlidingTabs
+                    tabs={switchView}
+                    selected={selectedView}
+                    setSelected={setSelectedView}
+                />
+            </div>
 
             {selectedView === switchView[0] ? <>
                 {assignments.length ? (
@@ -645,12 +649,9 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         No assignments from your side
                     </div>
                 )}
-            </> : (
-                <StudentPerformance
-                    searchMode={searchMode}
-                    searchModeArr={searchModeArr}
-                />
-            )}
+            </> : <StudentPerformance searchMode={searchMode} 
+                populatingKey={populatingKey}
+            />}
 
             <Modal 
             backdrop={'blur'} 
