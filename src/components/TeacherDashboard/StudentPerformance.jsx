@@ -2,17 +2,31 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { supabase } from '../../CreateClient';
 import toast from 'react-hot-toast';
+import { RadioGroup } from '@nextui-org/react';
+import { CustomRadio } from '../../common/CustomRadioBtn'
 
 const StudentPerformance = ({ searchMode, populatingKey }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const { teacherData } = useSelector(state => state.teacherAuth);
+    const [subjects, setSubjects] = useState({
+        assignmentSubjects: [],
+        selectedSubject: ''
+    })
     const [studentResponse, setStudentResponse] = useState([]);
 
+    const setSelectedSubject = (item) => {
+        setSubjects(prev => ({
+            ...prev,
+            selectedSubject: item
+        }))
+    };
+
     useEffect(() => {
-        if (searchMode?.Department 
+        const checkCondition = searchMode?.Department 
             && searchMode?.Semester 
             && populatingKey?.length
-        ) {
+
+        if (checkCondition) {
             (async() => {
                 const studentTableName = `studentsSem${+searchMode?.Semester + 1}`;
                 const department = teacherAssignClassDetails.dept[searchMode?.Department];
@@ -27,10 +41,16 @@ const StudentPerformance = ({ searchMode, populatingKey }) => {
                         .neq('submittedAssignments', null)
 
                     if (studentError) throw studentError;
+                    setStudentResponse(studentData)
                     // console.log(studentData)
 
+                    setSubjects(prev => ({
+                        ...prev, 
+                        assignmentSubjects: Object.values(...teacherSubjects)[0]
+                            .split(',')
+                            .map(item => item.trim())
+                    }))
                     const assignments = teacherSubjects.map(item => studentData[item])
-                    console.log(assignments)
 
                 } catch (error) {
                     console.log(error)
@@ -63,11 +83,26 @@ const StudentPerformance = ({ searchMode, populatingKey }) => {
 
     return (
         <div className=' w-full flex'>
-            {(searchMode?.Department && searchMode?.Semester) ? (
+            {!studentResponse.length && (
+                <RadioGroup 
+                className=' text-gray-300 mt-3'
+                value={subjects.selectedSubject}
+                onValueChange={(e) => setSelectedSubject(e)}>
+                    <div className=' flex flex-wrap gap-2 items-center'>
+                        {[...subjects.assignmentSubjects].map((subject, index) => (
+                            <CustomRadio key={index} value={subject}>
+                                {subject}
+                            </CustomRadio>
+                        ))}
+                    </div>
+                </RadioGroup>
+            )}
+                
+            {(searchMode?.Department && searchMode?.Semester ) ? <>
                 <div>
                     
                 </div>
-            ) : (
+            </> : (
                 <div className=' text-lg w-full font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
                     Select department and semester first
                 </div>
