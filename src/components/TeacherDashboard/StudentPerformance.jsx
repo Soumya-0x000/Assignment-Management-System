@@ -42,18 +42,17 @@ const StudentPerformance = ({ searchMode, populatingKey }) => {
 
                     if (studentError) throw studentError;
                     setStudentResponse(studentData)
-                    // console.log(studentData)
+
+                    const subjects = Object.values(...teacherSubjects)[0]
+                        .split(',')
+                        .map(item => item.trim());
 
                     setSubjects(prev => ({
                         ...prev, 
-                        assignmentSubjects: Object.values(...teacherSubjects)[0]
-                            .split(',')
-                            .map(item => item.trim())
+                        assignmentSubjects: subjects
                     }))
-                    const assignments = teacherSubjects.map(item => studentData[item])
-
                 } catch (error) {
-                    console.log(error)
+                    console.error(error)
                     toast.error('Error in getting students', {
                         style: {
                             borderRadius: '10px',
@@ -81,9 +80,14 @@ const StudentPerformance = ({ searchMode, populatingKey }) => {
         return () => clearTimeout(timeoutId)
     }, [searchMode, populatingKey]);
 
+    useEffect(() => {
+        console.log(subjects?.selectedSubject)
+        console.log(studentResponse.map(item => item?.submittedAssignments))
+    }, [subjects.selectedSubject])
+
     return (
         <div className=' w-full flex'>
-            {!studentResponse.length && (
+            {(studentResponse.length > 0) && (
                 <RadioGroup 
                 className=' text-gray-300 mt-3'
                 value={subjects.selectedSubject}
