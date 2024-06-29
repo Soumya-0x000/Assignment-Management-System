@@ -8,12 +8,15 @@ import { CustomRadio } from '../../common/CustomRadioBtn'
 const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const { teacherData } = useSelector(state => state.teacherAuth);
+    const { gradeArr } = useSelector(state => state.teacherAuth);
+
     const [allSubjects, setAllSubjects] = useState([]);
     const [subjects, setSubjects] = useState({
         assignmentSubjects: [],
         selectedSubject: ''
     })
     const [studentResponse, setStudentResponse] = useState([]);
+    const [avgScore, setAvgScore] = useState([]);
 
     const setSelectedSubject = (item) => {
         setSubjects(prev => ({
@@ -124,6 +127,8 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
                 .filter(Boolean)
                 || []
 
+            const extractGrade = (grade) => gradeArr.find(val => val.value === grade)?.score.split('%')[0]
+
             const tempArr = studentResponse
                 .map(item => Object.values(item))
                 .flat()
@@ -134,32 +139,58 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
                         .includes(innerItem.assignmentName)
                     )
                 )
-                // .map(item => console.log(item))
-                // .map(item => item['name'])
-            console.log(tempArr)
-            // console.log(sortOnSubject)
+                .map(item => {
+                    const itemLength = item?.length
+
+                    const totalScore = item.reduce((accumulator, currentValue) => {
+                        var marks = 0 
+                        if(extractGrade(currentValue?.grade)) {
+                            marks = +extractGrade(currentValue?.grade)
+                        } 
+                        return (marks + accumulator)
+                    }, 0)
+                    
+                    return {
+                        name: item[0]?.name,
+                        rollNo: item[0]?.roll,
+                        avgScore: (totalScore/itemLength).toFixed(2),
+                        assignmentCount: itemLength
+                    }
+                })
+                .filter(Boolean)
+
+            setAvgScore(tempArr)
         }
     }, [subjects.selectedSubject])
 
     return (
-        <div className=' w-full flex'>
-            <RadioGroup 
-            className=' text-gray-300 mt-3'
-            value={subjects.selectedSubject}
-            onValueChange={(e) => setSelectedSubject(e)}>
-                <div className=' flex flex-wrap gap-2 items-center'>
-                    {[...subjects.assignmentSubjects].map((subject, index) => (
-                        <CustomRadio key={index} value={subject.fName}>
-                            {subject.name}
-                        </CustomRadio>
-                    ))}
-                </div>
-            </RadioGroup>
-                
-            {(searchMode?.Department && searchMode?.Semester ) ? <>
-                <div>
-                    
-                </div>
+        <div className=' w-full flex flex-col gap-y-3'>      
+            {(searchMode?.Department && searchMode?.Semester) ? <>
+                <RadioGroup 
+                className=' text-gray-300 mt-3'
+                value={subjects.selectedSubject}
+                onValueChange={(e) => setSelectedSubject(e)}>
+                    <div className=' flex flex-wrap gap-2 items-center'>
+                        {[...subjects.assignmentSubjects].map((subject, index) => (
+                            <CustomRadio key={index} value={subject.fName}>
+                                {subject.name}
+                            </CustomRadio>
+                        ))}
+                    </div>
+                </RadioGroup>
+
+                {!!avgScore.length && (
+                    <div className=' grid grid-cols-1 postMd:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3'>
+                        {avgScore.map((item, i) => (
+                            <div className=' flex flex-wrap postMd:grid postMd:grid-cols-2 gap-2 gap-x-2 rounded-lg p-2 bg-[#1e5341] text-[#9fffcfe8] text-[.9rem] font-onest tracking-wide font-bold w-full h-fit'
+                            key={i}>
+                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Name: {item?.name}</span>
+                                <span className='w-fi bg-green-950 rounded-lg px-3 py-1.5'>Roll no: {item?.rollNo}</span>
+                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Avg score: {item?.avgScore}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </> : (
                 <div className=' text-lg w-full font-robotoMono font-bold mt-3 bg-slate-800 py-2 px-3 rounded-lg'>
                     Select department and semester first

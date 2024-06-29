@@ -4,11 +4,10 @@ import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import { supabase } from '../../CreateClient';
 import { 
-    Button, 
-    DatePicker, 
+    Button, DatePicker, Tooltip, useDisclosure, 
     Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, 
     Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, 
-    Tooltip, useDisclosure 
+    Tab, Tabs, 
 } from '@nextui-org/react';
 import { RxCross2 } from "react-icons/rx";
 import { motion } from 'framer-motion';
@@ -19,7 +18,6 @@ import { downloadFile, parseDate } from '../../common/customHooks';
 import SubmittedResponses from './SubmittedResponses';
 import { getLocalTimeZone, today, now } from "@internationalized/date";
 import { delResponses } from './delResponseAssignments';
-import SlidingTabs from '../../common/SlidingTabs';
 import StudentPerformance from './StudentPerformance';
 
 const switchView = ['Given assignments', 'Submitted responses'];
@@ -481,8 +479,19 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
             <div className=' border-b-2 pb-2 mb-3'>
-                <div className='md:text-[1rem] lg:text-xl font-onest w-full flex items-center'>
+                <div className='md:text-[1rem] lg:text-xl font-onest w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
                     {selectedView} ({populatingKey.length})
+
+                    <Tabs color={'warning'} 
+                    selectedKey={selectedView}
+                    onSelectionChange={setSelectedView}
+                    variant='underlined' 
+                    className='pb-1 bg-slate-950 rounded-md w-full sm:w-fit flex items-center justify-center'
+                    aria-label="Tabs colors" radius="medium">
+                        {switchView.map(item => (
+                            <Tab key={item} title={item} className=' font-robotoMono font-bold'/>
+                        ))}
+                    </Tabs>
                 </div>
 
                 <div className='mt-2 flex flex-col-reverse md:flex-row gap-3 justify-between'>
@@ -541,14 +550,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         })}
                     </div>
                 </div>
-            </div>
-
-            <div className=' max-w-[40rem]'>
-                <SlidingTabs
-                    tabs={switchView}
-                    selected={selectedView}
-                    setSelected={setSelectedView}
-                />
             </div>
 
             {selectedView === switchView[0] ? <>
