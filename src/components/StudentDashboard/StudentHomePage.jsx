@@ -7,10 +7,10 @@ import { MdOutlineEmail, MdOutlinePerson2 } from 'react-icons/md';
 import { FiLock, FiUnlock } from 'react-icons/fi';
 import ShiftingCountdown, { NavigationActions } from '../../common/Animation';
 import UpdateData from './UpdateData';
-import RenderAssignments from './RenderAssignments';
 import { useDispatch } from 'react-redux';
 import { setStudentInfo } from '../../reduxStore/reducers/StudentDashboardSlice';
 import { PiIdentificationBadge } from "react-icons/pi";
+import UploadResponses from './UploadResponses';
 
 const navArr = [
     { name: 'Name', val: 'name' },
@@ -168,7 +168,7 @@ const StudentHomePage = () => {
 
             {/* assignments */}
             <div className=' mt-8 w-full'>
-                <RenderAssignments/>
+                <UploadResponses/>
             </div>
 
             {/* content */}

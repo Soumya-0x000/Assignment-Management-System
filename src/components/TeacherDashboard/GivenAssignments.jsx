@@ -651,6 +651,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 )}
             </> : <StudentPerformance searchMode={searchMode} 
                 populatingKey={populatingKey}
+                selectedView={selectedView}
             />}
 
             <Modal 
