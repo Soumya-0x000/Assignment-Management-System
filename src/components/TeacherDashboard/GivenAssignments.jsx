@@ -46,6 +46,16 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [isEditingDeadline, setIsEditingDeadline] = useState(new Array(populatingKey.length).fill(false));
     const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
     const [selectedView, setSelectedView] = useState(switchView[0]);
+    const [btnToRender, setBtnToRender] = useState([]);
+
+    useEffect(() => {
+        if (selectedView === 'Given assignments') {
+            setBtnToRender([...searchModeArr])
+        } else {
+            const filteredArr = searchModeArr.filter(item => !('Search by' in item))
+            setBtnToRender(filteredArr)
+        }
+    }, [selectedView]);
 
     let formatter = useDateFormatter({dateStyle: "full"});  
 
@@ -481,6 +491,65 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             <div className=' border-b-2 pb-2 mb-3'>
                 <div className='md:text-[1rem] lg:text-xl font-onest w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
                     {selectedView} ({populatingKey.length})
+                </div>
+                        
+                <div className={` flex justify-between ${selectedView === switchView[0] ? 'flex-col' : 'flex-col sm:flex-row'} gap-3 mt-2`}>
+                    <div className=' flex flex-col-reverse md:flex-row gap-3 justify-between'>
+                        {selectedView === switchView[0] && (
+                            <div className=' relative rounded-lg overflow-hidden max-w-[70rem] w-full'>
+                                {/* input */}
+                                <input 
+                                    type="text" 
+                                    placeholder="Search"
+                                    className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
+                                    onChange={(e) => setSearchKeyword(e.target.value)}
+                                    value={searchKeyword}
+                                    onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                                />
+
+                                <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
+                                onClick={(e) => handelCancelSearch(e)}>
+                                    <RxCross2 className=' text-gray-300 text-xl' />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* category */}
+                        <div className={`w-full lg:w-fit flex items-center justify-between lg:justify-end gap-3 md:gap-4 h-[3rem]`}>
+                            {btnToRender.map((items, index) => {
+                                const key = Object.keys(items)[0];
+                                return (
+                                    <Dropdown key={index}>
+                                        <DropdownTrigger>
+                                            <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full lg:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md `}
+                                            variant="bordered"
+                                            onClick={() => setSearchingEnabled(true)}>
+                                                {searchModeArr[index][key][searchMode[key]]  === undefined
+                                                    ? key
+                                                    : searchModeArr[index][key][searchMode[key]]
+                                                }
+                                            </Button>
+                                        </DropdownTrigger>
+
+                                        <DropdownMenu 
+                                        closeOnSelect={false}
+                                        aria-label="Static Actions"
+                                        disallowEmptySelection
+                                        className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
+                                        selectionMode="single"
+                                        selectedKeys={new Set([searchMode[key]])}
+                                        onSelectionChange={(e) => handleSelectionChange(e, index)}>
+                                            {items[key].map((innerItem, indx) => (
+                                                <DropdownItem key={indx}>
+                                                    {innerItem}
+                                                </DropdownItem>
+                                            ))}
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                );
+                            })}
+                        </div>
+                    </div>
 
                     <Tabs color={'warning'} 
                     selectedKey={selectedView}
@@ -492,63 +561,6 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             <Tab key={item} title={item} className=' font-robotoMono font-bold'/>
                         ))}
                     </Tabs>
-                </div>
-
-                <div className='mt-2 flex flex-col-reverse md:flex-row gap-3 justify-between'>
-                    {selectedView === switchView[0] && (
-                        <div className=' relative rounded-lg overflow-hidden max-w-[70rem] w-full'>
-                            {/* input */}
-                            <input 
-                                type="text" 
-                                placeholder="Search"
-                                className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
-                                onChange={(e) => setSearchKeyword(e.target.value)}
-                                value={searchKeyword}
-                                onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
-                            />
-
-                            <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
-                            onClick={(e) => handelCancelSearch(e)}>
-                                <RxCross2 className=' text-gray-300 text-xl' />
-                            </button>
-                        </div>
-                    )}
-
-                    {/* category */}
-                    <div className='w-full lg:w-fit flex items-center justify-between lg:justify-end gap-3 md:gap-4 h-[3rem]'>
-                        {searchModeArr.map((items, index) => {
-                            const key = Object.keys(items)[0];
-                            return (
-                                <Dropdown key={index}>
-                                    <DropdownTrigger>
-                                        <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full lg:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md`}
-                                        variant="bordered"
-                                        onClick={() => setSearchingEnabled(true)}>
-                                            {searchModeArr[index][key][searchMode[key]]  === undefined
-                                                ? key
-                                                : searchModeArr[index][key][searchMode[key]]
-                                            }
-                                        </Button>
-                                    </DropdownTrigger>
-
-                                    <DropdownMenu 
-                                    closeOnSelect={false}
-                                    aria-label="Static Actions"
-                                    disallowEmptySelection
-                                    className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
-                                    selectionMode="single"
-                                    selectedKeys={new Set([searchMode[key]])}
-                                    onSelectionChange={(e) => handleSelectionChange(e, index)}>
-                                        {items[key].map((innerItem, indx) => (
-                                            <DropdownItem key={indx}>
-                                                {innerItem}
-                                            </DropdownItem>
-                                        ))}
-                                    </DropdownMenu>
-                                </Dropdown>
-                            );
-                        })}
-                    </div>
                 </div>
             </div>
 
