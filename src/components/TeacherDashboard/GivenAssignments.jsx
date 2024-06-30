@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
@@ -47,28 +47,63 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
     const [editedDeadline, setEditedDeadline] = useState(now(getLocalTimeZone()));
     const [selectedView, setSelectedView] = useState(switchView[0]);
     const [btnToRender, setBtnToRender] = useState([]);
+    const [currentViewLength, setCurrentViewLength] = useState({});
+    const [isVertical, setIsVertical] = useState(window.innerWidth < 490);
+
+    useLayoutEffect(() => {
+        const handleResize = () => {
+            setIsVertical(window.innerWidth < 490);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        }
+    }, []);
 
     useEffect(() => {
         if (selectedView === 'Given assignments') {
             setBtnToRender([...searchModeArr])
+            setCurrentViewLength(prev => ({
+                ...prev,
+                ['Submitted responses']: 0
+            }))
         } else {
             const filteredArr = searchModeArr.filter(item => !('Search by' in item))
             setBtnToRender(filteredArr)
         }
     }, [selectedView]);
 
+    useEffect(() => {
+        const tempObj = switchView.reduce((acc, item) => {
+            acc[item] = 0
+            return acc
+        }, {})
+
+        setCurrentViewLength(tempObj)
+    }, []);
+
     let formatter = useDateFormatter({dateStyle: "full"});  
+    const setLength = (assignments) => {
+       setCurrentViewLength(prev => ({
+            ...prev,
+            ['Given assignments']: assignments?.length
+        })) 
+    }
 
     useEffect(() => {
         setPopulatingKey([...assignments])
+        setLength([...assignments])
         setIsEditingDeadline(new Array(assignments.length).fill(false))
     }, [assignments]);
-
+    
     useEffect(() => {
         if(searchMode.Department === '' 
             && searchMode.Semester === '' 
             && searchKeyword.length === 0
-        )setPopulatingKey([...assignments])
+        ){
+            setPopulatingKey([...assignments])
+            setLength([...assignments])
+        }
     }, [searchKeyword])
 
     const handleFileDelete = async(item) => {
@@ -270,6 +305,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             }
             
             setPopulatingKey(filteredAssignments)
+            setLength(filteredAssignments)
         }
     };
 
@@ -282,6 +318,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 const sortedDeptAssignments = assignments.filter(val => val[0].department === sortOnDept)
                 sortedAssignments.push(...sortedDeptAssignments)
                 setPopulatingKey(sortedDeptAssignments)
+                setLength(sortedDeptAssignments)
             }
 
             if (searchMode.Semester !== '') {
@@ -290,6 +327,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 sortedAssignments.pop()
                 sortedAssignments.push(...sortedSemAssignments)
                 setPopulatingKey(sortedSemAssignments)
+                setLength(sortedSemAssignments)
             }
 
             if (searchMode['Search by'] !== '') {
@@ -309,6 +347,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         setSearchKeyword('');
         setSearchingEnabled(false);
         setPopulatingKey([...assignments])
+        setLength([...assignments])
         setSearchMode(initialSearchMode)
     };
 
@@ -488,80 +527,80 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     return (
         <div className=' bg-gradient-to-tl from-green-500 to-indigo-600 text-white px-3 py-3 rounded-lg w-full h-fit'>
-            <div className=' border-b-2 pb-2 mb-3'>
-                <div className='md:text-[1rem] lg:text-xl font-onest w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
-                    {selectedView} ({populatingKey.length})
-                </div>
-                        
-                <div className={` flex justify-between ${selectedView === switchView[0] ? 'flex-col' : 'flex-col sm:flex-row'} gap-3 mt-2`}>
-                    <div className=' flex flex-col-reverse md:flex-row gap-3 justify-between'>
-                        {selectedView === switchView[0] && (
-                            <div className=' relative rounded-lg overflow-hidden max-w-[70rem] w-full'>
-                                {/* input */}
-                                <input 
-                                    type="text" 
-                                    placeholder="Search"
-                                    className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
-                                    onChange={(e) => setSearchKeyword(e.target.value)}
-                                    value={searchKeyword}
-                                    onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
-                                />
+            <div className={` flex justify-between ${selectedView === switchView[0] ? 'flex-col' : 'flex-col md:flex-row'} gap-3 border-b-2 pb-2`}>
+                <div className=' flex flex-col-reverse md:flex-row gap-3 justify-between'>
+                    {selectedView === switchView[0] && (
+                        <div className=' relative rounded-lg overflow-hidden max-w-[70rem] w-full'>
+                            {/* input */}
+                            <input 
+                                type="text" 
+                                placeholder="Search"
+                                className=' bg-[#2f3646] text-gray-300 font-onest tracking-wider pl-3 pr-9 md:pr-11 text-[14px] w-full outline-none border-none h-[3rem]'
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                value={searchKeyword}
+                                onKeyDown={(e) => { (e.key === 'Enter') && handelSearch(e) }}
+                            />
 
-                                <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
-                                onClick={(e) => handelCancelSearch(e)}>
-                                    <RxCross2 className=' text-gray-300 text-xl' />
-                                </button>
-                            </div>
-                        )}
-
-                        {/* category */}
-                        <div className={`w-full lg:w-fit flex items-center justify-between lg:justify-end gap-3 md:gap-4 h-[3rem]`}>
-                            {btnToRender.map((items, index) => {
-                                const key = Object.keys(items)[0];
-                                return (
-                                    <Dropdown key={index}>
-                                        <DropdownTrigger>
-                                            <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full lg:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md `}
-                                            variant="bordered"
-                                            onClick={() => setSearchingEnabled(true)}>
-                                                {searchModeArr[index][key][searchMode[key]]  === undefined
-                                                    ? key
-                                                    : searchModeArr[index][key][searchMode[key]]
-                                                }
-                                            </Button>
-                                        </DropdownTrigger>
-
-                                        <DropdownMenu 
-                                        closeOnSelect={false}
-                                        aria-label="Static Actions"
-                                        disallowEmptySelection
-                                        className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
-                                        selectionMode="single"
-                                        selectedKeys={new Set([searchMode[key]])}
-                                        onSelectionChange={(e) => handleSelectionChange(e, index)}>
-                                            {items[key].map((innerItem, indx) => (
-                                                <DropdownItem key={indx}>
-                                                    {innerItem}
-                                                </DropdownItem>
-                                            ))}
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                );
-                            })}
+                            <button className=' absolute right-0 top-1/2 -translate-y-1/2 bg-slate-900 h-full px-1'
+                            onClick={(e) => handelCancelSearch(e)}>
+                                <RxCross2 className=' text-gray-300 text-xl' />
+                            </button>
                         </div>
-                    </div>
+                    )}
 
-                    <Tabs color={'warning'} 
-                    selectedKey={selectedView}
-                    onSelectionChange={setSelectedView}
-                    variant='underlined' 
-                    className='pb-1 bg-slate-950 rounded-md w-full sm:w-fit flex items-center justify-center'
-                    aria-label="Tabs colors" radius="medium">
-                        {switchView.map(item => (
-                            <Tab key={item} title={item} className=' font-robotoMono font-bold'/>
-                        ))}
-                    </Tabs>
+                    {/* category */}
+                    <div className={`w-full lg:w-fit flex items-center justify-between lg:justify-end gap-3 md:gap-4 h-[3rem]`}>
+                        {btnToRender.map((items, index) => {
+                            const key = Object.keys(items)[0];
+                            return (
+                                <Dropdown key={index}>
+                                    <DropdownTrigger>
+                                        <Button className={`rounded-lg pl-1 xsm:pl-4 transition-colors outline-none border-none bg-slate-950 w-full lg:w-[7.5rem] h-full font-mavenPro tracking-wider text-green-500 flex items-center justify-between text-[15px] md:text-md `}
+                                        variant="bordered"
+                                        onClick={() => setSearchingEnabled(true)}>
+                                            {searchModeArr[index][key][searchMode[key]]  === undefined
+                                                ? key
+                                                : searchModeArr[index][key][searchMode[key]]
+                                            }
+                                        </Button>
+                                    </DropdownTrigger>
+
+                                    <DropdownMenu 
+                                    closeOnSelect={false}
+                                    aria-label="Static Actions"
+                                    disallowEmptySelection
+                                    className="w-full bg-slate-900 text-green-500 rounded-xl font-robotoMono"
+                                    selectionMode="single"
+                                    selectedKeys={new Set([searchMode[key]])}
+                                    onSelectionChange={(e) => handleSelectionChange(e, index)}>
+                                        {items[key].map((innerItem, indx) => (
+                                            <DropdownItem key={indx}>
+                                                {innerItem}
+                                            </DropdownItem>
+                                        ))}
+                                    </DropdownMenu>
+                                </Dropdown>
+                            );
+                        })}
+                    </div>
                 </div>
+
+                <Tabs color={'warning'} 
+                selectedKey={selectedView}
+                onSelectionChange={setSelectedView}
+                variant='light' 
+                className='bg-slate-950 rounded-lg w-fit flex items-center justify-center py-1 p-1'
+                isVertical={isVertical}
+                aria-label="Tabs colors" 
+                radius="medium">
+                    {switchView.map(item => (
+                        <Tab key={item} title={
+                            <span className={`font-robotoMono font-bold  ${item !== selectedView && 'text-slate-400'}`}>
+                                {item} ({currentViewLength?.[item]})
+                            </span>    
+                        }/>
+                    ))}
+                </Tabs>
             </div>
 
             {selectedView === switchView[0] ? <>
@@ -662,10 +701,14 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         No assignments from your side
                     </div>
                 )}
-            </> : <StudentPerformance searchMode={searchMode} 
-                populatingKey={populatingKey}
-                selectedView={selectedView}
-            />}
+            </> : (
+                <StudentPerformance 
+                    searchMode={searchMode} 
+                    populatingKey={populatingKey}
+                    selectedView={selectedView}
+                    setCurrentViewLength={setCurrentViewLength}
+                />
+            )}
 
             <Modal 
             backdrop={'blur'} 

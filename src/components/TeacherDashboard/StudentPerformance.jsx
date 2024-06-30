@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { RadioGroup } from '@nextui-org/react';
 import { CustomRadio } from '../../common/CustomRadioBtn'
 
-const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
+const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurrentViewLength }) => {
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const { teacherData } = useSelector(state => state.teacherAuth);
     const { gradeArr } = useSelector(state => state.teacherAuth);
@@ -30,7 +30,45 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
             assignmentSubjects: [],
             selectedSubject: ''
         })
+        setCurrentViewLength(prev => ({
+            ...prev,
+            ['Submitted responses']: 0
+        }))
     }, [selectedView]);
+
+    const extractStudentData = () => {
+        const studentTableName = `studentsSem${+searchMode?.Semester + 1}`;
+        const department = teacherAssignClassDetails?.dept[searchMode?.Department];
+        const semester = teacherAssignClassDetails?.sem[(searchMode?.Semester)]?.split(' ').join('');
+
+        return {studentTableName, department, semester}
+    }
+
+    const fetchStudentData = async() => {
+        const {studentTableName, department} = extractStudentData();
+
+        try {
+            const { data: studentData, error: studentError } = await supabase
+                .from(studentTableName)
+                .select('submittedAssignments')
+                .eq('department', department)
+                .neq('submittedAssignments', null)
+
+            if (studentError) throw studentError;
+
+            if (!studentData || studentData.length === 0) return;
+            setStudentResponse(studentData)
+        } catch (error) {
+            console.error(error)
+            toast.error('Error in getting students', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
+        }
+    };
 
     useEffect(() => {
         const checkCondition = searchMode?.Department 
@@ -39,9 +77,7 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
 
         if(!checkCondition) return
 
-        const studentTableName = `studentsSem${+searchMode?.Semester + 1}`;
-        const department = teacherAssignClassDetails.dept[searchMode?.Department];
-        const semester = teacherAssignClassDetails.sem[(searchMode?.Semester)].split(' ').join('');
+        const { studentTableName, department, semester } = extractStudentData();
         const teacherSubjects = teacherData[department].filter(item => item[semester]);
 
         (() => {
@@ -58,30 +94,7 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
             }))
         })();
 
-        if (checkCondition) {
-            (async() => {
-                try {
-                    const { data: studentData, error: studentError } = await supabase
-                        .from(studentTableName)
-                        .select('submittedAssignments')
-                        .eq('department', department)
-                        .neq('submittedAssignments', null)
-
-                    if (studentError) throw studentError;
-                    setStudentResponse(studentData)
-                    // console.log(studentData) 
-                } catch (error) {
-                    console.error(error)
-                    toast.error('Error in getting students', {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#333',
-                            color: '#fff',
-                        }
-                    })
-                }                
-            })();
-        }
+        checkCondition && fetchStudentData()
 
         const timeoutId = setTimeout(() => {
             if (!populatingKey?.length) {
@@ -141,11 +154,6 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
                     )
                 )
                 .map(item => {
-                    item.reduce((acc, val) => {
-                        return acc + val
-
-                    }, 0)
-                    console.log(item)
                     const itemLength = item?.length
 
                     const totalScore = item.reduce((accumulator, currentValue) => {
@@ -166,6 +174,11 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
                 .filter(Boolean)
 
             setAvgScore(tempArr)
+
+            setCurrentViewLength(prev => ({
+                ...prev,
+                ['Submitted responses']: tempArr.reduce((acc, val) => acc + val?.assignmentCount, 0)
+            }))
         }
     }, [subjects.selectedSubject])
 
@@ -193,6 +206,7 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView }) => {
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Name: {item?.name}</span>
                                 <span className='w-fi bg-green-950 rounded-lg px-3 py-1.5'>Roll no: {item?.rollNo}</span>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Avg score: {item?.avgScore}%</span>
+                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Response count: {item?.assignmentCount}</span>
                             </div>
                         ))}
                     </div>
