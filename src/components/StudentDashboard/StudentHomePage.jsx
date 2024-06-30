@@ -172,7 +172,7 @@ const StudentHomePage = () => {
             </div>
 
             {/* content */}
-            <div className=' mt-8 w-full lg:w-[50rem] xl:w-[70rem]'>
+            <div className=' mt-8 w-full lg:w-[50rem xl:w-[70rem]'>
                 <UpdateData
                     studentData={studentData}
                     setStudentData={setStudentData}

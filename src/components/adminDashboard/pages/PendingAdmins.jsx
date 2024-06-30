@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { supabase } from '../../../CreateClient';
+import { supabase, supabaseAuth } from '../../../CreateClient';
 import toast from 'react-hot-toast';
 import { nameLogo } from '../../../common/customHooks';
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -47,11 +47,42 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
 
     const deleteAdmin = async(value) => {
         try {
+            console.log(value)
+            const { data: { authUsers }, error: adminFetchError } = await supabaseAuth.auth.admin.listUsers()
+
+            if (adminFetchError) {
+                console.error('Error occurred during fetching', adminFetchError);
+                toast.error('Error occurred during fetching', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+                return
+            }
+
+            const userId = authUsers.find(user => user.email === value.emailId).id
+
+            const { error: adminDelError } = await supabaseAuth.auth.admin.deleteUser(userId)
+            
+            if (adminDelError) {
+                console.error('Error occurred during deleting', error);
+                toast.error('Error occurred during deletion', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }
+                })
+                return
+            }
+
             const selectedEntry = pendingAdmins[value.index];
 
             const {data: delData, error: delError} = await supabase
                 .from('pendingAdmin')
-                .delete()
+                // .delete()
                 .eq('emailId', selectedEntry['emailId'])
 
             if (delError) {

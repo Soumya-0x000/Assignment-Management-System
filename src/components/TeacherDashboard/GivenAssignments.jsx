@@ -594,7 +594,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                 selectedKey={selectedView}
                 onSelectionChange={setSelectedView}
                 variant='light' 
-                className='bg-slate-950 rounded-lg w-fit flex items-center justify-center py-1 p-1'
+                className='bg-slate-950 rounded-lg w-full xsm:w-fit flex items-center justify-center py-1 p-1'
                 isVertical={isVertical}
                 aria-label="Tabs colors" 
                 radius="medium">

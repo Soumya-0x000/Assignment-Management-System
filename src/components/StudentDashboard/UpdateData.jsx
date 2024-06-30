@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { BsPersonLinesFill } from 'react-icons/bs';
+import React, { useEffect, useState } from 'react'
 import { MailIcon } from '../landingPage/icons/MailIcon';
 import { BiCalendar, BiSolidLock, BiSolidLockOpen } from 'react-icons/bi';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';

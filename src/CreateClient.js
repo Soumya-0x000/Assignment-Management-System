@@ -5,4 +5,4 @@ const apiKey = import.meta.env.VITE_SUPABASE_KEY;
 const serviceRoleKey = import.meta.env.VITE_SERVICE_ROLE_KEY;
 
 export const supabase = createClient(supabaseURL, apiKey);
-export const createServiceRoleClient = createClient(supabaseURL, serviceRoleKey);
+export const supabaseAuth = createClient(supabaseURL, serviceRoleKey);
