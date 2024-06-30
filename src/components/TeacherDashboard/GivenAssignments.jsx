@@ -82,7 +82,8 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         setCurrentViewLength(tempObj)
     }, []);
 
-    let formatter = useDateFormatter({dateStyle: "full"});  
+    let formatter = useDateFormatter({dateStyle: "full"});
+
     const setLength = (assignments) => {
        setCurrentViewLength(prev => ({
             ...prev,
@@ -372,6 +373,13 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
 
     const handleDeadlineEdit = async(item) => {
         try {
+            const toastId = toast.loading('Editing deadline', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                }
+            })
             const columnName = `${item[0]?.department}assignments`;
 
             const { data: deadlineData, error: deadlineError } = await supabase
@@ -409,6 +417,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                         updatedDeadlineArr.submitDeadline[key] = editedDeadline[key];
                     }
                 })
+                populatingKey[foundEntryIndex] = [updatedDeadlineArr]
 
                 const { data: updateData, error: updateError } = await supabase
                     .from('teachers')
@@ -426,15 +435,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                             color: '#fff',
                         }
                     })
-                } else insertOnAssignmentTable(assignmentsArray[foundEntryIndex], columnName, item[0].sem);
-
-                toast.success('Deadline edited successfully', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#333',
-                        color: '#fff',
-                    }
-                })
+                } else insertOnAssignmentTable(assignmentsArray[foundEntryIndex], columnName, item[0].sem, updatedDeadlineArr, toastId);
             }
         } catch (error) {
             console.error('Error in editing deadline')
@@ -451,7 +452,7 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
         }
     };
 
-    const insertOnAssignmentTable = async (newAssignment, tableName, sem) => {
+    const insertOnAssignmentTable = async(newAssignment, tableName, sem, editedAssignment, toastId) => {
         const assignmentContent = newAssignment[0];
     
         // Fetch the existing record for the teacher
@@ -507,20 +508,24 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
             });
             return;
         }
-    
-        toast.success('Successfully uploaded', {
+
+        const newEntryIndex = populatingKey.findIndex(entry => entry[0]?.name === editedAssignment[0]?.name);
+        populatingKey[newEntryIndex] = editedAssignment
+
+        toast.success('Deadline edited successfully', {
             style: {
                 borderRadius: '10px',
                 background: '#333',
                 color: '#fff',
-            }
-        });
+            },
+            id: toastId
+        })
     };
     
     const handleIsDeadlineVisible = (indx, event) => {
         event.stopPropagation();
         
-        const updateDeadline = new Array(populatingKey.length).fill(false)
+        const updateDeadline = [...isEditingDeadline]
         updateDeadline[indx] = !updateDeadline[indx]
         setIsEditingDeadline(updateDeadline)
     }
@@ -622,22 +627,22 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                         </span>
 
                                         <Tooltip color='secondary'
-                                        content={assignment[0].orgName}
+                                        content={assignment[0]?.orgName}
                                         className=' capitalize max-w-full sm:max-w-[20rem] md:max-w-full overflow-hidden md:overflow-visible flex flex-wrap items-start justify-center whitespace-normal text-balance text-white'
                                         placement='top'>
                                             <div className='text-gray-300 font-bold font-robotoMono tracking-wider mb-2 line-clamp-1 w-fit  group-hover:translate-x-1 group-hover:-translate-y-[3px] transition-all'>
-                                                {assignment[0].orgName}
+                                                {assignment[0]?.orgName}
                                             </div>
                                         </Tooltip>
 
                                         <div className='text-gray-300 font-onest tracking-wider flex flex-wrap gap-1.5 xl:gap-2.5 group-hover:translate-x-1  group-hover:-translate-y-1 transition-all'>
-                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].sem}</span>
-                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0].department}</span>
-                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px] line-clamp-1'>{assignment[0].subject}</span>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0]?.sem}</span>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px]'>{assignment[0]?.department}</span>
+                                            <span className=' bg-slate-950 rounded-lg py-1 px-3 text-[14px] line-clamp-1'>{assignment[0]?.subject}</span>
                                         </div>
 
                                         <div className=' font-robotoMono text-sm bg-slate-950 w-fit px-3 py-1 rounded-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-all'>
-                                            {assignment[0].submitDeadline && formatter.format(parseDate(assignment[0].submitDeadline))}
+                                            {assignment[0]?.submitDeadline && formatter.format(parseDate(assignment[0]?.submitDeadline))}
                                         </div>
 
                                         <div className=' flex items-center justify-between mt-3'>
@@ -666,27 +671,24 @@ const GivenAssignments = ({ assignments, setAssignments, teacherId }) => {
                                         </div>
                                     </motion.div>
 
-                                    <div
-                                    className={`w-full flex overflow-hidden transition-all duration-00 ease-in-out ${isEditingDeadline[indx] ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className='flex gap-x-2 w-full'>
-                                            <DatePicker 
-                                                hideTimeZone
-                                                showMonthAndYearPickers
-                                                isRequired
-                                                granularity="day"
-                                                className="w-full" 
-                                                isInvalid
-                                                minValue={today(getLocalTimeZone())}
-                                                value={editedDeadline}
-                                                onChange={setEditedDeadline}
-                                                aria-label='update deadline'
-                                            />
+                                    <div className={`w-full flex overflow-hidden transition-all gap-x-2 ease-in-out ${isEditingDeadline[indx] ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                        <DatePicker 
+                                            hideTimeZone
+                                            showMonthAndYearPickers
+                                            isRequired
+                                            granularity="day"
+                                            className="w-full" 
+                                            isInvalid
+                                            minValue={today(getLocalTimeZone())}
+                                            value={editedDeadline}
+                                            onChange={setEditedDeadline}
+                                            aria-label='update deadline'
+                                        />
 
-                                            <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
-                                            onClick={() => handleDeadlineEdit(assignment)}>
-                                                Update
-                                            </Button>
-                                        </div>
+                                        <Button className='bg-blue-200 text-indigo-700 font-robotoMono font-bold tracking-wide'
+                                        onClick={() => handleDeadlineEdit(assignment)}>
+                                            Update
+                                        </Button>
                                     </div>
                                 </div>
                             ))}

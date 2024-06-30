@@ -201,11 +201,11 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
                 {!!avgScore.length && (
                     <div className=' grid grid-cols-1 postMd:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3'>
                         {avgScore.map((item, i) => (
-                            <div className=' flex flex-wrap postMd:grid postMd:grid-cols-2 gap-2 gap-x-2 rounded-lg p-2 bg-[#1e5341] text-[#9fffcfe8] text-[1rem] font-mono tracking-wider w-full h-fit'
+                            <div className=' flex flex-wrap postMd:grid postMd:grid-cols-2 gap-2 gap-x-2 rounded-lg p-2 bg-[#1e5341] text-[#9fffcfe8] text-[1rem] font-mono tracking-wider w-full h-full'
                             key={i}>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Name: {item?.name}</span>
-                                <span className='w-fi bg-green-950 rounded-lg px-3 py-1.5'>Roll no: {item?.rollNo}</span>
-                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Avg score: {item?.avgScore}%</span>
+                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Roll no: {item?.rollNo}</span>
+                                <span className=' bg-green-950 rounded-lg pl-3 py-1.5'>Avg score: {item?.avgScore}%</span>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Response count: {item?.assignmentCount}</span>
                             </div>
                         ))}
