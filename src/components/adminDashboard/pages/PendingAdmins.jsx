@@ -47,8 +47,12 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
 
     const deleteAdmin = async(value) => {
         try {
-            console.log(value)
-            const { data: { authUsers }, error: adminFetchError } = await supabaseAuth.auth.admin.listUsers()
+            const selectedEntry = pendingAdmins[value.index];
+
+            const { data: { users: authUsers } , error: adminFetchError } = await supabaseAuth
+                .auth
+                .admin
+                .listUsers()
 
             if (adminFetchError) {
                 console.error('Error occurred during fetching', adminFetchError);
@@ -62,9 +66,12 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                 return
             }
 
-            const userId = authUsers.find(user => user.email === value.emailId).id
+            const userId = authUsers?.find(user => user.email === selectedEntry['emailId'])?.id
 
-            const { error: adminDelError } = await supabaseAuth.auth.admin.deleteUser(userId)
+            const { error: adminDelError } = await supabaseAuth
+                .auth
+                .admin
+                .deleteUser(userId)
             
             if (adminDelError) {
                 console.error('Error occurred during deleting', error);
@@ -78,11 +85,9 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                 return
             }
 
-            const selectedEntry = pendingAdmins[value.index];
-
             const {data: delData, error: delError} = await supabase
                 .from('pendingAdmin')
-                // .delete()
+                .delete()
                 .eq('emailId', selectedEntry['emailId'])
 
             if (delError) {
