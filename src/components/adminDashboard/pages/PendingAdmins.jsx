@@ -48,6 +48,30 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
     const deleteAdmin = async(value) => {
         try {
             const selectedEntry = pendingAdmins[value.index];
+            const handleRestore = () => {
+                setTimeout(async() => {
+                    const {data: delData, error: delError} = await supabase
+                        .from('pendingAdmin')
+                        .upsert({
+                            title: selectedEntry['title'],
+                            name: selectedEntry['name'],
+                            emailId: selectedEntry['emailId'],
+                            password: selectedEntry['password'],
+                            createdAt: new Date().toISOString()
+                        }, { onConflict: ['emailId'] })
+                }, 400);
+            }
+
+            const {data: delData, error: delError} = await supabase
+                .from('pendingAdmin')
+                .delete()
+                .eq('emailId', selectedEntry['emailId'])
+
+            if (delError) {
+                console.error('Error occurred during deleting', delError.message);
+                handleRestore()
+                return
+            }
 
             const { data: { users: authUsers } , error: adminFetchError } = await supabaseAuth
                 .auth
@@ -63,6 +87,7 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                         color: '#fff',
                     }
                 })
+                handleRestore()
                 return
             }
 
@@ -82,30 +107,9 @@ const PendingAdmins = ({facultyCount, setFacultyCount}) => {
                         color: '#fff',
                     }
                 })
+                handleRestore();
                 return
             }
-
-            const {data: delData, error: delError} = await supabase
-                .from('pendingAdmin')
-                .delete()
-                .eq('emailId', selectedEntry['emailId'])
-
-            if (delError) {
-                console.error('Error occurred during deleting', delError.message);
-                setTimeout(async() => {
-                    const {data: approveData, error: approveError} = await supabase
-                        .from('pendingAdmin')
-                        .upsert({
-                            title: selectedEntry['title'],
-                            name: selectedEntry['name'],
-                            emailId: selectedEntry['emailId'],
-                            password: selectedEntry['password'],
-                            createdAt: new Date().toISOString()
-                        }, { onConflict: ['emailId'] })
-                }, 400);
-                return
-            }
-
             filteredAdmins(selectedEntry['emailId']);
         } catch (error) {
             console.error('Error occurred during deleting', error);
