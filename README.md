@@ -92,7 +92,7 @@ Ensure you have the following installed:
 1. Clone the Repository:
 
    ```
-   git clone https://github.com/Soumya-0x000/Assignment-Management-System.git
+   git clone https://github.com/Soumya-0x000/Assignment-Management-System
    ```
 2. Navigate to the project directory:
 
