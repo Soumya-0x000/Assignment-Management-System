@@ -140,7 +140,7 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
                 .flatMap(item => item.fullSubName === subjects.selectedSubject && item.name)
                 .filter(Boolean)
                 || []
-
+            
             const extractGrade = (grade) => gradeArr.find(val => val.value === grade)?.score.split('%')[0]
 
             const tempArr = studentResponse
@@ -156,19 +156,21 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
                 .map(item => {
                     const itemLength = item?.length
 
-                    const totalScore = item.reduce((accumulator, currentValue) => {
-                        var marks = 0 
-                        if(extractGrade(currentValue?.grade)) {
-                            marks = +extractGrade(currentValue?.grade)
-                        } 
-                        return (marks + accumulator)
-                    }, 0)
-                    
-                    return {
-                        name: item[0]?.name,
-                        rollNo: item[0]?.roll,
-                        avgScore: (totalScore/itemLength).toFixed(2),
-                        assignmentCount: itemLength
+                    if(itemLength) {
+                        const totalScore = item.reduce((accumulator, currentValue) => {
+                            var marks = 0 
+                            if(extractGrade(currentValue?.grade)) {
+                                marks = +extractGrade(currentValue?.grade)
+                            } 
+                            return (marks + accumulator)
+                        }, 0)
+                        
+                        return {
+                            name: item[0]?.name,
+                            rollNo: item[0]?.roll,
+                            avgScore: (totalScore/itemLength).toFixed(2),
+                            assignmentCount: `${itemLength}/${sortOnSubject.length}`
+                        }
                     }
                 })
                 .filter(Boolean)
@@ -177,7 +179,10 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
 
             setCurrentViewLength(prev => ({
                 ...prev,
-                ['Submitted responses']: tempArr.reduce((acc, val) => acc + val?.assignmentCount, 0)
+                ['Submitted responses']: tempArr.reduce((acc, val) => {
+                    const count = val?.assignmentCount.split('/')[0]
+                    return acc + +count
+                }, 0)
             }))
         }
     }, [subjects.selectedSubject])
@@ -205,7 +210,7 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
                             key={i}>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Name: {item?.name}</span>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Roll no: {item?.rollNo}</span>
-                                <span className=' bg-green-950 rounded-lg pl-3 py-1.5'>Avg score: {item?.avgScore}%</span>
+                                <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Avg score: {item?.avgScore}%</span>
                                 <span className=' bg-green-950 rounded-lg px-3 py-1.5'>Response count: {item?.assignmentCount}</span>
                             </div>
                         ))}
