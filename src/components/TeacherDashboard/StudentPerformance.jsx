@@ -11,10 +11,11 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
     const { gradeArr } = useSelector(state => state.teacherAuth);
 
     const [allSubjects, setAllSubjects] = useState([]);
-    const [subjects, setSubjects] = useState({
+    const initialSubState = {
         assignmentSubjects: [],
         selectedSubject: ''
-    })
+    }
+    const [subjects, setSubjects] = useState(initialSubState);
     const [studentResponse, setStudentResponse] = useState([]);
     const [avgScore, setAvgScore] = useState([]);
 
@@ -186,6 +187,10 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
             }))
         }
     }, [subjects.selectedSubject])
+
+    useEffect(() => {
+        setSubjects(initialSubState)
+    }, [searchMode.Department, searchMode.Semester])
 
     return (
         <div className=' w-full flex flex-col gap-y-3'>      
