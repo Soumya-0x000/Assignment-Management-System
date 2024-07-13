@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../../CreateClient";
 import toast from "react-hot-toast";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Textarea } from "@nextui-org/react";
@@ -13,9 +13,7 @@ const ClassManagement = ({
     setIsResetting,
     setSaveInstance,
     setMCAData,
-    setMScData,
-    MScData,
-    MCAData,
+    setMScData
 }) => {
     const [deptSelectedKeys, setDeptSelectedKeys] = useState(new Set());
     const [sem1SelectedKeys, setSem1SelectedKeys] = useState(new Set());
@@ -31,7 +29,7 @@ const ClassManagement = ({
     const { teacherAssignClassDetails } = useSelector(state => state.adminDashboard);
     const [subjectsData, setSubjectsData] = useState({});
 
-    useEffect(() => {
+    useMemo(() => {
         (async () => {
             try {
                 const { data: subjectData, error: subjectError } = await supabase
@@ -47,9 +45,7 @@ const ClassManagement = ({
                         }
                     });
                     console.error('Error in fetching subjects', subjectError);
-                } else {
-                    setSubjectsData(subjectData[0]);
-                }
+                } else setSubjectsData(subjectData[0]);
             } catch (error) {
                 console.error(error);
                 toast.error('Error in fetching subjects', {
@@ -74,7 +70,7 @@ const ClassManagement = ({
                 updatedSubjects.sem3 = deptSubjects['3rdSem']?.map(item => item.name) || [];
                 updatedSubjects.sem4 = deptSubjects['4thSem']?.map(item => item.name) || [];
             }
-            
+
             setIndividualSemSubjects(updatedSubjects);
         }
     }, [deptSelectedKeys, subjectsData]);

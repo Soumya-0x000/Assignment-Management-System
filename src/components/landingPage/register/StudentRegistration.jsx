@@ -4,10 +4,10 @@ import {
     Button, Input,
     Dropdown, DropdownTrigger, DropdownMenu, DropdownItem
 } from "@nextui-org/react";
-import { MailIcon } from "../icons/MailIcon";
+// import { MailIcon } from "../icons/MailIcon";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { BsPersonLinesFill } from "react-icons/bs";
-import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
+// import { BiSolidLock, BiSolidLockOpen  } from "react-icons/bi";
 import { supabase } from '../../../CreateClient';
 import { TbListNumbers } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
@@ -32,7 +32,7 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
     const [tableName, setTableName] = useState('studentsSem');
     const [isVisible, setIsVisible] = useState(false);
 
-    const toggleVisibility = () => setIsVisible(!isVisible);
+    // const toggleVisibility = () => setIsVisible(!isVisible);
     
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -83,8 +83,8 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
                     .from(tableName)
                     .insert([{
                         name: commonAttributes.name,
-                        emailId: commonAttributes.email,
-                        password: commonAttributes.password,
+                        // emailId: commonAttributes.email,
+                        // password: commonAttributes.password,
                         birthDate: studentRegisterData.dateOfBirth,
                         semester: studentRegisterData.semester,
                         usnId: studentRegisterData.usnId,
@@ -244,8 +244,8 @@ const StudentRegistration = ({userType, isOpen, onOpen, onClose}) => {
 
                     <Input
                         endContent={<GoNumber className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />}
-                        label="Roll no"
-                        type='number'
+                        label="Full roll no"
+                        type='text'
                         name="rollNo"
                         value={studentRegisterData.rollNo}
                         onChange={handleChange}

@@ -82,9 +82,11 @@ const StudentPerformance = ({ searchMode, populatingKey, selectedView, setCurren
         const teacherSubjects = teacherData[department].filter(item => item[semester]);
 
         (() => {
-            const subjects = Object.values(...teacherSubjects)[0]
-                .split(',')
-                .map(item => item.trim());
+            const subjects = !!teacherSubjects.length 
+                ? Object.values(...teacherSubjects)[0]
+                    ?.split(',')
+                    ?.map(item => item.trim())
+                : []
 
             const extractedOrgSubjects = allSubjects[0]?.[department][semester]
                 .filter(item => subjects.includes(item.name)) || []

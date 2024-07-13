@@ -57,16 +57,14 @@ export const EditOwnData = ({
                 ...commonAttributes,
                 [name]: value
             });
-        } else {
-            toast('Name cannot be changed', {
-                icon: '🥲',
-                style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }
-            })
-        }
+        } else toast('Name cannot be changed', {
+            icon: '🥲',
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            }
+        })
     };
 
     const handleDropDown = (name, val) => {
@@ -138,22 +136,35 @@ export const EditOwnData = ({
     const handleSubmitToast = (e) => {
         e.preventDefault();
 
-        const checkCondition = commonAttributes.name.trim().length > 4 &&
-        commonAttributes.email.trim().length > 6 &&
-        commonAttributes.email.includes('@') &&
-        commonAttributes.password.trim().length >= 6;
+        const checkCondition1 = commonAttributes.name.trim().length > 4 
+        && commonAttributes.email.trim().length > 6 
+        && commonAttributes.email.includes('@') 
+        && commonAttributes.password.trim().length >= 6
+
+        const checkCondition2 = (title.trim() !== commonAttributes.title.trim()) 
+        || (email.trim() !== commonAttributes.email.trim()) 
+        || (password.trim() !== commonAttributes.password.trim())
         
         if ((Object.keys(MCAData).length > 0 || Object.keys(MScData).length > 0)) {
-            if (checkCondition) {
-                toast.promise(handleSubmit(e), {
-                    loading: 'Updating process started...',
-                    success: 'Successfully updated!',
-                    error: 'Failed to update.'
-                }, {style: {
-                    borderRadius: '10px',
-                    background: '#333',
-                    color: '#fff',
-                }})
+            if (checkCondition1) {
+                if (checkCondition2) {
+                    toast.promise(handleSubmit(e), {
+                        loading: 'Updating process started...',
+                        success: 'Successfully updated!',
+                        error: 'Failed to update.'
+                    }, {style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    }})
+                } else toast('Atleast make one change', {
+                    icon: '⚠️',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                })
             } else toast('Fill up all required fields...', {
                 icon: '⚠️',
                 style: {
@@ -229,8 +240,6 @@ export const EditOwnData = ({
                     setMScData={setMScData}
                     handleReset={handleReset}
                     setSaveInstance={setSaveInstance}
-                    MCAData={MCAData}
-                    MScData={MScData}
                 />
             </div>
 
